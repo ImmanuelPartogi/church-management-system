@@ -13,8 +13,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 final dioProvider = Provider<Dio>((ref) {
-  final secureStorage = ref.watch(secureStorageProvider);
-  return DioClient.create(secureStorage: secureStorage);
+  return ref.watch(dioClientProvider);
 });
 
 /// Diisi (override) di `main.dart` dengan instance yang sudah di-`await`,

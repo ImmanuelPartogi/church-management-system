@@ -1,33 +1,54 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../config/env/app_env.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
+import '../constants/api_constants.dart';
+import '../storage/secure_storage_service.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 import 'interceptors/auth_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
 
-/// Satu-satunya factory [Dio] untuk seluruh aplikasi. Semua remote
-/// datasource wajib menggunakan instance ini (di-inject lewat
-/// [lib/core/di/injection.dart]) alih-alih membuat `Dio()` sendiri-sendiri,
-/// supaya base URL, timeout, dan interceptor tetap konsisten.
-class DioClient {
-  const DioClient._();
+final dioClientProvider = Provider<Dio>((ref) {
+  final secureStorage = ref.watch(secureStorageServiceProvider);
 
-  static Dio create({required FlutterSecureStorage secureStorage}) {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: AppEnv.apiBaseUrl,
-        connectTimeout: AppEnv.connectTimeout,
-        receiveTimeout: AppEnv.receiveTimeout,
-        contentType: 'application/json',
+  final connectTimeoutMs =
+      int.tryParse(dotenv.env['API_CONNECT_TIMEOUT'] ?? '') ?? 15000;
+  final receiveTimeoutMs =
+      int.tryParse(dotenv.env['API_RECEIVE_TIMEOUT'] ?? '') ?? 15000;
+  final enableLogging = dotenv.env['ENABLE_LOGGING'] == 'true';
+
+  final options = BaseOptions(
+    baseUrl: ApiConstants.baseUrl,
+    connectTimeout: Duration(milliseconds: connectTimeoutMs),
+    receiveTimeout: Duration(milliseconds: receiveTimeoutMs),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  final dio = Dio(options);
+
+  dio.interceptors.add(
+    AuthInterceptor(
+      secureStorage,
+      onUnauthorized: () {
+        ref.read(authNotifierProvider.notifier).forceLogout();
+      },
+    ),
+  );
+
+  if (enableLogging) {
+    dio.interceptors.add(
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        compact: true,
       ),
     );
-
-    dio.interceptors.add(AuthInterceptor(secureStorage));
-
-    final loggingInterceptor = LoggingInterceptor.build();
-    if (loggingInterceptor != null) {
-      dio.interceptors.add(loggingInterceptor);
-    }
-
-    return dio;
   }
-}
+
+  return dio;
+});

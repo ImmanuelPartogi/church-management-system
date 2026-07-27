@@ -23,7 +23,6 @@ class ErrorMapper {
         ValidationFailure(message, errors: errors),
       ServerException() => ServerFailure(exception.message),
       CacheException() => CacheFailure(exception.message),
-      _ => UnknownFailure(exception.message),
     };
   }
 }

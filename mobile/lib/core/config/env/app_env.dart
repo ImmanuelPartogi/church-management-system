@@ -10,8 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AppEnv {
   const AppEnv._();
 
-  static String get appEnvironment =>
-      dotenv.env['APP_ENV'] ?? 'development';
+  static String get appEnvironment => dotenv.env['APP_ENV'] ?? 'development';
 
   static String get apiBaseUrl =>
       dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000/api/v1';

@@ -1,35 +1,43 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../constants/storage_keys.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import '../../storage/secure_storage_service.dart';
 
-/// Menyisipkan Sanctum token Laravel ke setiap request, dan menandai
-/// response 401 supaya bisa ditangani (mis. redirect ke login) oleh
-/// layer di atasnya.
-///
-/// Logika refresh token / logout-on-401 akan diimplementasikan pada fase
-/// pengembangan modul Authentication.
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._secureStorage);
+  final SecureStorageService _secureStorage;
+  final void Function()? onUnauthorized;
 
-  final FlutterSecureStorage _secureStorage;
+  AuthInterceptor(this._secureStorage, {this.onUnauthorized});
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _secureStorage.read(key: StorageKeys.sanctumToken);
-    if (token != null && token.isNotEmpty) {
+    final token = await _secureStorage.getToken();
+    if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
     options.headers['Accept'] = 'application/json';
-    handler.next(options);
+    options.headers['Content-Type'] = 'application/json';
+    return handler.next(options);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // TODO(auth): pada fase Authentication, tangani 401 di sini
-    // (mis. clear token & trigger navigasi ke halaman login via router).
-    handler.next(err);
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (err.response?.statusCode == 401) {
+      // Clear secure storage data
+      await _secureStorage.clearAll();
+      // Sign out from Firebase Auth
+      try {
+        await fb.FirebaseAuth.instance.signOut();
+      } catch (_) {}
+
+      // Trigger callback to update UI or Riverpod Auth State
+      onUnauthorized?.call();
+    }
+    return handler.next(err);
   }
 }

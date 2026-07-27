@@ -64,7 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '318936986508',
     projectId: 'church-management-system-d3836',
     storageBucket: 'church-management-system-d3836.firebasestorage.app',
-    iosClientId: '318936986508-vun5e3s0ae6jrj8j3l2t5us3jdiei0l5.apps.googleusercontent.com',
+    iosClientId:
+        '318936986508-vun5e3s0ae6jrj8j3l2t5us3jdiei0l5.apps.googleusercontent.com',
     iosBundleId: 'com.example.churchManagementMobile',
   );
 
@@ -74,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '318936986508',
     projectId: 'church-management-system-d3836',
     storageBucket: 'church-management-system-d3836.firebasestorage.app',
-    iosClientId: '318936986508-vun5e3s0ae6jrj8j3l2t5us3jdiei0l5.apps.googleusercontent.com',
+    iosClientId:
+        '318936986508-vun5e3s0ae6jrj8j3l2t5us3jdiei0l5.apps.googleusercontent.com',
     iosBundleId: 'com.example.churchManagementMobile',
   );
 

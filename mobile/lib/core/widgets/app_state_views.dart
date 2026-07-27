@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_spacing.dart';
+import '../../app/theme/app_spacing.dart';
 
 /// Kumpulan widget state umum (loading / error / empty) supaya setiap
 /// screen yang menampilkan data dari API punya tampilan yang konsisten.
@@ -53,7 +53,8 @@ class AppErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.md),
-              OutlinedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
+              OutlinedButton(
+                  onPressed: onRetry, child: const Text('Coba Lagi')),
             ],
           ],
         ),

@@ -1,17 +1,20 @@
 import 'package:flutter/foundation.dart';
 
-/// Representasi error yang aman ditampilkan ke UI. Repository selalu
-/// mengembalikan `Either<Failure, T>` (lihat package:fpdart) alih-alih
-/// melempar exception ke presentation layer.
 @immutable
 sealed class Failure {
   const Failure(this.message);
 
   final String message;
+
+  @override
+  String toString() => message;
 }
 
 class ServerFailure extends Failure {
-  const ServerFailure(super.message);
+  final int? statusCode;
+  final dynamic errors;
+
+  const ServerFailure(super.message, {this.statusCode, this.errors});
 }
 
 class NetworkFailure extends Failure {
@@ -32,6 +35,10 @@ class ValidationFailure extends Failure {
 
 class CacheFailure extends Failure {
   const CacheFailure([super.message = 'Gagal membaca data lokal.']);
+}
+
+class AuthFailure extends Failure {
+  const AuthFailure(super.message);
 }
 
 class UnknownFailure extends Failure {
