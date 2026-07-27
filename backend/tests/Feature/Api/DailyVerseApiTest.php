@@ -26,6 +26,8 @@ class DailyVerseApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
+                'success' => true,
+                'message' => 'Daily verse retrieved successfully.',
                 'data' => [
                     'verse_reference' => 'Genesis 1:1',
                     'content' => 'In the beginning, God created the heavens and the earth.',
@@ -50,6 +52,8 @@ class DailyVerseApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
+                'success' => true,
+                'message' => 'Daily verse retrieved successfully.',
                 'data' => [
                     'verse_reference' => 'Psalm 23:1',
                     'date' => Carbon::today()->subDay()->toDateString(),

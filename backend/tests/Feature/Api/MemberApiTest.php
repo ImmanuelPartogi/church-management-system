@@ -56,6 +56,8 @@ class MemberApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'success',
+                'message',
                 'data' => [
                     '*' => [
                         'id',
@@ -143,6 +145,8 @@ class MemberApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
+                'success' => true,
+                'message' => 'Member retrieved successfully.',
                 'data' => [
                     'id' => $member->id,
                     'full_name' => 'John Doe',
@@ -160,6 +164,10 @@ class MemberApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->getJson('/api/v1/members/999');
-        $response->assertStatus(404);
+        $response->assertStatus(404)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Member not found.',
+            ]);
     }
 }

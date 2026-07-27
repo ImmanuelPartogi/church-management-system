@@ -47,6 +47,8 @@ class WorshipScheduleApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'success',
+                'message',
                 'data' => [
                     '*' => [
                         'id',
@@ -106,13 +108,17 @@ class WorshipScheduleApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'Sunday',
-                'Saturday',
+                'success',
+                'message',
+                'data' => [
+                    'Sunday',
+                    'Saturday',
+                ],
             ]);
 
-        $this->assertCount(1, $response->json('Sunday'));
-        $this->assertCount(1, $response->json('Saturday'));
-        $this->assertEquals('Sunday Service I', $response->json('Sunday.0.title'));
-        $this->assertEquals('Youth Fellowship', $response->json('Saturday.0.title'));
+        $this->assertCount(1, $response->json('data.Sunday'));
+        $this->assertCount(1, $response->json('data.Saturday'));
+        $this->assertEquals('Sunday Service I', $response->json('data.Sunday.0.title'));
+        $this->assertEquals('Youth Fellowship', $response->json('data.Saturday.0.title'));
     }
 }

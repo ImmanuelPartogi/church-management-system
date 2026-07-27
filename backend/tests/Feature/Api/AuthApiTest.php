@@ -57,12 +57,16 @@ class AuthApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'token',
-                'user' => [
-                    'id',
-                    'name',
-                    'email',
-                    'roles',
+                'success',
+                'message',
+                'data' => [
+                    'token',
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'roles',
+                    ],
                 ],
             ]);
 
@@ -97,6 +101,7 @@ class AuthApiTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJson([
+                'success' => false,
                 'message' => 'Unauthorized: Invalid Firebase token.',
             ]);
     }
@@ -118,10 +123,14 @@ class AuthApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id' => $user->id,
-                'name' => 'Authenticated User',
-                'email' => 'auth.me@example.com',
-                'roles' => ['member'],
+                'success' => true,
+                'message' => 'Profile retrieved successfully.',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => 'Authenticated User',
+                    'email' => 'auth.me@example.com',
+                    'roles' => ['member'],
+                ],
             ]);
     }
 
@@ -147,6 +156,7 @@ class AuthApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
+                'success' => true,
                 'message' => 'Logged out successfully.',
             ]);
     }

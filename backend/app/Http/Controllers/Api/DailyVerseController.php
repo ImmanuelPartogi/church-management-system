@@ -12,7 +12,7 @@ class DailyVerseController extends Controller
     /**
      * Display the daily verse for today, or fallback to the latest one.
      */
-    public function show(): JsonResponse|DailyVerseResource
+    public function show(): JsonResponse
     {
         $today = now()->toDateString();
         $verse = DailyVerse::where('date', $today)->first();
@@ -23,11 +23,9 @@ class DailyVerseController extends Controller
         }
 
         if (! $verse) {
-            return response()->json([
-                'message' => 'Daily verse not found.',
-            ], 404);
+            return $this->jsonError('Daily verse not found.', null, 404);
         }
 
-        return new DailyVerseResource($verse);
+        return $this->jsonSuccess(new DailyVerseResource($verse), 'Daily verse retrieved successfully.');
     }
 }

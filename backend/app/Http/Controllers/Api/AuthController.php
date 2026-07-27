@@ -41,9 +41,7 @@ class AuthController extends Controller
             $name = $verifiedIdToken->claims()->get('name') ?? Str::before($email, '@');
 
             if (! $firebaseUid) {
-                return response()->json([
-                    'message' => 'Unauthorized: Invalid token claims.',
-                ], 401);
+                return $this->jsonError('Unauthorized: Invalid token claims.', null, 401);
             }
 
             // Find or create the user in Laravel DB
@@ -75,7 +73,7 @@ class AuthController extends Controller
             // Create new Sanctum token
             $token = $user->createToken('auth-token')->plainTextToken;
 
-            return response()->json([
+            return $this->jsonSuccess([
                 'token' => $token,
                 'user' => [
                     'id' => $user->id,
@@ -83,12 +81,9 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'roles' => $user->getRoleNames(),
                 ],
-            ]);
+            ], 'Authentication successful.');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Unauthorized: Invalid Firebase token.',
-                'error' => $e->getMessage(),
-            ], 401);
+            return $this->jsonError('Unauthorized: Invalid Firebase token.', $e->getMessage(), 401);
         }
     }
 
@@ -99,12 +94,12 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        return response()->json([
+        return $this->jsonSuccess([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'roles' => $user->getRoleNames(),
-        ]);
+        ], 'Profile retrieved successfully.');
     }
 
     /**
@@ -114,8 +109,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'message' => 'Logged out successfully.',
-        ]);
+        return $this->jsonSuccess(null, 'Logged out successfully.');
     }
 }

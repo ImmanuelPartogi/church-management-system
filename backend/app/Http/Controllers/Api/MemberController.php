@@ -7,14 +7,13 @@ use App\Http\Resources\ChurchMemberResource;
 use App\Models\ChurchMember;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MemberController extends Controller
 {
     /**
      * Display a listing of the members.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse
     {
         $query = ChurchMember::query();
 
@@ -31,22 +30,20 @@ class MemberController extends Controller
 
         $members = $query->paginate(15);
 
-        return ChurchMemberResource::collection($members);
+        return $this->jsonPaginated(ChurchMemberResource::collection($members), 'Members retrieved successfully.');
     }
 
     /**
      * Display the specified member.
      */
-    public function show(string $id): JsonResponse|ChurchMemberResource
+    public function show(string $id): JsonResponse
     {
         $member = ChurchMember::find($id);
 
         if (! $member) {
-            return response()->json([
-                'message' => 'Member not found.',
-            ], 404);
+            return $this->jsonError('Member not found.', null, 404);
         }
 
-        return new ChurchMemberResource($member);
+        return $this->jsonSuccess(new ChurchMemberResource($member), 'Member retrieved successfully.');
     }
 }

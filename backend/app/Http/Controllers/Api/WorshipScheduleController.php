@@ -6,20 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\WorshipScheduleResource;
 use App\Models\WorshipSchedule;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class WorshipScheduleController extends Controller
 {
-    /**
-     * Display a listing of active worship schedules.
-     */
-    public function index(): AnonymousResourceCollection
+    public function index(): JsonResponse
     {
         $schedules = WorshipSchedule::where('active', true)
             ->with(['officers.member'])
             ->get();
 
-        return WorshipScheduleResource::collection($schedules);
+        return $this->jsonSuccess(WorshipScheduleResource::collection($schedules), 'Worship schedules retrieved successfully.');
     }
 
     /**
@@ -36,6 +32,6 @@ class WorshipScheduleController extends Controller
             $grouped[$day] = WorshipScheduleResource::collection($items);
         }
 
-        return response()->json($grouped);
+        return $this->jsonSuccess($grouped, 'Worship schedules grouped by calendar day retrieved successfully.');
     }
 }
