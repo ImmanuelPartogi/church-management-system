@@ -1,36 +1,31 @@
-# Flutter/Dart
+# Flutter generated
 .dart_tool/
-.packages
 build/
+
 .flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/pubspec.lock
-
-# Codegen
-**/*.g.dart
-**/*.freezed.dart
-
-# Environment
-.env
+.packages
 
 # IDE
 .idea/
-.vscode/
 *.iml
 
-# Platform build artifacts
-android/app/debug
-android/app/profile
-android/app/release
-ios/Flutter/flutter_export_environment.sh
-ios/Pods/
-ios/.symlinks/
+# Generated files
+.metadata
 
-# Firebase config (jangan commit kredensial asli)
+# Local environment
+.env
+
+# Android generated
+android/.gradle/
+android/local.properties
+
+# Firebase native config
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 
-# macOS
-.DS_Store
+# Flutter ephemeral
+linux/flutter/ephemeral/
+windows/flutter/ephemeral/
+macos/Flutter/ephemeral/
+ios/Flutter/ephemeral/

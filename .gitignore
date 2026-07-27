@@ -1,0 +1,43 @@
+# ======================
+# AI Local Configuration
+# ======================
+.agents/
+
+
+# ======================
+# Environment
+# ======================
+.env
+.env.*
+!.env.example
+
+
+# ======================
+# Backend PHP Laravel
+# ======================
+backend/vendor/
+backend/storage/*.key
+backend/storage/logs/
+backend/bootstrap/cache/
+
+
+# ======================
+# Flutter
+# ======================
+mobile/.dart_tool/
+mobile/build/
+mobile/.metadata
+
+
+# ======================
+# IDE
+# ======================
+.vscode/
+.idea/
+
+
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db

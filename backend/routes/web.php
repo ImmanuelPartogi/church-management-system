@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Kreait\Firebase\Contract\Auth;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/firebase-test', function (Auth $auth) {
+    return response()->json([
+        'message' => 'Firebase connected successfully',
+    ]);
 });
