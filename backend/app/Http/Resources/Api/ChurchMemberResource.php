@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Api;
 
 use App\Models\ChurchMember;
 use Illuminate\Http\Request;
@@ -29,7 +29,7 @@ class ChurchMemberResource extends JsonResource
             'address' => $this->address,
             'baptism_date' => $this->baptism_date,
             'status' => $this->status,
-            'has_app_account' => ! is_null($this->user_id),
+            'has_app_account' => $this->user_id !== null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

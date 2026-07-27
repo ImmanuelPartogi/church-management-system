@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ChurchMemberResource;
+use App\Http\Resources\Api\ChurchMemberResource;
 use App\Models\ChurchMember;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

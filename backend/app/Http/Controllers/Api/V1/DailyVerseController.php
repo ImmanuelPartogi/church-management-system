@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\DailyVerseResource;
+use App\Http\Resources\Api\DailyVerseResource;
 use App\Models\DailyVerse;
 use Illuminate\Http\JsonResponse;
 
