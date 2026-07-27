@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +16,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Run Roles and Permissions Seeder
+        $this->call(RolesAndPermissionsSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // 2. Create Default Admin User
+        $adminUser = User::create([
+            'name' => 'System Admin',
+            'email' => 'admin@church.org',
+            'firebase_uid' => 'mock-admin-uid',
+            'password' => Hash::make('password123'),
+        ]);
+        $adminUser->assignRole('admin');
+
+        // 3. Run rest of the seeders
+        $this->call([
+            ChurchMemberSeeder::class,
+            WorshipScheduleSeeder::class,
+            AnnouncementSeeder::class,
+            DailyVerseSeeder::class,
         ]);
     }
 }
