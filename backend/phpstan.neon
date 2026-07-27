@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    level: 5
+
+    ignoreErrors:
+        # Tambahkan pengecualian di sini seiring kebutuhan, jangan
+        # menaikkan level toleransi secara global tanpa diskusi tim.
+
+    excludePaths:
+        - app/**/*.blade.php
