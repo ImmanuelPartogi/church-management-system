@@ -52,8 +52,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
+      - name: Validate Composer
+        run: composer validate --strict
+
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
       - name: Prepare environment
         run: |
