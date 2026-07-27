@@ -1,84 +1,58 @@
-# Church Management System — Backend
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Laravel 12: REST API (dikonsumsi aplikasi `mobile/`) + Web Admin (Filament),
-dalam satu aplikasi yang sama. Business logic dipusatkan di Service layer
-supaya API dan Filament tidak duplikasi logic.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-> Status: **Fase Setup Awal** — struktur folder & konfigurasi dasar sudah
-> siap, implementasi modul (Authentication, Jadwal, Warta, Formulir,
-> Donasi, Keuangan, dll) menyusul di fase pengembangan berikutnya.
+## About Laravel
 
-## Arsitektur
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-```
-app/
-├── Http/
-│   ├── Controllers/Api/V1/   # controller REST API, tipis — panggil Service
-│   ├── Requests/Api/V1/      # Form Request (validasi)
-│   ├── Resources/Api/V1/     # API Resource (response shape)
-│   └── Middleware/
-├── Services/                 # business logic — dipakai oleh Controller & Filament
-├── Repositories/
-│   └── Contracts/              # interface repository
-├── DTO/                       # data transfer object antar layer
-├── Enums/                      # status formulir/donasi, kategori, dll
-├── Policies/                    # otorisasi per role
-├── Models/                       # Eloquent model
-├── Filament/
-│   ├── Resources/                # CRUD Web Admin per modul
-│   ├── Pages/
-│   ├── Widgets/                   # widget dashboard (grafik keuangan, dll)
-│   └── Clusters/
-├── Jobs/ Events/ Listeners/ Notifications/
-└── Exceptions/
-```
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-### Prinsip
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-- Flutter **hanya** lewat REST API (`routes/api.php`, prefix `/api/v1`).
-- Filament **tidak** memanggil REST API — akses langsung ke Service layer.
-- Business logic **hanya** di Service layer; Controller dan Filament Resource
-  sama-sama memanggil Service yang sama.
-- Role & permission: `spatie/laravel-permission` (Superadmin, Pdt Resort,
-  Sekretaris, Bendahara, Pimpinan Majelis).
+## Learning Laravel
 
-## Setup Lokal
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-1. Install PHP ≥ 8.3, Composer, MySQL.
-2. Install dependency:
-   ```bash
-   composer install
-   ```
-3. Setup environment:
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-4. Sesuaikan kredensial database di `.env`, lalu migrate:
-   ```bash
-   php artisan migrate
-   ```
-5. Jalankan server:
-   ```bash
-   php artisan serve
-   ```
-6. Web Admin bisa diakses di `http://localhost:8000/admin` (setelah user
-   admin pertama dibuat — perintah seeder menyusul di fase Auth & Role
-   Management).
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### Firebase
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-Simpan service account JSON di `storage/app/firebase/service-account.json`
-(path bisa disesuaikan lewat `FIREBASE_CREDENTIALS` di `.env`). File ini
-**tidak** boleh di-commit — sudah masuk `.gitignore`.
+## Agentic Development
 
-## Coding Standard
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
 ```bash
-composer lint          # Laravel Pint (code style)
-composer analyse        # Larastan / PHPStan (static analysis)
-composer test            # PHPUnit
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
-Jalankan ketiganya sebelum push — CI (`.github/workflows/backend-ci.yml`)
-menjalankan hal yang sama di setiap PR.
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+
+## Contributing
+
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
