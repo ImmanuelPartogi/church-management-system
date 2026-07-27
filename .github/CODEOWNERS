@@ -1,0 +1,6 @@
+# Sesuaikan username dengan tim yang sebenarnya sebelum dipakai.
+# Format: <path> <@owner>
+
+/backend/  @backend-lead
+/mobile/   @mobile-lead
+/docs/     @backend-lead @mobile-lead
