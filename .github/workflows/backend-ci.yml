@@ -42,6 +42,15 @@ jobs:
           php-version: '8.4'
           extensions: mbstring, pdo_mysql, bcmath, intl
           coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
