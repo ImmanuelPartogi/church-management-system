@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             WorshipScheduleSeeder::class,
             AnnouncementSeeder::class,
             DailyVerseSeeder::class,
+            ServiceFormTypeSeeder::class,
         ]);
     }
 }
