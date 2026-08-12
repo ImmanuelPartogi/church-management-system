@@ -27,6 +27,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage form types',
             'manage form applications',
             'manage prayer requests',
+            'manage bank accounts',
+            'manage chart of accounts',
+            'manage donations',
+            'manage financial transactions',
             'view members',
             'view schedules',
             'view announcements',
@@ -36,6 +40,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view form applications',
             'view prayer requests',
             'view private prayer requests',
+            'view bank accounts',
+            'view chart of accounts',
+            'view donations',
+            'view financial transactions',
         ];
 
         foreach ($permissions as $permission) {
@@ -47,6 +55,19 @@ class RolesAndPermissionsSeeder extends Seeder
         // Admin: has all permissions
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->givePermissionTo(Permission::all());
+
+        // Bendahara (Treasurer): has full finance permissions
+        $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara']);
+        $bendaharaRole->givePermissionTo([
+            'manage bank accounts',
+            'manage chart of accounts',
+            'manage donations',
+            'manage financial transactions',
+            'view bank accounts',
+            'view chart of accounts',
+            'view donations',
+            'view financial transactions',
+        ]);
 
         // Pastor: has all permissions except managing roles or high-level admin settings
         $pastorRole = Role::firstOrCreate(['name' => 'pastor']);
@@ -67,6 +88,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view form applications',
             'view prayer requests',
             'view private prayer requests',
+            'view bank accounts',
+            'view chart of accounts',
+            'view donations',
+            'view financial transactions',
         ]);
 
         // Staff: can manage schedules, announcements, daily verses, wartas, and view forms
@@ -84,6 +109,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view form types',
             'view form applications',
             'view prayer requests',
+            'view bank accounts',
+            'view chart of accounts',
+            'view donations',
+            'view financial transactions',
         ]);
 
         // Member: can view public schedules, announcements, daily verses, wartas
