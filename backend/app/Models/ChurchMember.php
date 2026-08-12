@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'user_id',
@@ -44,5 +46,26 @@ class ChurchMember extends Model
     public function officerRoles(): HasMany
     {
         return $this->hasMany(WorshipOfficer::class, 'member_id');
+    }
+
+    /**
+     * Get the fellowships this member belongs to.
+     *
+     * @return BelongsToMany<Fellowship, $this>
+     */
+    public function fellowships(): BelongsToMany
+    {
+        return $this->belongsToMany(Fellowship::class, 'fellowship_member', 'member_id', 'fellowship_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the servant profile for this member if assigned.
+     *
+     * @return HasOne<ChurchServant, $this>
+     */
+    public function servantProfile(): HasOne
+    {
+        return $this->hasOne(ChurchServant::class, 'member_id');
     }
 }

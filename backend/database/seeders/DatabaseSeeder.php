@@ -37,6 +37,10 @@ class DatabaseSeeder extends Seeder
             ServiceFormTypeSeeder::class,
             ChartOfAccountSeeder::class,
             ChurchBankAccountSeeder::class,
+            ResortSeeder::class,
+            SectorSeeder::class,
+            FellowshipSeeder::class,
+            SongbookSeeder::class,
         ]);
     }
 }

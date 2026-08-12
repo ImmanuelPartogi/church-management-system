@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\FellowshipFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+#[Fillable([
+    'name',
+    'code',
+    'description',
+    'active',
+])]
+class Fellowship extends Model
+{
+    /** @use HasFactory<FellowshipFactory> */
+    use HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'active' => 'boolean',
+        ];
+    }
+
+    /**
+     * Get the church members belonging to this fellowship.
+     *
+     * @return BelongsToMany<ChurchMember, $this>
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(ChurchMember::class, 'fellowship_member', 'fellowship_id', 'member_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the servants assigned to this fellowship.
+     *
+     * @return HasMany<ChurchServant, $this>
+     */
+    public function servants(): HasMany
+    {
+        return $this->hasMany(ChurchServant::class);
+    }
+
+    /**
+     * Scope a query to only include active fellowships.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('active', true);
+    }
+}
