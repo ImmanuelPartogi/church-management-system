@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             AnnouncementSeeder::class,
             DailyVerseSeeder::class,
             ServiceFormTypeSeeder::class,
+            ChartOfAccountSeeder::class,
+            ChurchBankAccountSeeder::class,
         ]);
     }
 }
