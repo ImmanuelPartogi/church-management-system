@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ChurchBankAccountController;
 use App\Http\Controllers\Api\V1\DailyVerseController;
+use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
 use App\Http\Controllers\Api\V1\ServiceFormTypeController;
@@ -36,6 +38,9 @@ Route::get('/wartas/{id}/download', [WartaController::class, 'download']);
 Route::get('/service-form-types', [ServiceFormTypeController::class, 'index']);
 Route::get('/service-form-types/{id}', [ServiceFormTypeController::class, 'show']);
 
+// Phase 3.2 Public Extended Endpoints
+Route::get('/church-bank-accounts', [ChurchBankAccountController::class, 'index']);
+
 // Auth token exchange with rate limit
 Route::post('/auth/firebase', [AuthController::class, 'firebase'])
     ->middleware('throttle:firebase-auth');
@@ -52,4 +57,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/service-form-applications', [ServiceFormApplicationController::class, 'index']);
     Route::get('/service-form-applications/{id}', [ServiceFormApplicationController::class, 'show']);
     Route::post('/service-form-applications', [ServiceFormApplicationController::class, 'store']);
+
+    // Phase 3.2 Protected Extended Endpoints
+    Route::post('/donations/confirm', [DonationConfirmationController::class, 'confirm']);
+    Route::get('/donations/my-donations', [DonationConfirmationController::class, 'myDonations']);
+    Route::get('/donations/{id}', [DonationConfirmationController::class, 'show']);
 });
