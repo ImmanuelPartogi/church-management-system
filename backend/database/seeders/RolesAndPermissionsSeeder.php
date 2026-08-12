@@ -31,6 +31,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage chart of accounts',
             'manage donations',
             'manage financial transactions',
+            'manage resorts',
+            'manage sectors',
+            'manage fellowships',
+            'manage church servants',
+            'manage sermons',
+            'manage songbooks',
+            'manage songs',
             'view members',
             'view schedules',
             'view announcements',
@@ -44,6 +51,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'view chart of accounts',
             'view donations',
             'view financial transactions',
+            'view resorts',
+            'view sectors',
+            'view fellowships',
+            'view church servants',
+            'view sermons',
+            'view songbooks',
+            'view songs',
         ];
 
         foreach ($permissions as $permission) {
@@ -56,7 +70,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->givePermissionTo(Permission::all());
 
-        // Bendahara (Treasurer): has full finance permissions
+        // Bendahara (Treasurer): has full finance permissions and view access
         $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara']);
         $bendaharaRole->givePermissionTo([
             'manage bank accounts',
@@ -67,9 +81,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'view chart of accounts',
             'view donations',
             'view financial transactions',
+            'view resorts',
+            'view sectors',
+            'view fellowships',
+            'view church servants',
+            'view sermons',
+            'view songbooks',
+            'view songs',
         ]);
 
-        // Pastor: has all permissions except managing roles or high-level admin settings
+        // Pastor: has domain management permissions
         $pastorRole = Role::firstOrCreate(['name' => 'pastor']);
         $pastorRole->givePermissionTo([
             'manage members',
@@ -79,6 +100,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage wartas',
             'manage form applications',
             'manage prayer requests',
+            'manage resorts',
+            'manage sectors',
+            'manage fellowships',
+            'manage church servants',
+            'manage sermons',
+            'manage songbooks',
+            'manage songs',
             'view members',
             'view schedules',
             'view announcements',
@@ -92,15 +120,25 @@ class RolesAndPermissionsSeeder extends Seeder
             'view chart of accounts',
             'view donations',
             'view financial transactions',
+            'view resorts',
+            'view sectors',
+            'view fellowships',
+            'view church servants',
+            'view sermons',
+            'view songbooks',
+            'view songs',
         ]);
 
-        // Staff: can manage schedules, announcements, daily verses, wartas, and view forms
+        // Staff: can manage schedules, announcements, daily verses, wartas, sermons, songbooks, songs and view community
         $staffRole = Role::firstOrCreate(['name' => 'staff']);
         $staffRole->givePermissionTo([
             'manage schedules',
             'manage announcements',
             'manage daily verses',
             'manage wartas',
+            'manage sermons',
+            'manage songbooks',
+            'manage songs',
             'view members',
             'view schedules',
             'view announcements',
@@ -113,15 +151,25 @@ class RolesAndPermissionsSeeder extends Seeder
             'view chart of accounts',
             'view donations',
             'view financial transactions',
+            'view resorts',
+            'view sectors',
+            'view fellowships',
+            'view church servants',
+            'view sermons',
+            'view songbooks',
+            'view songs',
         ]);
 
-        // Member: can view public schedules, announcements, daily verses, wartas
+        // Member: can view public schedules, announcements, daily verses, wartas, sermons, songbooks, songs
         $memberRole = Role::firstOrCreate(['name' => 'member']);
         $memberRole->givePermissionTo([
             'view schedules',
             'view announcements',
             'view daily verses',
             'view wartas',
+            'view sermons',
+            'view songbooks',
+            'view songs',
         ]);
     }
 }

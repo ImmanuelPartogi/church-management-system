@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $published_at
+ * @property bool $is_published
+ * @property int $download_count
+ * @property int|null $file_size
+ */
 #[Fillable([
     'title',
     'description',

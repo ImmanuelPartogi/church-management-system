@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property ChurchServantRole $role
+ * @property bool $active
+ */
 #[Fillable([
     'member_id',
     'name',
