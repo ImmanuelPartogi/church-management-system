@@ -9,4 +9,10 @@ class ApiConstants {
   static const String authFirebaseEndpoint = '/auth/firebase';
   static const String authMeEndpoint = '/auth/me';
   static const String authLogoutEndpoint = '/auth/logout';
+
+  static const String dailyVerseEndpoint = '/daily-verse';
+  static const String announcementsEndpoint = '/announcements';
+  static const String worshipSchedulesEndpoint = '/worship-schedules';
+  static const String worshipSchedulesCalendarEndpoint =
+      '/worship-schedules/calendar';
 }

@@ -3,6 +3,9 @@ class RoutePaths {
 
   static const String login = '/login';
   static const String home = '/home';
+  static const String announcements = '/announcements';
+  static const String schedules = '/schedules';
+  static const String schedulesCalendar = '/schedules/calendar';
 }
 
 class RouteNames {
@@ -10,4 +13,7 @@ class RouteNames {
 
   static const String login = 'login';
   static const String home = 'home';
+  static const String announcements = 'announcements';
+  static const String schedules = 'schedules';
+  static const String schedulesCalendar = 'schedulesCalendar';
 }
