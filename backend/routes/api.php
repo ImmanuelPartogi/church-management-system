@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ChurchBankAccountController;
 use App\Http\Controllers\Api\V1\DailyVerseController;
 use App\Http\Controllers\Api\V1\DonationConfirmationController;
+use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
 use App\Http\Controllers\Api\V1\ServiceFormTypeController;
@@ -41,6 +42,9 @@ Route::get('/service-form-types/{id}', [ServiceFormTypeController::class, 'show'
 // Phase 3.2 Public Extended Endpoints
 Route::get('/church-bank-accounts', [ChurchBankAccountController::class, 'index']);
 
+// Phase 3.3 Public Extended Endpoints
+Route::get('/finances/transparency', [FinancialTransparencyController::class, 'index']);
+
 // Auth token exchange with rate limit
 Route::post('/auth/firebase', [AuthController::class, 'firebase'])
     ->middleware('throttle:firebase-auth');
@@ -49,6 +53,9 @@ Route::post('/auth/firebase', [AuthController::class, 'firebase'])
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Phase 3.3 Member Directory Search (placed before /members/{id} to prevent route collision)
+    Route::get('/members/search', [MemberController::class, 'search']);
 
     Route::get('/members', [MemberController::class, 'index']);
     Route::get('/members/{id}', [MemberController::class, 'show']);
