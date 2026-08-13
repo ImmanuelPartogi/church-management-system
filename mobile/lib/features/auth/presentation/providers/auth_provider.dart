@@ -1,9 +1,8 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../domain/entities/user.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/entities/user.dart';
 
 part 'auth_provider.freezed.dart';
 part 'auth_provider.g.dart';
@@ -36,10 +35,21 @@ class AuthNotifier extends _$AuthNotifier {
     );
   }
 
-  Future<void> loginWithFirebaseToken(String firebaseIdToken) async {
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
     state = const AuthState.loading();
     final repository = ref.read(authRepositoryProvider);
-    final result = await repository.loginWithFirebaseToken(firebaseIdToken);
+    final result = await repository.signInWithEmailAndPassword(email, password);
+
+    result.fold(
+      (failure) => state = AuthState.error(failure.message),
+      (user) => state = AuthState.authenticated(user),
+    );
+  }
+
+  Future<void> signInWithGoogle() async {
+    state = const AuthState.loading();
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.signInWithGoogle();
 
     result.fold(
       (failure) => state = AuthState.error(failure.message),
@@ -49,18 +59,9 @@ class AuthNotifier extends _$AuthNotifier {
 
   Future<void> logout() async {
     state = const AuthState.loading();
-
-    try {
-      await fb.FirebaseAuth.instance.signOut();
-    } catch (_) {}
-
     final repository = ref.read(authRepositoryProvider);
-    final result = await repository.logout();
-
-    result.fold(
-      (failure) => state = AuthState.error(failure.message),
-      (_) => state = const AuthState.unauthenticated(),
-    );
+    await repository.logout();
+    state = const AuthState.unauthenticated();
   }
 
   void forceLogout() {

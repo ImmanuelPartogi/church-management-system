@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 import 'route_names.dart';
 
-// A simple listenable to bridge Riverpod AuthState with GoRouter
 class RouterTransitionListenable extends ChangeNotifier {
   RouterTransitionListenable(Ref ref) {
     ref.listen<AuthState>(
@@ -37,14 +37,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       return authState.maybeWhen(
         authenticated: (_) {
-          // If logged in, send to home from login
           if (isLoggingIn) {
             return RoutePaths.home;
           }
           return null;
         },
         orElse: () {
-          // If not logged in, force login screen
           if (!isLoggingIn) {
             return RoutePaths.login;
           }
@@ -61,11 +59,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.home,
         name: RouteNames.home,
-        builder: (context, state) => const Scaffold(
-          body: Center(
-            child: Text('Home Screen (Auth OK)'),
-          ),
-        ),
+        builder: (context, state) => const HomeScreen(),
       ),
     ],
   );
