@@ -198,8 +198,10 @@ class WartaDetailScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Nama File',
-                              style: TextStyle(color: Colors.grey),),
+                          const Text(
+                            'Nama File',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                           Expanded(
                             child: Text(
                               warta.fileName,
@@ -215,8 +217,10 @@ class WartaDetailScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Ukuran File',
-                              style: TextStyle(color: Colors.grey),),
+                          const Text(
+                            'Ukuran File',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                           Text(
                             _formatFileSize(warta.fileSize),
                             style: const TextStyle(fontWeight: FontWeight.w500),
@@ -227,8 +231,10 @@ class WartaDetailScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Format',
-                              style: TextStyle(color: Colors.grey),),
+                          const Text(
+                            'Format',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                           Text(
                             warta.mimeType.split('/').last.toUpperCase(),
                             style: const TextStyle(fontWeight: FontWeight.w500),

@@ -44,8 +44,11 @@ class _WartaPdfViewerScreenState extends ConsumerState<WartaPdfViewerScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline,
-                            size: 48, color: Colors.red,),
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'Gagal membuka PDF: $_errorMessage',
@@ -98,8 +101,11 @@ class _WartaPdfViewerScreenState extends ConsumerState<WartaPdfViewerScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: Colors.red,),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Gagal mengunduh file PDF: ${error.toString()}',

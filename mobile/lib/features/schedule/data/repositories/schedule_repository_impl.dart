@@ -25,13 +25,16 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil jadwal ibadah: ${e.toString()}'),);
+        ServerFailure('Gagal mengambil jadwal ibadah: ${e.toString()}'),
+      );
     }
   }
 
@@ -47,13 +50,16 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       return Right(resultMap);
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil kalender ibadah: ${e.toString()}'),);
+        ServerFailure('Gagal mengambil kalender ibadah: ${e.toString()}'),
+      );
     }
   }
 }

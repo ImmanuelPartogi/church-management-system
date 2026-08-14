@@ -11,6 +11,11 @@ import '../../features/schedule/presentation/screens/schedule_screen.dart';
 import '../../features/warta/presentation/screens/warta_screen.dart';
 import '../../features/warta/presentation/screens/warta_detail_screen.dart';
 import '../../features/warta/presentation/screens/warta_pdf_viewer_screen.dart';
+import '../../features/forms/presentation/screens/service_form_types_screen.dart';
+import '../../features/forms/presentation/screens/service_form_type_detail_screen.dart';
+import '../../features/forms/presentation/screens/service_form_application_screen.dart';
+import '../../features/forms/presentation/screens/service_form_applications_screen.dart';
+import '../../features/forms/presentation/screens/service_form_application_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -102,6 +107,40 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final id = int.parse(state.pathParameters['id']!);
           final title = state.uri.queryParameters['title'] ?? 'Warta PDF';
           return WartaPdfViewerScreen(id: id, title: title);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.serviceForms,
+        name: RouteNames.serviceForms,
+        builder: (context, state) => const ServiceFormTypesScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.serviceFormDetail,
+        name: RouteNames.serviceFormDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return ServiceFormTypeDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.serviceFormApply,
+        name: RouteNames.serviceFormApply,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return ServiceFormApplicationScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.myServiceApplications,
+        name: RouteNames.myServiceApplications,
+        builder: (context, state) => const ServiceFormApplicationsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.myServiceApplicationDetail,
+        name: RouteNames.myServiceApplicationDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return ServiceFormApplicationDetailScreen(id: id);
         },
       ),
     ],

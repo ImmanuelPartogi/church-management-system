@@ -19,4 +19,12 @@ class ApiConstants {
   static const String wartasEndpoint = '/wartas';
   static String wartaDetailEndpoint(int id) => '/wartas/$id';
   static String wartaDownloadEndpoint(int id) => '/wartas/$id/download';
+
+  static const String serviceFormTypesEndpoint = '/service-form-types';
+  static String serviceFormTypeDetailEndpoint(int id) =>
+      '/service-form-types/$id';
+  static const String serviceFormApplicationsEndpoint =
+      '/service-form-applications';
+  static String serviceFormApplicationDetailEndpoint(int id) =>
+      '/service-form-applications/$id';
 }

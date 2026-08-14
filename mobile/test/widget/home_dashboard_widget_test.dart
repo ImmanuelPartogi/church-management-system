@@ -87,7 +87,9 @@ void main() {
       // Verify Announcement Content
       expect(find.text('Pengumuman Seminar Jemaat'), findsOneWidget);
       expect(
-          find.text('Seminar dilaksanakan Sabtu mendatang.'), findsOneWidget,);
+        find.text('Seminar dilaksanakan Sabtu mendatang.'),
+        findsOneWidget,
+      );
     });
   });
 }

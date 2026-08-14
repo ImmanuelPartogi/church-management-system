@@ -26,13 +26,16 @@ class WartaRepositoryImpl implements WartaRepository {
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil daftar warta: ${e.toString()}'),);
+        ServerFailure('Gagal mengambil daftar warta: ${e.toString()}'),
+      );
     }
   }
 
@@ -43,13 +46,16 @@ class WartaRepositoryImpl implements WartaRepository {
       return Right(model.toEntity());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil detail warta: ${e.toString()}'),);
+        ServerFailure('Gagal mengambil detail warta: ${e.toString()}'),
+      );
     }
   }
 
@@ -69,16 +75,20 @@ class WartaRepositoryImpl implements WartaRepository {
       if (await file.exists()) {
         return Right(file);
       } else {
-        return const Left(ServerFailure(
-          'File hasil download tidak ditemukan di penyimpanan.',
-        ),);
+        return const Left(
+          ServerFailure(
+            'File hasil download tidak ditemukan di penyimpanan.',
+          ),
+        );
       }
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure('Gagal mengunduh warta: ${e.toString()}'));
     }

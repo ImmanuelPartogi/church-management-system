@@ -157,7 +157,9 @@ class WartaDownloadNotifier extends StateNotifier<DownloadState> {
   }
 
   Future<File> _getUniqueFile(
-      String directoryPath, String originalFileName,) async {
+    String directoryPath,
+    String originalFileName,
+  ) async {
     var file = File('$directoryPath/$originalFileName');
     if (!await file.exists()) {
       return file;

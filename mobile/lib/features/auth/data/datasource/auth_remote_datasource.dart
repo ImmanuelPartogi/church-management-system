@@ -16,7 +16,8 @@ class AuthRemoteDataSource {
   AuthRemoteDataSource(this._dio);
 
   Future<Map<String, dynamic>> loginWithFirebaseToken(
-      String firebaseIdToken,) async {
+    String firebaseIdToken,
+  ) async {
     final response = await _dio.post<Map<String, dynamic>>(
       ApiConstants.authFirebaseEndpoint,
       data: {

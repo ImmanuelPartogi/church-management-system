@@ -4,7 +4,9 @@ import '../entities/user.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, User>> signInWithEmailAndPassword(
-      String email, String password,);
+    String email,
+    String password,
+  );
   Future<Either<Failure, User>> signInWithGoogle();
   Future<Either<Failure, User>> loginWithFirebaseToken(String firebaseIdToken);
   Future<Either<Failure, User>> getCurrentUser();

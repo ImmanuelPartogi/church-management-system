@@ -48,11 +48,13 @@ void main() {
     Widget createWartaScreen(AsyncValue<List<Warta>> listState) {
       return ProviderScope(
         overrides: [
-          wartaListProvider.overrideWith((ref) => listState.when(
-                data: (d) async => d,
-                error: (e, s) => throw e,
-                loading: () => Completer<List<Warta>>().future,
-              ),),
+          wartaListProvider.overrideWith(
+            (ref) => listState.when(
+              data: (d) async => d,
+              error: (e, s) => throw e,
+              loading: () => Completer<List<Warta>>().future,
+            ),
+          ),
         ],
         child: const MaterialApp(
           home: WartaScreen(),
@@ -72,9 +74,11 @@ void main() {
     });
 
     testWidgets('renders Error state cleanly', (WidgetTester tester) async {
-      await tester.pumpWidget(createWartaScreen(
-        AsyncValue.error(Exception('Koneksi terputus'), StackTrace.empty),
-      ),);
+      await tester.pumpWidget(
+        createWartaScreen(
+          AsyncValue.error(Exception('Koneksi terputus'), StackTrace.empty),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.textContaining('Gagal memuat warta'), findsOneWidget);
       expect(find.text('Coba Lagi'), findsOneWidget);
@@ -111,11 +115,13 @@ void main() {
     }) {
       return ProviderScope(
         overrides: [
-          wartaDetailProvider(1).overrideWith((ref) => detailState.when(
-                data: (d) async => d,
-                error: (e, s) => throw e,
-                loading: () => Completer<Warta>().future,
-              ),),
+          wartaDetailProvider(1).overrideWith(
+            (ref) => detailState.when(
+              data: (d) async => d,
+              error: (e, s) => throw e,
+              loading: () => Completer<Warta>().future,
+            ),
+          ),
           wartaDownloadProvider(1).overrideWith((ref) {
             final notifier = WartaDownloadNotifier(FakeWartaRepository(), 1);
             notifier.state = downloadState;
@@ -129,9 +135,11 @@ void main() {
     }
 
     testWidgets('renders detail data cleanly', (WidgetTester tester) async {
-      await tester.pumpWidget(createWartaDetailScreen(
-        detailState: const AsyncValue.data(testWarta),
-      ),);
+      await tester.pumpWidget(
+        createWartaDetailScreen(
+          detailState: const AsyncValue.data(testWarta),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Warta Minggu Pagi'), findsOneWidget);
@@ -144,13 +152,15 @@ void main() {
 
     testWidgets('renders download progress states',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createWartaDetailScreen(
-        detailState: const AsyncValue.data(testWarta),
-        downloadState: const DownloadState(
-          status: DownloadStatus.downloading,
-          progress: 0.5,
+      await tester.pumpWidget(
+        createWartaDetailScreen(
+          detailState: const AsyncValue.data(testWarta),
+          downloadState: const DownloadState(
+            status: DownloadStatus.downloading,
+            progress: 0.5,
+          ),
         ),
-      ),);
+      );
       await tester.pump();
 
       expect(find.text('Mengunduh...'), findsOneWidget);

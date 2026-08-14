@@ -9,6 +9,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../schedule/presentation/providers/schedule_provider.dart';
 import '../providers/daily_verse_provider.dart';
 import '../../../warta/presentation/providers/warta_provider.dart';
+import '../../../forms/presentation/providers/service_forms_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class HomeScreen extends ConsumerWidget {
     final announcementsAsync = ref.watch(announcementListProvider);
     final schedulesAsync = ref.watch(scheduleListProvider);
     final wartasAsync = ref.watch(wartaListProvider);
+    final serviceFormsAsync = ref.watch(serviceFormTypesProvider);
 
     final user = authState.maybeWhen(
       authenticated: (u) => u,
@@ -45,6 +47,7 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(announcementListProvider);
           ref.invalidate(scheduleListProvider);
           ref.invalidate(wartaListProvider);
+          ref.invalidate(serviceFormTypesProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -439,6 +442,91 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 error: (err, stack) => const Text(
                   'Gagal memuat warta gereja.',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Pelayanan Gereja Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Pelayanan Gereja',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.push(RoutePaths.serviceForms);
+                    },
+                    child: const Text('Lihat semua'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              serviceFormsAsync.when(
+                data: (types) {
+                  if (types.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.0),
+                      child: Text(
+                        'Belum ada formulir pelayanan.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+                  final topTypes = types.take(2).toList();
+                  return Column(
+                    children: topTypes.map((type) {
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: AppColors.primary.withOpacity(0.1),
+                            child: const Icon(
+                              Icons.assignment_outlined,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: Text(
+                            type.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            type.description ?? 'Formulir pelayanan jemaat',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            context.pushNamed(
+                              RouteNames.serviceFormDetail,
+                              pathParameters: {'id': type.id.toString()},
+                            );
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (err, stack) => const Text(
+                  'Gagal memuat formulir pelayanan.',
                   style: TextStyle(color: Colors.red),
                 ),
               ),
