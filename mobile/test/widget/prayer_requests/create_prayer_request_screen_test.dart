@@ -14,11 +14,6 @@ void main() {
 
   testWidgets('renders form fields and privacy toggle explanation cleanly',
       (tester) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     await tester.pumpWidget(createWidgetToTest());
     await tester.pumpAndSettle();
 
@@ -37,16 +32,10 @@ void main() {
 
   testWidgets('shows validation errors when required fields are empty',
       (tester) async {
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     await tester.pumpWidget(createWidgetToTest());
     await tester.pumpAndSettle();
 
-    final submitButton =
-        find.widgetWithText(ElevatedButton, 'Kirim Permohonan Doa');
+    final submitButton = find.text('Kirim Permohonan Doa');
     await tester.tap(submitButton, warnIfMissed: false);
     await tester.pumpAndSettle();
 
