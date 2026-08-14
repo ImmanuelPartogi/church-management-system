@@ -20,7 +20,7 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
 
   @override
   Future<Either<Failure, List<Announcement>>> getAnnouncements(
-      {int page = 1}) async {
+      {int page = 1,}) async {
     try {
       final models = await _remoteDataSource.getAnnouncements(page: page);
       return Right(models.map((m) => m.toEntity()).toList());
@@ -29,10 +29,10 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
       return Left(ServerFailure(
         apiException.message,
         statusCode: apiException.statusCode,
-      ));
+      ),);
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil daftar pengumuman: ${e.toString()}'));
+          ServerFailure('Gagal mengambil daftar pengumuman: ${e.toString()}'),);
     }
   }
 }

@@ -8,6 +8,9 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/schedule/presentation/screens/schedule_calendar_screen.dart';
 import '../../features/schedule/presentation/screens/schedule_screen.dart';
+import '../../features/warta/presentation/screens/warta_screen.dart';
+import '../../features/warta/presentation/screens/warta_detail_screen.dart';
+import '../../features/warta/presentation/screens/warta_pdf_viewer_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -78,6 +81,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.schedulesCalendar,
         name: RouteNames.schedulesCalendar,
         builder: (context, state) => const ScheduleCalendarScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.wartas,
+        name: RouteNames.wartas,
+        builder: (context, state) => const WartaScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.wartaDetail,
+        name: RouteNames.wartaDetail,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return WartaDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.wartaPdfViewer,
+        name: RouteNames.wartaPdfViewer,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          final title = state.uri.queryParameters['title'] ?? 'Warta PDF';
+          return WartaPdfViewerScreen(id: id, title: title);
+        },
       ),
     ],
   );

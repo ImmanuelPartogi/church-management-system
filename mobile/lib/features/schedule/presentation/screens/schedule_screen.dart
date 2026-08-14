@@ -88,7 +88,7 @@ class ScheduleScreen extends ConsumerWidget {
                         Row(
                           children: [
                             const Icon(Icons.access_time,
-                                size: 16, color: Colors.grey),
+                                size: 16, color: Colors.grey,),
                             const SizedBox(width: 6),
                             Text(
                               schedule.endTime != null
@@ -103,7 +103,7 @@ class ScheduleScreen extends ConsumerWidget {
                           Row(
                             children: [
                               const Icon(Icons.location_on,
-                                  size: 16, color: Colors.grey),
+                                  size: 16, color: Colors.grey,),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(

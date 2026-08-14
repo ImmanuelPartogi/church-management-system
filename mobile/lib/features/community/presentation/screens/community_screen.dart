@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Komunitas".
 ///
@@ -11,6 +11,6 @@ class CommunityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Komunitas");
+    return const PlaceholderScreen(title: 'Komunitas');
   }
 }

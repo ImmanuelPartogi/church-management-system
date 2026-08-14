@@ -15,4 +15,8 @@ class ApiConstants {
   static const String worshipSchedulesEndpoint = '/worship-schedules';
   static const String worshipSchedulesCalendarEndpoint =
       '/worship-schedules/calendar';
+
+  static const String wartasEndpoint = '/wartas';
+  static String wartaDetailEndpoint(int id) => '/wartas/$id';
+  static String wartaDownloadEndpoint(int id) => '/wartas/$id/download';
 }

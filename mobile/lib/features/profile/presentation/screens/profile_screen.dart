@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Profil Saya".
 ///
@@ -11,6 +11,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Profil Saya");
+    return const PlaceholderScreen(title: 'Profil Saya');
   }
 }

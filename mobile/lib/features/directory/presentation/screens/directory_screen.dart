@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Direktori Pelayan".
 ///
@@ -11,6 +11,6 @@ class DirectoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Direktori Pelayan");
+    return const PlaceholderScreen(title: 'Direktori Pelayan');
   }
 }

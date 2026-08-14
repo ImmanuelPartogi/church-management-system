@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Search Global".
 ///
@@ -11,6 +11,6 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Search Global");
+    return const PlaceholderScreen(title: 'Search Global');
   }
 }

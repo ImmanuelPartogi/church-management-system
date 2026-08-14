@@ -17,7 +17,7 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> signInWithEmailAndPassword(
-      String email, String password) async {
+      String email, String password,) async {
     if (email == 'user@church.org' && password == 'password123') {
       return const Right(
         User(
@@ -45,7 +45,7 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> loginWithFirebaseToken(
-      String firebaseIdToken) async {
+      String firebaseIdToken,) async {
     return const Right(
       User(
         id: 1,

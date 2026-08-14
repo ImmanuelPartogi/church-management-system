@@ -50,6 +50,7 @@ dependencies:
   # Calendar / PDF viewer (for Jadwal & Warta)
   table_calendar: ^3.1.2
   syncfusion_flutter_pdfviewer: ^26.1.35
+  path_provider: ^2.1.3
 
   cupertino_icons: ^1.0.8
   google_sign_in: ^6.2.1

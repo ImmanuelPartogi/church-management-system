@@ -28,10 +28,10 @@ class HomeRepositoryImpl implements HomeRepository {
       return Left(ServerFailure(
         apiException.message,
         statusCode: apiException.statusCode,
-      ));
+      ),);
     } catch (e) {
       return Left(
-          ServerFailure('Gagal mengambil ayat harian: ${e.toString()}'));
+          ServerFailure('Gagal mengambil ayat harian: ${e.toString()}'),);
     }
   }
 }

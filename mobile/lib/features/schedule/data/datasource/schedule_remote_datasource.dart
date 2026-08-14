@@ -25,7 +25,7 @@ class ScheduleRemoteDataSource {
 
     return list
         .map((item) =>
-            WorshipScheduleModel.fromJson(item as Map<String, dynamic>))
+            WorshipScheduleModel.fromJson(item as Map<String, dynamic>),)
         .toList();
   }
 
@@ -41,7 +41,7 @@ class ScheduleRemoteDataSource {
     dataMap.forEach((day, items) {
       final itemList = (items as List<dynamic>)
           .map((item) =>
-              WorshipScheduleModel.fromJson(item as Map<String, dynamic>))
+              WorshipScheduleModel.fromJson(item as Map<String, dynamic>),)
           .toList();
       resultMap[day] = itemList;
     });

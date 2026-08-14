@@ -31,7 +31,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> signInWithEmailAndPassword(
-      String email, String password) async {
+      String email, String password,) async {
     try {
       final userCredential =
           await fb.FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -42,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final idToken = await userCredential.user?.getIdToken();
       if (idToken == null || idToken.isEmpty) {
         return const Left(
-            AuthFailure('Gagal mendapatkan token autentikasi Firebase.'));
+            AuthFailure('Gagal mendapatkan token autentikasi Firebase.'),);
       }
 
       return await loginWithFirebaseToken(idToken);
@@ -59,7 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         return const Left(
-            AuthFailure('Login Google dibatalkan oleh pengguna.'));
+            AuthFailure('Login Google dibatalkan oleh pengguna.'),);
       }
 
       final googleAuth = await googleUser.authentication;
@@ -74,7 +74,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (idToken == null || idToken.isEmpty) {
         return const Left(
-            AuthFailure('Gagal mendapatkan token autentikasi dari Google.'));
+            AuthFailure('Gagal mendapatkan token autentikasi dari Google.'),);
       }
 
       return await loginWithFirebaseToken(idToken);
@@ -82,13 +82,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(_mapFirebaseAuthErrorCode(e.code)));
     } catch (e) {
       return Left(AuthFailure(
-          'Terjadi kesalahan saat masuk dengan Google: ${e.toString()}'));
+          'Terjadi kesalahan saat masuk dengan Google: ${e.toString()}',),);
     }
   }
 
   @override
   Future<Either<Failure, User>> loginWithFirebaseToken(
-      String firebaseIdToken) async {
+      String firebaseIdToken,) async {
     try {
       final response =
           await _remoteDataSource.loginWithFirebaseToken(firebaseIdToken);
@@ -109,10 +109,10 @@ class AuthRepositoryImpl implements AuthRepository {
         apiException.message,
         statusCode: apiException.statusCode,
         errors: apiException.errors,
-      ));
+      ),);
     } catch (e) {
       return Left(
-          AuthFailure('Gagal menukarkan token dengan server: ${e.toString()}'));
+          AuthFailure('Gagal menukarkan token dengan server: ${e.toString()}'),);
     }
   }
 
@@ -141,10 +141,10 @@ class AuthRepositoryImpl implements AuthRepository {
         apiException.message,
         statusCode: apiException.statusCode,
         errors: apiException.errors,
-      ));
+      ),);
     } catch (e) {
       return Left(
-          AuthFailure('Gagal mengambil data pengguna: ${e.toString()}'));
+          AuthFailure('Gagal mengambil data pengguna: ${e.toString()}'),);
     }
   }
 

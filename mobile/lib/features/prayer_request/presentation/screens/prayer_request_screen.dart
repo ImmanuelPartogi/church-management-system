@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Permohonan Doa".
 ///
@@ -11,6 +11,6 @@ class PrayerRequestScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Permohonan Doa");
+    return const PlaceholderScreen(title: 'Permohonan Doa');
   }
 }

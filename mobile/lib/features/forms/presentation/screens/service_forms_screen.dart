@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
-import "../../../../core/widgets/app_state_views.dart";
+import 'package:flutter/material.dart';
+import '../../../../core/widgets/app_state_views.dart';
 
 /// Placeholder untuk screen "Formulir Pelayanan".
 ///
@@ -11,6 +11,6 @@ class ServiceFormsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(title: "Formulir Pelayanan");
+    return const PlaceholderScreen(title: 'Formulir Pelayanan');
   }
 }
