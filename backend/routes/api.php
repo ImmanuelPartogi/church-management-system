@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ChurchBankAccountController;
 use App\Http\Controllers\Api\V1\DailyVerseController;
+use App\Http\Controllers\Api\V1\DeviceTokenController;
 use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
@@ -69,6 +70,10 @@ Route::post('/auth/firebase', [AuthController::class, 'firebase'])
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Phase 13.1 Device Token Registration
+    Route::post('/notifications/device-token', [DeviceTokenController::class, 'store']);
+    Route::delete('/notifications/device-token', [DeviceTokenController::class, 'destroy']);
 
     // Phase 3.3 Member Directory Search (placed before /members/{id} to prevent route collision)
     Route::get('/members/search', [MemberController::class, 'search']);

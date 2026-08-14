@@ -4,12 +4,15 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AnnouncementResource\Pages;
 use App\Models\Announcement;
+use App\Services\Notifications\FcmNotificationService;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class AnnouncementResource extends Resource
 {
@@ -102,6 +105,39 @@ class AnnouncementResource extends Resource
             ->actions([
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),
+                Actions\Action::make('sendNotification')
+                    ->label('Kirim Push')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->default(fn (Announcement $record) => $record->title)
+                            ->required(),
+                        Forms\Components\Textarea::make('body')
+                            ->default(fn (Announcement $record) => Str::limit(strip_tags($record->content), 100))
+                            ->required(),
+                        Forms\Components\TextInput::make('route')
+                            ->default(fn (Announcement $record) => '/announcements')
+                            ->required(),
+                    ])
+                    ->action(function (Announcement $record, array $data): void {
+                        /** @var FcmNotificationService $fcmService */
+                        $fcmService = app(FcmNotificationService::class);
+                        $count = $fcmService->broadcast(
+                            $data['title'],
+                            $data['body'],
+                            [
+                                'type' => 'announcement',
+                                'entity_id' => (string) $record->id,
+                                'route' => $data['route'],
+                            ]
+                        );
+                        Notification::make()
+                            ->title('Push notification terkirim.')
+                            ->body("Berhasil diproses untuk {$count} perangkat.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
