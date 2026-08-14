@@ -35,4 +35,8 @@ class ApiConstants {
 
   static const String prayerRequestsEndpoint = '/prayer-requests';
   static String prayerRequestDetailEndpoint(int id) => '/prayer-requests/$id';
+
+  static const String songbooksEndpoint = '/songbooks';
+  static const String songsEndpoint = '/songs';
+  static String songDetailEndpoint(int id) => '/songs/$id';
 }

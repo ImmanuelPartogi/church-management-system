@@ -11,6 +11,7 @@ import '../providers/daily_verse_provider.dart';
 import '../../../warta/presentation/providers/warta_provider.dart';
 import '../../../forms/presentation/providers/service_forms_provider.dart';
 import '../../../prayer_requests/presentation/providers/prayer_request_provider.dart';
+import '../../../hymns/presentation/providers/hymn_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -51,6 +52,8 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(wartaListProvider);
           ref.invalidate(serviceFormTypesProvider);
           ref.invalidate(prayerRequestListProvider);
+          ref.invalidate(songbooksProvider);
+          ref.invalidate(hymnListProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -769,6 +772,81 @@ class HomeScreen extends ConsumerWidget {
                   style: TextStyle(color: Colors.red),
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              // Buku Nyanyian & Kidung Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Buku Nyanyian & Kidung',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push(RoutePaths.hymns),
+                    child: const Text('Buka Songbook'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.menu_book,
+                          color: AppColors.primary,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cari & Baca Nyanyian Jemaat',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Koleksi lengkap Buku Ende (BE), Buku Nyanyian (BN), & Kidung Jemaat (KJ).',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => context.push(RoutePaths.hymns),
+                        child: const Text('Cari'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

@@ -22,6 +22,8 @@ class RoutePaths {
   static const String prayerRequests = '/prayer-requests';
   static const String createPrayerRequest = '/prayer-requests/create';
   static const String prayerRequestDetail = '/prayer-requests/:id';
+  static const String hymns = '/hymns';
+  static const String hymnDetail = '/hymns/:id';
 }
 
 class RouteNames {
@@ -47,4 +49,6 @@ class RouteNames {
   static const String prayerRequests = 'prayerRequests';
   static const String createPrayerRequest = 'createPrayerRequest';
   static const String prayerRequestDetail = 'prayerRequestDetail';
+  static const String hymns = 'hymns';
+  static const String hymnDetail = 'hymnDetail';
 }

@@ -11,7 +11,7 @@ import 'package:fpdart/fpdart.dart';
 class FakePrayerRequestRepository implements PrayerRequestRepository {
   @override
   Future<Either<Failure, List<PrayerRequest>>> getMyPrayerRequests(
-      {int page = 1}) async {
+      {int page = 1,}) async {
     return const Right([]);
   }
 

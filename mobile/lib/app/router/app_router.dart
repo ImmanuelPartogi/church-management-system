@@ -23,6 +23,8 @@ import '../../features/donations/presentation/screens/donation_detail_screen.dar
 import '../../features/prayer_requests/presentation/screens/prayer_requests_screen.dart';
 import '../../features/prayer_requests/presentation/screens/create_prayer_request_screen.dart';
 import '../../features/prayer_requests/presentation/screens/prayer_request_detail_screen.dart';
+import '../../features/hymns/presentation/screens/hymns_screen.dart';
+import '../../features/hymns/presentation/screens/hymn_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -189,6 +191,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return PrayerRequestDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.hymns,
+        name: RouteNames.hymns,
+        builder: (context, state) => const HymnsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.hymnDetail,
+        name: RouteNames.hymnDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return HymnDetailScreen(id: id);
         },
       ),
     ],

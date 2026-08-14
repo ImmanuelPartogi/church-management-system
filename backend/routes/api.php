@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\PrayerRequestController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
 use App\Http\Controllers\Api\V1\ServiceFormTypeController;
+use App\Http\Controllers\Api\V1\SongController;
 use App\Http\Controllers\Api\V1\WartaController;
 use App\Http\Controllers\Api\V1\WorshipScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,11 @@ Route::get('/church-bank-accounts', [ChurchBankAccountController::class, 'index'
 
 // Phase 3.3 Public Extended Endpoints
 Route::get('/finances/transparency', [FinancialTransparencyController::class, 'index']);
+
+// Phase 10.1 Public Extended Endpoints (Hymns / Songbooks)
+Route::get('/songbooks', [SongController::class, 'songbooks']);
+Route::get('/songs', [SongController::class, 'index']);
+Route::get('/songs/{id}', [SongController::class, 'show']);
 
 // Auth token exchange with rate limit
 Route::post('/auth/firebase', [AuthController::class, 'firebase'])
