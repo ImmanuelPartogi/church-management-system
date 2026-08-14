@@ -27,6 +27,10 @@ class RoutePaths {
   static const String finance = '/finance';
   static const String members = '/members';
   static const String memberDetail = '/members/:id';
+  static const String servants = '/servants';
+  static const String servantDetail = '/servants/:id';
+  static const String sermons = '/sermons';
+  static const String sermonDetail = '/sermons/:id';
 }
 
 class RouteNames {
@@ -57,4 +61,8 @@ class RouteNames {
   static const String finance = 'finance';
   static const String members = 'members';
   static const String memberDetail = 'memberDetail';
+  static const String servants = 'servants';
+  static const String servantDetail = 'servantDetail';
+  static const String sermons = 'sermons';
+  static const String sermonDetail = 'sermonDetail';
 }

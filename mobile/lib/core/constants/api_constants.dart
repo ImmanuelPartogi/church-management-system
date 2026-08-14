@@ -45,4 +45,11 @@ class ApiConstants {
   static const String membersEndpoint = '/members';
   static const String memberSearchEndpoint = '/members/search';
   static String memberDetailEndpoint(int id) => '/members/$id';
+
+  static const String servantsEndpoint = '/servants';
+  static String servantDetailEndpoint(int id) => '/servants/$id';
+
+  static const String sermonsEndpoint = '/sermons';
+  static String sermonDetailEndpoint(int id) => '/sermons/$id';
+  static String sermonDownloadEndpoint(int id) => '/sermons/$id/download';
 }

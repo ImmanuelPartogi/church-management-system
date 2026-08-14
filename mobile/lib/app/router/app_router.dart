@@ -28,6 +28,10 @@ import '../../features/hymns/presentation/screens/hymn_detail_screen.dart';
 import '../../features/finance/presentation/screens/finance_screen.dart';
 import '../../features/directory/presentation/screens/directory_screen.dart';
 import '../../features/directory/presentation/screens/member_detail_screen.dart';
+import '../../features/community/presentation/screens/servants_screen.dart';
+import '../../features/community/presentation/screens/servant_detail_screen.dart';
+import '../../features/media/presentation/screens/sermons_screen.dart';
+import '../../features/media/presentation/screens/sermon_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -225,6 +229,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return MemberDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.servants,
+        name: RouteNames.servants,
+        builder: (context, state) => const ServantsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.servantDetail,
+        name: RouteNames.servantDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return ServantDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.sermons,
+        name: RouteNames.sermons,
+        builder: (context, state) => const SermonsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.sermonDetail,
+        name: RouteNames.sermonDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return SermonDetailScreen(id: id);
         },
       ),
     ],

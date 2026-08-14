@@ -35,8 +35,9 @@ class MemberRemoteDataSource {
     final list = json['data'] as List<dynamic>;
 
     return list
-        .map((item) =>
-            MemberDirectoryModel.fromJson(item as Map<String, dynamic>),)
+        .map(
+          (item) => MemberDirectoryModel.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 

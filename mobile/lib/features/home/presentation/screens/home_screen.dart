@@ -14,6 +14,8 @@ import '../../../prayer_requests/presentation/providers/prayer_request_provider.
 import '../../../hymns/presentation/providers/hymn_provider.dart';
 import '../../../finance/presentation/providers/finance_provider.dart';
 import '../../../directory/presentation/providers/member_provider.dart';
+import '../../../community/presentation/providers/servant_provider.dart';
+import '../../../media/presentation/providers/sermon_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -58,6 +60,8 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(hymnListProvider);
           ref.invalidate(financialReportProvider);
           ref.invalidate(memberDirectoryListProvider);
+          ref.invalidate(servantListProvider);
+          ref.invalidate(sermonListProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -995,6 +999,110 @@ class HomeScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // Pelayan Gereja & Arsip Khotbah Section Cards
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        onTap: () => context.push(RoutePaths.servants),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.shade50,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.badge_outlined,
+                                  color: Colors.indigo.shade800,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Pelayan Gereja',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Pendeta & Sintua',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        onTap: () => context.push(RoutePaths.sermons),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal.shade50,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.auto_stories_outlined,
+                                  color: Colors.teal.shade800,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Arsip Khotbah',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Dokumen & Media',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
             ],

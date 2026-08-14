@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\PrayerRequestController;
+use App\Http\Controllers\Api\V1\SermonController;
+use App\Http\Controllers\Api\V1\ServantController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
 use App\Http\Controllers\Api\V1\ServiceFormTypeController;
 use App\Http\Controllers\Api\V1\SongController;
@@ -51,6 +53,13 @@ Route::get('/finances/transparency', [FinancialTransparencyController::class, 'i
 Route::get('/songbooks', [SongController::class, 'songbooks']);
 Route::get('/songs', [SongController::class, 'index']);
 Route::get('/songs/{id}', [SongController::class, 'show']);
+
+// Phase 12.1 Public Extended Endpoints (Servants Directory & Sermons Archive)
+Route::get('/servants', [ServantController::class, 'index']);
+Route::get('/servants/{id}', [ServantController::class, 'show']);
+Route::get('/sermons', [SermonController::class, 'index']);
+Route::get('/sermons/{id}', [SermonController::class, 'show']);
+Route::get('/sermons/{id}/download', [SermonController::class, 'download']);
 
 // Auth token exchange with rate limit
 Route::post('/auth/firebase', [AuthController::class, 'firebase'])
