@@ -71,7 +71,6 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
   @override
   Widget build(BuildContext context) {
     final reportAsync = ref.watch(financialReportProvider);
-    final dateRange = ref.watch(financialDateRangeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -118,8 +117,10 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                         ],
                       ),
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.filter_list,
-                            color: AppColors.primary,),
+                        icon: const Icon(
+                          Icons.filter_list,
+                          color: AppColors.primary,
+                        ),
                         tooltip: 'Filter Periode',
                         onSelected: (value) {
                           final now = DateTime.now();
@@ -190,8 +191,11 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.account_balance_wallet,
-                                color: Colors.white70, size: 20,),
+                            Icon(
+                              Icons.account_balance_wallet,
+                              color: Colors.white70,
+                              size: 20,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'SALDO BERSIH GEREJA',
@@ -239,8 +243,11 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                                   CircleAvatar(
                                     radius: 14,
                                     backgroundColor: Colors.green.shade100,
-                                    child: Icon(Icons.arrow_downward,
-                                        size: 16, color: Colors.green.shade800,),
+                                    child: Icon(
+                                      Icons.arrow_downward,
+                                      size: 16,
+                                      color: Colors.green.shade800,
+                                    ),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
@@ -286,8 +293,11 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen>
                                   CircleAvatar(
                                     radius: 14,
                                     backgroundColor: Colors.red.shade100,
-                                    child: Icon(Icons.arrow_upward,
-                                        size: 16, color: Colors.red.shade800,),
+                                    child: Icon(
+                                      Icons.arrow_upward,
+                                      size: 16,
+                                      color: Colors.red.shade800,
+                                    ),
                                   ),
                                   const SizedBox(width: 6),
                                   Text(

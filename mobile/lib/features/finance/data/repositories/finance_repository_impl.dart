@@ -38,7 +38,8 @@ class FinanceRepositoryImpl implements FinanceRepository {
     } catch (e) {
       return Left(
         ServerFailure(
-            'Gagal mengambil laporan transparansi keuangan: ${e.toString()}',),
+          'Gagal mengambil laporan transparansi keuangan: ${e.toString()}',
+        ),
       );
     }
   }

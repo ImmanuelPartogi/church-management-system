@@ -25,6 +25,8 @@ class RoutePaths {
   static const String hymns = '/hymns';
   static const String hymnDetail = '/hymns/:id';
   static const String finance = '/finance';
+  static const String members = '/members';
+  static const String memberDetail = '/members/:id';
 }
 
 class RouteNames {
@@ -53,4 +55,6 @@ class RouteNames {
   static const String hymns = 'hymns';
   static const String hymnDetail = 'hymnDetail';
   static const String finance = 'finance';
+  static const String members = 'members';
+  static const String memberDetail = 'memberDetail';
 }

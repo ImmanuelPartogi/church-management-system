@@ -26,6 +26,8 @@ import '../../features/prayer_requests/presentation/screens/prayer_request_detai
 import '../../features/hymns/presentation/screens/hymns_screen.dart';
 import '../../features/hymns/presentation/screens/hymn_detail_screen.dart';
 import '../../features/finance/presentation/screens/finance_screen.dart';
+import '../../features/directory/presentation/screens/directory_screen.dart';
+import '../../features/directory/presentation/screens/member_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -211,6 +213,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.finance,
         name: RouteNames.finance,
         builder: (context, state) => const FinanceScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.members,
+        name: RouteNames.members,
+        builder: (context, state) => const DirectoryScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.memberDetail,
+        name: RouteNames.memberDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return MemberDetailScreen(id: id);
+        },
       ),
     ],
   );

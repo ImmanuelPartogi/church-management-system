@@ -13,6 +13,7 @@ import '../../../forms/presentation/providers/service_forms_provider.dart';
 import '../../../prayer_requests/presentation/providers/prayer_request_provider.dart';
 import '../../../hymns/presentation/providers/hymn_provider.dart';
 import '../../../finance/presentation/providers/finance_provider.dart';
+import '../../../directory/presentation/providers/member_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -56,6 +57,7 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(songbooksProvider);
           ref.invalidate(hymnListProvider);
           ref.invalidate(financialReportProvider);
+          ref.invalidate(memberDirectoryListProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -916,6 +918,79 @@ class HomeScreen extends ConsumerWidget {
                       ElevatedButton(
                         onPressed: () => context.push(RoutePaths.finance),
                         child: const Text('Grafik'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Direktori Jemaat Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Direktori Jemaat',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push(RoutePaths.members),
+                    child: const Text('Buka Direktori'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.people_alt_outlined,
+                          color: AppColors.primary,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cari Kontak & Profil Anggota',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Pencarian direktori jemaat gereja dengan perlindungan privasi PII sensorik.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => context.push(RoutePaths.members),
+                        child: const Text('Cari'),
                       ),
                     ],
                   ),
