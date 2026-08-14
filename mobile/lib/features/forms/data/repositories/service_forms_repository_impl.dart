@@ -27,10 +27,12 @@ class ServiceFormsRepositoryImpl implements ServiceFormsRepository {
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengambil daftar formulir: ${e.toString()}'),
@@ -45,10 +47,12 @@ class ServiceFormsRepositoryImpl implements ServiceFormsRepository {
       return Right(model.toEntity());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengambil detail formulir: ${e.toString()}'),
@@ -65,10 +69,12 @@ class ServiceFormsRepositoryImpl implements ServiceFormsRepository {
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengambil riwayat permohonan: ${e.toString()}'),
@@ -85,10 +91,12 @@ class ServiceFormsRepositoryImpl implements ServiceFormsRepository {
       return Right(model.toEntity());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengambil detail permohonan: ${e.toString()}'),
@@ -111,10 +119,12 @@ class ServiceFormsRepositoryImpl implements ServiceFormsRepository {
       return Right(model.toEntity());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
-      return Left(ServerFailure(
-        apiException.message,
-        statusCode: apiException.statusCode,
-      ),);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengirimkan permohonan: ${e.toString()}'),

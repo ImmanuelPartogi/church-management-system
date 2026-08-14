@@ -16,6 +16,10 @@ import '../../features/forms/presentation/screens/service_form_type_detail_scree
 import '../../features/forms/presentation/screens/service_form_application_screen.dart';
 import '../../features/forms/presentation/screens/service_form_applications_screen.dart';
 import '../../features/forms/presentation/screens/service_form_application_detail_screen.dart';
+import '../../features/donations/presentation/screens/donation_bank_accounts_screen.dart';
+import '../../features/donations/presentation/screens/donation_confirmation_screen.dart';
+import '../../features/donations/presentation/screens/donation_history_screen.dart';
+import '../../features/donations/presentation/screens/donation_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -141,6 +145,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return ServiceFormApplicationDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.churchBankAccounts,
+        name: RouteNames.churchBankAccounts,
+        builder: (context, state) => const DonationBankAccountsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.donationConfirm,
+        name: RouteNames.donationConfirm,
+        builder: (context, state) => const DonationConfirmationScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.myDonations,
+        name: RouteNames.myDonations,
+        builder: (context, state) => const DonationHistoryScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.donationDetail,
+        name: RouteNames.donationDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return DonationDetailScreen(id: id);
         },
       ),
     ],

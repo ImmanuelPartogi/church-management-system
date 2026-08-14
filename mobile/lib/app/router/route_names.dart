@@ -15,6 +15,10 @@ class RoutePaths {
   static const String myServiceApplications = '/my-service-applications';
   static const String myServiceApplicationDetail =
       '/my-service-applications/:id';
+  static const String churchBankAccounts = '/donations/bank-accounts';
+  static const String donationConfirm = '/donations/confirm';
+  static const String myDonations = '/donations/my-donations';
+  static const String donationDetail = '/donations/:id';
 }
 
 class RouteNames {
@@ -33,4 +37,8 @@ class RouteNames {
   static const String serviceFormApply = 'serviceFormApply';
   static const String myServiceApplications = 'myServiceApplications';
   static const String myServiceApplicationDetail = 'myServiceApplicationDetail';
+  static const String churchBankAccounts = 'churchBankAccounts';
+  static const String donationConfirm = 'donationConfirm';
+  static const String myDonations = 'myDonations';
+  static const String donationDetail = 'donationDetail';
 }

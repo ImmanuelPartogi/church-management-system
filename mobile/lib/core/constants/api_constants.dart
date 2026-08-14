@@ -27,4 +27,9 @@ class ApiConstants {
       '/service-form-applications';
   static String serviceFormApplicationDetailEndpoint(int id) =>
       '/service-form-applications/$id';
+
+  static const String churchBankAccountsEndpoint = '/church-bank-accounts';
+  static const String donationConfirmEndpoint = '/donations/confirm';
+  static const String myDonationsEndpoint = '/donations/my-donations';
+  static String donationDetailEndpoint(int id) => '/donations/$id';
 }

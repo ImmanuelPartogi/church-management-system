@@ -26,8 +26,9 @@ class ServiceFormsRemoteDataSource {
     final list = json['data'] as List<dynamic>;
 
     return list
-        .map((item) =>
-            ServiceFormTypeModel.fromJson(item as Map<String, dynamic>),)
+        .map(
+          (item) => ServiceFormTypeModel.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -52,8 +53,11 @@ class ServiceFormsRemoteDataSource {
     final list = json['data'] as List<dynamic>;
 
     return list
-        .map((item) =>
-            ServiceFormApplicationModel.fromJson(item as Map<String, dynamic>),)
+        .map(
+          (item) => ServiceFormApplicationModel.fromJson(
+            item as Map<String, dynamic>,
+          ),
+        )
         .toList();
   }
 
