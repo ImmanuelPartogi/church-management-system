@@ -36,7 +36,12 @@ void main() {
     await tester.pumpAndSettle();
 
     final submitButton = find.text('Kirim Permohonan Doa');
-    await tester.tap(submitButton, warnIfMissed: false);
+    await tester.scrollUntilVisible(
+      submitButton,
+      100,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(submitButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Judul pokok doa wajib diisi'), findsOneWidget);
