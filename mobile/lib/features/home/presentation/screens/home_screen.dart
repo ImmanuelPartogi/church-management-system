@@ -10,6 +10,7 @@ import '../../../schedule/presentation/providers/schedule_provider.dart';
 import '../providers/daily_verse_provider.dart';
 import '../../../warta/presentation/providers/warta_provider.dart';
 import '../../../forms/presentation/providers/service_forms_provider.dart';
+import '../../../prayer_requests/presentation/providers/prayer_request_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,7 @@ class HomeScreen extends ConsumerWidget {
     final schedulesAsync = ref.watch(scheduleListProvider);
     final wartasAsync = ref.watch(wartaListProvider);
     final serviceFormsAsync = ref.watch(serviceFormTypesProvider);
+    final prayerRequestsAsync = ref.watch(prayerRequestListProvider);
 
     final user = authState.maybeWhen(
       authenticated: (u) => u,
@@ -48,6 +50,7 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(scheduleListProvider);
           ref.invalidate(wartaListProvider);
           ref.invalidate(serviceFormTypesProvider);
+          ref.invalidate(prayerRequestListProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -636,6 +639,134 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Permohonan Doa Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Permohonan Doa',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.push(RoutePaths.prayerRequests);
+                    },
+                    child: const Text('Lihat semua'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              prayerRequestsAsync.when(
+                data: (requests) {
+                  if (requests.isEmpty) {
+                    return Card(
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.1),
+                              child: const Icon(
+                                Icons.volunteer_activism_outlined,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Belum ada permohonan doa diajukan.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  context.push(RoutePaths.createPrayerRequest),
+                              child: const Text('Ajukan'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  final topRequests = requests.take(2).toList();
+                  return Column(
+                    children: [
+                      ...topRequests.map((item) {
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 8.0),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: item.isPrivate
+                                  ? Colors.purple.shade50
+                                  : Colors.teal.shade50,
+                              child: Icon(
+                                item.isPrivate ? Icons.lock : Icons.public,
+                                color: item.isPrivate
+                                    ? Colors.purple.shade800
+                                    : Colors.teal.shade800,
+                              ),
+                            ),
+                            title: Text(
+                              item.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              item.content,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              context.pushNamed(
+                                RouteNames.prayerRequestDetail,
+                                pathParameters: {'id': item.id.toString()},
+                              );
+                            },
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 4),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            context.push(RoutePaths.createPrayerRequest),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Ajukan Permohonan Doa Baru'),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (err, stack) => const Text(
+                  'Gagal memuat permohonan doa.',
+                  style: TextStyle(color: Colors.red),
                 ),
               ),
             ],

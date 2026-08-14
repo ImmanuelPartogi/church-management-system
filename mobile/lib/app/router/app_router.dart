@@ -20,6 +20,9 @@ import '../../features/donations/presentation/screens/donation_bank_accounts_scr
 import '../../features/donations/presentation/screens/donation_confirmation_screen.dart';
 import '../../features/donations/presentation/screens/donation_history_screen.dart';
 import '../../features/donations/presentation/screens/donation_detail_screen.dart';
+import '../../features/prayer_requests/presentation/screens/prayer_requests_screen.dart';
+import '../../features/prayer_requests/presentation/screens/create_prayer_request_screen.dart';
+import '../../features/prayer_requests/presentation/screens/prayer_request_detail_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -168,6 +171,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return DonationDetailScreen(id: id);
+        },
+      ),
+      GoRoute(
+        path: RoutePaths.prayerRequests,
+        name: RouteNames.prayerRequests,
+        builder: (context, state) => const PrayerRequestsScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.createPrayerRequest,
+        name: RouteNames.createPrayerRequest,
+        builder: (context, state) => const CreatePrayerRequestScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.prayerRequestDetail,
+        name: RouteNames.prayerRequestDetail,
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return PrayerRequestDetailScreen(id: id);
         },
       ),
     ],

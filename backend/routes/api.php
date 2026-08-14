@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\DailyVerseController;
 use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
+use App\Http\Controllers\Api\V1\PrayerRequestController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
 use App\Http\Controllers\Api\V1\ServiceFormTypeController;
 use App\Http\Controllers\Api\V1\WartaController;
@@ -69,4 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/donations/confirm', [DonationConfirmationController::class, 'confirm']);
     Route::get('/donations/my-donations', [DonationConfirmationController::class, 'myDonations']);
     Route::get('/donations/{id}', [DonationConfirmationController::class, 'show']);
+
+    // Phase 3.3 Protected Extended Endpoints
+    Route::get('/prayer-requests', [PrayerRequestController::class, 'index']);
+    Route::post('/prayer-requests', [PrayerRequestController::class, 'store']);
+    Route::get('/prayer-requests/{id}', [PrayerRequestController::class, 'show']);
 });

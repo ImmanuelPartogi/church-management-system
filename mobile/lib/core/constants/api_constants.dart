@@ -32,4 +32,7 @@ class ApiConstants {
   static const String donationConfirmEndpoint = '/donations/confirm';
   static const String myDonationsEndpoint = '/donations/my-donations';
   static String donationDetailEndpoint(int id) => '/donations/$id';
+
+  static const String prayerRequestsEndpoint = '/prayer-requests';
+  static String prayerRequestDetailEndpoint(int id) => '/prayer-requests/$id';
 }
