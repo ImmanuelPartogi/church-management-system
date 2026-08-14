@@ -40,6 +40,11 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Church App'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Cari',
+            onPressed: () => context.push(RoutePaths.search),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Keluar',
             onPressed: () {

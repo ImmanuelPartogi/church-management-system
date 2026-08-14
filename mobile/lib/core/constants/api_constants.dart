@@ -54,4 +54,5 @@ class ApiConstants {
   static String sermonDownloadEndpoint(int id) => '/sermons/$id/download';
 
   static const String deviceTokenEndpoint = '/notifications/device-token';
+  static const String searchEndpoint = '/search';
 }

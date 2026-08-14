@@ -32,6 +32,7 @@ import '../../features/community/presentation/screens/servants_screen.dart';
 import '../../features/community/presentation/screens/servant_detail_screen.dart';
 import '../../features/media/presentation/screens/sermons_screen.dart';
 import '../../features/media/presentation/screens/sermon_detail_screen.dart';
+import '../../features/search/presentation/screens/global_search_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -256,6 +257,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return SermonDetailScreen(id: id);
         },
+      ),
+      GoRoute(
+        path: RoutePaths.search,
+        name: RouteNames.search,
+        builder: (context, state) => const GlobalSearchScreen(),
       ),
     ],
   );

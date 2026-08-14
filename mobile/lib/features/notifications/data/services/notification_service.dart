@@ -17,10 +17,13 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class NotificationService {
-  final FirebaseMessaging _messaging;
+  final FirebaseMessaging? _customMessaging;
 
   NotificationService({FirebaseMessaging? messaging})
-      : _messaging = messaging ?? FirebaseMessaging.instance;
+      : _customMessaging = messaging;
+
+  FirebaseMessaging get _messaging =>
+      _customMessaging ?? FirebaseMessaging.instance;
 
   static const List<String> routeWhitelist = [
     RoutePaths.home,

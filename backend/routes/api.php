@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\PrayerRequestController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SermonController;
 use App\Http\Controllers\Api\V1\ServantController;
 use App\Http\Controllers\Api\V1\ServiceFormApplicationController;
@@ -61,6 +62,9 @@ Route::get('/servants/{id}', [ServantController::class, 'show']);
 Route::get('/sermons', [SermonController::class, 'index']);
 Route::get('/sermons/{id}', [SermonController::class, 'show']);
 Route::get('/sermons/{id}/download', [SermonController::class, 'download']);
+
+// Phase 14.1 Global Cross-Module Search Endpoint
+Route::get('/search', [SearchController::class, 'search']);
 
 // Auth token exchange with rate limit
 Route::post('/auth/firebase', [AuthController::class, 'firebase'])
