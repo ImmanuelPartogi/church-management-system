@@ -12,6 +12,7 @@ import '../../../warta/presentation/providers/warta_provider.dart';
 import '../../../forms/presentation/providers/service_forms_provider.dart';
 import '../../../prayer_requests/presentation/providers/prayer_request_provider.dart';
 import '../../../hymns/presentation/providers/hymn_provider.dart';
+import '../../../finance/presentation/providers/finance_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -54,6 +55,7 @@ class HomeScreen extends ConsumerWidget {
           ref.invalidate(prayerRequestListProvider);
           ref.invalidate(songbooksProvider);
           ref.invalidate(hymnListProvider);
+          ref.invalidate(financialReportProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -841,6 +843,79 @@ class HomeScreen extends ConsumerWidget {
                       ElevatedButton(
                         onPressed: () => context.push(RoutePaths.hymns),
                         child: const Text('Cari'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Transparansi Keuangan Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Transparansi Keuangan',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push(RoutePaths.finance),
+                    child: const Text('Lihat Laporan'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.analytics_outlined,
+                          color: AppColors.primary,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Laporan Pemasukan & Pengeluaran',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Ringkasan saldo bersih, grafik rasio, dan transparansi anggaran gereja.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => context.push(RoutePaths.finance),
+                        child: const Text('Grafik'),
                       ),
                     ],
                   ),

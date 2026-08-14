@@ -39,4 +39,6 @@ class ApiConstants {
   static const String songbooksEndpoint = '/songbooks';
   static const String songsEndpoint = '/songs';
   static String songDetailEndpoint(int id) => '/songs/$id';
+
+  static const String financialTransparencyEndpoint = '/finances/transparency';
 }
