@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 
+import 'package:church_management_mobile/core/error/failures.dart';
 import 'package:church_management_mobile/features/auth/domain/entities/user.dart';
 import 'package:church_management_mobile/features/auth/presentation/providers/auth_provider.dart';
 import 'package:church_management_mobile/features/profile/domain/entities/user_profile.dart';
+import 'package:church_management_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:church_management_mobile/features/profile/presentation/providers/profile_provider.dart';
 import 'package:church_management_mobile/features/profile/presentation/screens/profile_screen.dart';
 
@@ -32,6 +35,34 @@ class FakeAuthNotifier extends AuthNotifier {
   }
 }
 
+class FakeProfileRepository implements ProfileRepository {
+  final UserProfile profile;
+
+  FakeProfileRepository(this.profile);
+
+  @override
+  Future<Either<Failure, UserProfile>> getProfile() async => Right(profile);
+
+  @override
+  Future<Either<Failure, UserProfile>> updateProfile({
+    required String name,
+    String? phone,
+    String? address,
+  }) async =>
+      Right(UserProfile(
+        id: profile.id,
+        name: name,
+        email: profile.email,
+        phone: phone,
+        address: address,
+        roles: profile.roles,
+        member: profile.member,
+      ));
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async => const Right(null);
+}
+
 void main() {
   testWidgets('renders profile user header, info card, edit button, and delete account action', (tester) async {
     const profile = UserProfile(
@@ -43,11 +74,14 @@ void main() {
       roles: ['member'],
     );
 
+    final fakeRepo = FakeProfileRepository(profile);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authNotifierProvider.overrideWith(() => FakeAuthNotifier()),
-          userProfileProvider.overrideWith((ref) => Future.value(profile)),
+          profileRepositoryProvider.overrideWithValue(fakeRepo),
+          userProfileProvider.overrideWith((ref) async => profile),
         ],
         child: const MaterialApp(
           home: ProfileScreen(),
@@ -59,7 +93,7 @@ void main() {
 
     expect(find.text('Profil Saya'), findsOneWidget);
     expect(find.text('Budi Jemaat'), findsNWidgets(2));
-    expect(find.text('budi@example.com'), findsOneWidget);
+    expect(find.text('budi@example.com'), findsNWidgets(2));
     expect(find.text('Informasi Akun'), findsOneWidget);
     expect(find.text('Edit Profil'), findsOneWidget);
     expect(find.text('Keluar / Logout'), findsOneWidget);
