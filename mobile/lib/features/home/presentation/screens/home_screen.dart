@@ -431,12 +431,12 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    schedule.name,
+                    schedule.title,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${schedule.formattedDate} • ${schedule.time}',
+                    '${schedule.day} • ${schedule.startTime}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).brightness == Brightness.dark
@@ -466,13 +466,13 @@ class HomeScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StatusBadge(
-                  label: announcement.category ?? 'Pengumuman',
+                  label: announcement.status,
                   type: StatusBadgeType.info,
                   isSmall: true,
                 ),
-                if (announcement.date != null)
+                if (announcement.publishedAt != null)
                   Text(
-                    announcement.date!,
+                    announcement.publishedAt!,
                     style: TextStyle(
                       fontSize: 11,
                       color: Theme.of(context).brightness == Brightness.dark
@@ -487,20 +487,18 @@ class HomeScreen extends ConsumerWidget {
               announcement.title,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
-            if (announcement.content != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                announcement.content!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
-                ),
+            const SizedBox(height: 4),
+            Text(
+              announcement.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
               ),
-            ],
+            ),
           ],
         ),
       ),
