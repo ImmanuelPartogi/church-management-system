@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\DonationConfirmationController;
 use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\PrayerRequestController;
+use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SermonController;
 use App\Http\Controllers\Api\V1\ServantController;
@@ -74,6 +75,11 @@ Route::post('/auth/firebase', [AuthController::class, 'firebase'])
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Phase 15.1 Profile & Account Management
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     // Phase 13.1 Device Token Registration
     Route::post('/notifications/device-token', [DeviceTokenController::class, 'store']);

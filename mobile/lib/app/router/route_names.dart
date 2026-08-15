@@ -32,6 +32,7 @@ class RoutePaths {
   static const String sermons = '/sermons';
   static const String sermonDetail = '/sermons/:id';
   static const String search = '/search';
+  static const String profile = '/profile';
 }
 
 class RouteNames {
@@ -67,4 +68,5 @@ class RouteNames {
   static const String sermons = 'sermons';
   static const String sermonDetail = 'sermonDetail';
   static const String search = 'search';
+  static const String profile = 'profile';
 }
