@@ -35,7 +35,7 @@ class UserProfileModel with _$UserProfileModel {
           [],
       member: data['member'] != null
           ? MemberDirectoryModel.fromJson(
-              data['member'] as Map<String, dynamic>)
+              data['member'] as Map<String, dynamic>,)
           : null,
     );
   }
