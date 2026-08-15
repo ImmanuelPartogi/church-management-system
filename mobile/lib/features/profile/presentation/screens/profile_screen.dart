@@ -77,8 +77,7 @@ class ProfileScreen extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () =>
-                        _showEditProfileDialog(context, ref, profile),
+                    onPressed: () => _showEditProfileDialog(context, ref, profile),
                     icon: const Icon(Icons.edit_outlined),
                     label: const Text('Edit Profil'),
                     style: ElevatedButton.styleFrom(
@@ -100,8 +99,7 @@ class ProfileScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
                       children: [
-                        Icon(Icons.privacy_tip_outlined,
-                            color:, Colors.blue.shade700,),
+                        Icon(Icons.privacy_tip_outlined, color: Colors.blue.shade700),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -135,8 +133,7 @@ class ProfileScreen extends ConsumerWidget {
                       : const Icon(Icons.delete_forever, color: Colors.red),
                   title: const Text(
                     'Hapus Akun Saya',
-                    style: TextStyle(
-                        color: Colors.red, fontWe,ight: FontWeight.bold,),
+                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                   ),
                   subtitle: const Text(
                     'Penghapusan akun permanen sesuai regulasi data pribadi UU PDP.',
@@ -213,17 +210,14 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       Chip(
                         label: Text(
-                          profile.roles.isNotEmpty
-                              ? profile.roles.first
-                              : 'User',
+                          profile.roles.isNotEmpty ? profile.roles.first : 'User',
                           style: const TextStyle(fontSize: 10),
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
                       if (profile.hasLinkedMember)
                         const Chip(
-                          avatar: Icon(Icons.check_circle,
-                              size: 14,, color: Colors.green,),
+                          avatar: Icon(Icons.check_circle, size: 14, color: Colors.green),
                           label: Text(
                             'Jemaat Terverifikasi',
                             style: TextStyle(fontSize: 10, color: Colors.green),
@@ -262,8 +256,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
-                      fontWeight: FontWeig,ht.bold, fontSize: 16,),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ],
             ),
@@ -301,10 +294,9 @@ class ProfileScreen extends ConsumerWidget {
   ) {
     final nameController = TextEditingController(text: profile.name);
     final phoneController = TextEditingController(text: profile.phone ?? '');
-    final addressController =
-        TextEditingController(text: profile.address ?? '');
+    final addressController = TextEditingController(text: profile.address ?? '');
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Edit Profil'),
@@ -367,7 +359,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _showAccountDeletionDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Row(
@@ -406,8 +398,7 @@ class ProfileScreen extends ConsumerWidget {
                 }
               }
             },
-            child:
-                const Text('Hapus Akun', style: TextStyle(color: Colors.white)),
+            child: const Text('Hapus Akun', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

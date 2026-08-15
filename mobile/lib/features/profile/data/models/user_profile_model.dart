@@ -4,7 +4,6 @@ import 'package:church_management_mobile/features/directory/data/models/member_d
 import 'package:church_management_mobile/features/profile/domain/entities/user_profile.dart';
 
 part 'user_profile_model.freezed.dart';
-part 'user_profile_model.g.dart';
 
 @freezed
 class UserProfileModel with _$UserProfileModel {
