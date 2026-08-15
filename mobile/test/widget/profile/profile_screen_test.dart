@@ -13,7 +13,7 @@ class FakeAuthNotifier extends AuthNotifier {
   AuthState build() {
     return const AuthState.authenticated(
       User(
-        id: '1',
+        id: 1,
         email: 'budi@example.com',
         name: 'Budi Jemaat',
         roles: ['member'],
