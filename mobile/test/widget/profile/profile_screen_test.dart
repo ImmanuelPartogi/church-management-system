@@ -57,7 +57,8 @@ class FakeProfileRepository implements ProfileRepository {
         address: address,
         roles: profile.roles,
         member: profile.member,
-      ));
+      ),
+    );
 
   @override
   Future<Either<Failure, void>> deleteAccount() async => const Right(null);

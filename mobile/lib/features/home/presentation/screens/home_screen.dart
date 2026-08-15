@@ -182,8 +182,11 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.menu_book_rounded,
-                              color: AppColors.goldLight, size: 20),
+                          const Icon(
+                            Icons.menu_book_rounded,
+                            color: AppColors.goldLight,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             verse.verseReference,
@@ -268,7 +271,7 @@ class HomeScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildSectionHeader(context, title: 'Warta & Pengumuman'),
+              _buildSectionHeader(context, title: 'Pengumuman Gereja'),
               TextButton(
                 onPressed: () => context.push(RoutePaths.wartas),
                 child: const Text('Lihat Semua'),
@@ -436,7 +439,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${schedule.day} • ${schedule.startTime}',
+                    '${schedule.day.startsWith('Hari') ? schedule.day : 'Hari ${schedule.day}'} • ${schedule.endTime != null && schedule.endTime!.isNotEmpty ? '${schedule.startTime} - ${schedule.endTime}' : schedule.startTime}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).brightness == Brightness.dark
