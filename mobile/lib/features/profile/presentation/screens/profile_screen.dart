@@ -59,14 +59,14 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         _buildInfoRow(
                           'No. Anggota',
-                          profile.member!.membershipNumber,
+                          profile.member!.membershipNumber ?? '-',
                         ),
                         const Divider(),
                         _buildInfoRow('Nama Jemaat', profile.member!.fullName),
                         const Divider(),
-                        _buildInfoRow('Jenis Kelamin', profile.member!.gender),
+                        _buildInfoRow('Jenis Kelamin', profile.member!.gender ?? '-'),
                         const Divider(),
-                        _buildInfoRow('Status', profile.member!.status),
+                        _buildInfoRow('Status', profile.member!.status ?? '-'),
                       ],
                     ),
                   ),
@@ -101,7 +101,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         Icon(Icons.privacy_tip_outlined,
-                            color: Colors.blue.shade700),
+                            color:, Colors.blue.shade700,),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -136,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
                   title: const Text(
                     'Hapus Akun Saya',
                     style: TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
+                        color: Colors.red, fontWe,ight: FontWeight.bold,),
                   ),
                   subtitle: const Text(
                     'Penghapusan akun permanen sesuai regulasi data pribadi UU PDP.',
@@ -223,7 +223,7 @@ class ProfileScreen extends ConsumerWidget {
                       if (profile.hasLinkedMember)
                         const Chip(
                           avatar: Icon(Icons.check_circle,
-                              size: 14, color: Colors.green),
+                              size: 14,, color: Colors.green,),
                           label: Text(
                             'Jemaat Terverifikasi',
                             style: TextStyle(fontSize: 10, color: Colors.green),
@@ -263,7 +263,7 @@ class ProfileScreen extends ConsumerWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                      fontWeight: FontWeig,ht.bold, fontSize: 16,),
                 ),
               ],
             ),
