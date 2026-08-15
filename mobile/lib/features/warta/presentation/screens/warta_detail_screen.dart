@@ -54,7 +54,7 @@ class WartaDetailScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Warta berhasil diunduh'),
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.success,
           ),
         );
         ref.read(wartaDownloadProvider(id).notifier).reset();

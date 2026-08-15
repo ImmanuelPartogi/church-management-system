@@ -86,7 +86,7 @@ class _ScheduleCalendarScreenState
                 },
                 calendarStyle: const CalendarStyle(
                   todayDecoration: BoxDecoration(
-                    color: AppColors.secondary,
+                    color: AppColors.gold,
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: BoxDecoration(

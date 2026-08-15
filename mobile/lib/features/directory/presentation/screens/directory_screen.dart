@@ -199,7 +199,7 @@ class _DirectoryScreenState extends ConsumerState<DirectoryScreen> {
                           leading: CircleAvatar(
                             radius: 24,
                             backgroundColor:
-                                AppColors.primary.withOpacity(0.15),
+                                AppColors.primary.withValues(alpha: 0.15),
                             child: Text(
                               initial,
                               style: const TextStyle(

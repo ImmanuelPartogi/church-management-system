@@ -1,24 +1,42 @@
 import 'package:flutter/material.dart';
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
+import 'app_button.dart';
+import 'app_skeleton.dart';
 
-/// Kumpulan widget state umum (loading / error / empty) supaya setiap
-/// screen yang menampilkan data dari API punya tampilan yang konsisten.
-
+/// AppLoadingView displays a shimmer skeleton or indicator with a friendly message.
 class AppLoadingView extends StatelessWidget {
-  const AppLoadingView({super.key, this.message});
+  const AppLoadingView({
+    super.key,
+    this.message = 'Memuat data...',
+    this.useSkeleton = true,
+  });
 
   final String? message;
+  final bool useSkeleton;
 
   @override
   Widget build(BuildContext context) {
+    if (useSkeleton) {
+      return const AppSkeletonListView();
+    }
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(),
+          const CircularProgressIndicator(strokeWidth: 2.5),
           if (message != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(message!, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              message!,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
+            ),
           ],
         ],
       ),
@@ -26,13 +44,16 @@ class AppLoadingView extends StatelessWidget {
   }
 }
 
+/// AppErrorView displays a human-friendly error view with an optional retry button.
 class AppErrorView extends StatelessWidget {
   const AppErrorView({
     required this.message,
     super.key,
     this.onRetry,
+    this.title = 'Terjadi Gangguan',
   });
 
+  final String title;
   final String message;
   final VoidCallback? onRetry;
 
@@ -44,18 +65,37 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 40),
-            const SizedBox(height: AppSpacing.sm),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: AppColors.errorBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.error_outline_rounded, size: 36, color: AppColors.error),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              OutlinedButton(
+              const SizedBox(height: AppSpacing.lg),
+              AppButton(
+                label: 'Coba Lagi',
+                icon: Icons.refresh,
+                variant: AppButtonVariant.outlined,
                 onPressed: onRetry,
-                child: const Text('Coba Lagi'),
               ),
             ],
           ],
@@ -65,15 +105,22 @@ class AppErrorView extends StatelessWidget {
   }
 }
 
+/// AppEmptyView displays a clean empty state with icon, title, description, and action button.
 class AppEmptyView extends StatelessWidget {
   const AppEmptyView({
     required this.message,
     super.key,
+    this.title = 'Belum Ada Data',
     this.icon = Icons.inbox_outlined,
+    this.actionLabel,
+    this.onAction,
   });
 
+  final String title;
   final String message;
   final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +130,45 @@ class AppEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 40, color: Theme.of(context).disabledColor),
-            const SizedBox(height: AppSpacing.sm),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.surfaceVariantDark
+                    : AppColors.surfaceVariantLight,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 40,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMutedLight,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              AppButton(
+                label: actionLabel!,
+                onPressed: onAction,
+              ),
+            ],
           ],
         ),
       ),
@@ -97,8 +176,7 @@ class AppEmptyView extends StatelessWidget {
   }
 }
 
-/// Widget generik untuk menandai screen yang strukturnya sudah ada tapi
-/// implementasinya menyusul di fase pengembangan modul berikutnya.
+/// Generic placeholder screen widget.
 class PlaceholderScreen extends StatelessWidget {
   const PlaceholderScreen({required this.title, super.key});
 
@@ -108,12 +186,9 @@ class PlaceholderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(
-          '$title\n(belum diimplementasikan)',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+      body: AppEmptyView(
+        title: title,
+        message: 'Modul ini sedang dalam tahap persiapan.',
       ),
     );
   }

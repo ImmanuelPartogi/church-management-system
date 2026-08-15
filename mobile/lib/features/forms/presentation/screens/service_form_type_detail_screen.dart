@@ -55,7 +55,7 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor:
-                                  AppColors.primary.withOpacity(0.1),
+                                  AppColors.primary.withValues(alpha: 0.1),
                               child: const Icon(
                                 Icons.assignment_turned_in,
                                 color: AppColors.primary,
