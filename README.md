@@ -6,7 +6,6 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.22+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.4+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin Portal berbasis Laravel 13 + Filament v5** dengan **Aplikasi Mobile Jemaat berbasis Flutter**. Sistem ini dirancang untuk mempermudah pengelolaan jemaat, jadwal ibadah, warta digital, formulir pelayanan, donasi transfer bank, permohonan doa, dan transparansi keuangan gereja secara terpusat.
 
@@ -289,7 +288,3 @@ main (produksi, stabil, protected)
 4. Buat **Pull Request (PR)** ke `develop` dan pastikan seluruh workflow CI (GitHub Actions) lulus 100% sebelum meminta review.
 
 ---
-
-## 📄 Lisensi
-
-Project ini dilisensikan di bawah **[MIT License](LICENSE)**. Anda bebas mengunduh, memodifikasi, dan mendistribusikan perangkat lunak meupun petunjuk di atas sesuai dengan ketentuan lisensi.
