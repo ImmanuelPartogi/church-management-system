@@ -6,6 +6,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.22+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.4+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin Portal berbasis Laravel 13 + Filament v5** dengan **Aplikasi Mobile Jemaat berbasis Flutter**. Sistem ini dirancang untuk mempermudah pengelolaan jemaat, jadwal ibadah, warta digital, formulir pelayanan, donasi transfer bank, permohonan doa, dan transparansi keuangan gereja secara terpusat.
 
@@ -40,22 +41,22 @@ Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin
 ## 🛠 Tech Stack
 
 ### Backend & Web Admin
-- **Framework**: [Laravel 13.x](https://laravel.com)
-- **Runtime Environment**: [PHP 8.4+](https://www.php.net)
-- **Web Admin Panel**: [Filament v5.7](https://filamentphp.com)
+- **Framework**: [Laravel 13.x](https://laravel.com) (`laravel/framework ^13.8`)
+- **Runtime Environment**: [PHP 8.4+](https://www.php.net) (`php ^8.4`)
+- **Web Admin Panel**: [Filament v5.7](https://filamentphp.com) (`filament/filament ^5.7`)
 - **Database**: MySQL 8.0+
-- **Authentication**: Laravel Sanctum v4.3 & Firebase Auth (`kreait/laravel-firebase` v7.2)
-- **Authorization / RBAC**: Spatie Laravel Permission v8.3
+- **Authentication**: Laravel Sanctum v4.3 & Firebase Auth (`kreait/laravel-firebase ^7.2`)
+- **Authorization / RBAC**: Spatie Laravel Permission v8.3 (`spatie/laravel-permission ^8.3`)
 - **Code Quality**: Laravel Pint v1.27, Larastan v3.10, PHPUnit v12.5
 
 ### Mobile Application
 - **Framework**: [Flutter 3.22+](https://flutter.dev) / [Dart 3.4+](https://dart.dev)
-- **State Management**: [Riverpod v2.5.1](https://riverpod.dev) (`flutter_riverpod`, `riverpod_generator`)
-- **Networking**: [Dio v5.4.3](https://pub.dev/packages/dio) with `pretty_dio_logger`
+- **State Management**: [Riverpod v2.5.1](https://riverpod.dev) (`flutter_riverpod ^2.5.1`, `riverpod_generator ^2.4.0`)
+- **Networking**: [Dio v5.4.3](https://pub.dev/packages/dio) with `pretty_dio_logger ^1.3.1`
 - **Routing**: [GoRouter v14.2.0](https://pub.dev/packages/go_router)
 - **Functional Error Handling**: [fpdart v1.1.0](https://pub.dev/packages/fpdart) (`Either<Failure, T>`)
 - **Code Generation**: Freezed v2.5.5, JsonSerializable v6.8.0
-- **Push Notifications**: Firebase Cloud Messaging (`firebase_messaging` v15.2.10)
+- **Push Notifications**: Firebase Cloud Messaging (`firebase_messaging ^15.2.10`, `firebase_core ^3.15.2`, `firebase_auth ^5.7.0`)
 
 ---
 
@@ -68,16 +69,16 @@ church-management-system/
 ├── backend/                     # Laravel 13 API & Filament v5 Admin Web
 │   ├── app/
 │   │   ├── Enums/               # Enum domain (ApplicationStatus, PrayerStatus, dll)
-│   │   ├── Filament/            # Resources & Pages Portal Web Admin (18 Resources)
+│   │   ├── Filament/            # Resources & Pages Portal Web Admin (19 Resources)
 │   │   ├── Http/
-│   │   │   ├── Controllers/Api/V1/ # REST API Controllers (38 endpoints)
+│   │   │   ├── Controllers/Api/V1/ # REST API Controllers (18 Controllers, 41 Active Endpoints)
 │   │   │   └── Middleware/      # Custom middleware (Authenticate, Sanitize)
 │   │   ├── Models/              # Eloquent Models & Relationship definitions (23 Models)
 │   │   ├── Policies/            # Spatie RBAC Authorization Policies
 │   │   ├── Providers/           # Service Providers (App, AdminPanelProvider)
 │   │   └── Services/            # Business Logic & Integration Services (FCM, Auth)
 │   ├── config/                  # Konfigurasi aplikasi, auth, & packages
-│   ├── database/                # Database Migrations (28 files), Factories, & Seeders
+│   ├── database/                # Database Migrations (29 files), Factories, & Seeders
 │   ├── routes/                  # Route definitions (api.php, web.php)
 │   └── tests/                   # Automated PHPUnit / Pest Test Suites (87 Tests)
 │
@@ -138,7 +139,7 @@ Sistem menyediakan fungsi terpadu untuk pengurus gereja dan jemaat:
 Sebelum memulai instalasi, pastikan lingkungan pengembangan Anda telah memenuhi kebutuhan perangkat lunak berikut:
 
 ### Perangkat Lunak Utama
-- **PHP**: Versi `>= 8.4` (dengan ekstensi `pdo`, `pdo_mysql`, `mbstring`, `openssl`, `curl`, `gd`)
+- **PHP**: Versi `>= 8.4` (dengan ekstensi `pdo`, `pdo_mysql`, `pdo_sqlite` (untuk CLI testing), `mbstring`, `openssl`, `curl`, `gd`)
 - **Composer**: Versi `>= 2.7`
 - **Node.js**: Versi `>= 20.x` & **npm**: Versi `>= 10.x`
 - **Database Server**: MySQL `>= 8.0` atau MariaDB `>= 10.6`
@@ -247,6 +248,7 @@ vendor/bin/phpstan analyse --memory-limit=512M
 # Menjalankan Automated Unit & Integration Tests (PHPUnit)
 php artisan test
 ```
+*Catatan Testing Backend*: PHPUnit menggunakan koneksi SQLite in-memory secara default (`phpunit.xml`). Pastikan ekstensi `pdo_sqlite` aktif pada PHP CLI Anda.
 
 ### Pemeriksaan Mobile (Flutter)
 ```bash
@@ -288,3 +290,7 @@ main (produksi, stabil, protected)
 4. Buat **Pull Request (PR)** ke `develop` dan pastikan seluruh workflow CI (GitHub Actions) lulus 100% sebelum meminta review.
 
 ---
+
+## 📄 Lisensi
+
+Project ini dilisensikan di bawah **[MIT License](LICENSE)**. Anda bebas mengunduh, memodifikasi, dan mendistribusikan perangkat lunak maupun petunjuk di atas sesuai dengan ketentuan lisensi.
