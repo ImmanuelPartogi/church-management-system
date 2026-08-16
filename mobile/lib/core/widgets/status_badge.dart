@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 
-enum StatusBadgeType { success, warning, error, info, neutral }
+enum StatusBadgeType { success, warning, error, info, neutral, primary }
 
 /// Polished status badge widget with cohesive semantic color palette.
 class StatusBadge extends StatelessWidget {
@@ -26,7 +26,14 @@ class StatusBadge extends StatelessWidget {
       StatusBadgeType.warning => (AppColors.warningBg, AppColors.warning),
       StatusBadgeType.error => (AppColors.errorBg, AppColors.error),
       StatusBadgeType.info => (AppColors.infoBg, AppColors.info),
-      StatusBadgeType.neutral => (const Color(0xFFF1F5F9), const Color(0xFF475569)),
+      StatusBadgeType.primary => (
+          AppColors.primary.withValues(alpha: 0.1),
+          AppColors.primary
+        ),
+      StatusBadgeType.neutral => (
+          const Color(0xFFF1F5F9),
+          const Color(0xFF475569)
+        ),
     };
 
     final double fontSize = isSmall ? 10.0 : 11.0;

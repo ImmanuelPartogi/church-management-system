@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
+import '../../../../core/widgets/app_state_views.dart';
 import '../providers/warta_provider.dart';
 
 class WartaPdfViewerScreen extends ConsumerStatefulWidget {
@@ -38,37 +39,15 @@ class _WartaPdfViewerScreenState extends ConsumerState<WartaPdfViewerScreen> {
           return pdfFileAsync.when(
             data: (file) {
               if (_hasLoadFailed) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Gagal membuka PDF: $_errorMessage',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _hasLoadFailed = false;
-                              _errorMessage = '';
-                            });
-                            ref.invalidate(wartaPdfFileProvider(warta));
-                          },
-                          child: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
+                return AppErrorView(
+                  message: 'Gagal membuka PDF: $_errorMessage',
+                  onRetry: () {
+                    setState(() {
+                      _hasLoadFailed = false;
+                      _errorMessage = '';
+                    });
+                    ref.invalidate(wartaPdfFileProvider(warta));
+                  },
                 );
               }
 
@@ -82,73 +61,18 @@ class _WartaPdfViewerScreenState extends ConsumerState<WartaPdfViewerScreen> {
                 },
               );
             },
-            loading: () => const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(
-                    'Mengunduh file PDF...',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-            error: (error, stack) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Gagal mengunduh file PDF: ${error.toString()}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () =>
-                          ref.invalidate(wartaPdfFileProvider(warta)),
-                      child: const Text('Coba Lagi'),
-                    ),
-                  ],
-                ),
-              ),
+            loading: () =>
+                const AppLoadingView(message: 'Mengunduh file PDF...'),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal mengunduh file PDF: $error',
+              onRetry: () => ref.invalidate(wartaPdfFileProvider(warta)),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 12),
-                Text(
-                  'Gagal memuat detail warta: ${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () =>
-                      ref.invalidate(wartaDetailProvider(widget.id)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(message: 'Memuat data warta...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat detail warta: $error',
+          onRetry: () => ref.invalidate(wartaDetailProvider(widget.id)),
         ),
       ),
     );

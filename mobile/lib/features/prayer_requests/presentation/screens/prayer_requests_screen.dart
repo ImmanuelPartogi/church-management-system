@@ -5,79 +5,31 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/prayer_request_provider.dart';
 
 class PrayerRequestsScreen extends ConsumerWidget {
   const PrayerRequestsScreen({super.key});
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-    String label;
-
+  StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'submitted') {
-      bg = Colors.orange.shade50;
-      fg = Colors.orange.shade800;
-      label = 'Menunggu Didoakan';
-    } else if (lower == 'prayed') {
-      bg = Colors.blue.shade50;
-      fg = Colors.blue.shade800;
-      label = 'Sudah Didoakan';
-    } else if (lower == 'followed_up') {
-      bg = Colors.green.shade50;
-      fg = Colors.green.shade800;
-      label = 'Sudah Ditindaklanjuti';
-    } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade800;
-      label = status;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
-      ),
-    );
+    if (lower == 'submitted') return StatusBadgeType.warning;
+    if (lower == 'prayed') return StatusBadgeType.info;
+    if (lower == 'followed_up') return StatusBadgeType.success;
+    return StatusBadgeType.neutral;
   }
 
-  Widget _buildPrivacyBadge(bool isPrivate) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isPrivate ? Colors.purple.shade50 : Colors.teal.shade50,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isPrivate ? Icons.lock_outline : Icons.public_outlined,
-            size: 12,
-            color: isPrivate ? Colors.purple.shade800 : Colors.teal.shade800,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            isPrivate ? 'Privat' : 'Publik',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isPrivate ? Colors.purple.shade800 : Colors.teal.shade800,
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getStatusLabel(String status) {
+    final lower = status.toLowerCase();
+    if (lower == 'submitted') return 'Menunggu Didoakan';
+    if (lower == 'prayed') return 'Sudah Didoakan';
+    if (lower == 'followed_up') return 'Sudah Ditindaklanjuti';
+    return status;
   }
 
   String _formatDate(String dateStr) {
@@ -92,13 +44,14 @@ class PrayerRequestsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final listAsync = ref.watch(prayerRequestListProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Permohonan Doa'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             tooltip: 'Buat Permohonan Doa',
             onPressed: () {
               context.push(RoutePaths.createPrayerRequest);
@@ -111,7 +64,7 @@ class PrayerRequestsScreen extends ConsumerWidget {
           context.push(RoutePaths.createPrayerRequest);
         },
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.edit, color: Colors.white),
+        icon: const Icon(Icons.edit_rounded, color: Colors.white),
         label: const Text(
           'Buat Pokok Doa',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -121,85 +74,56 @@ class PrayerRequestsScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(prayerRequestListProvider);
         },
-        child: listAsync.when(
-          data: (requests) {
-            if (requests.isEmpty) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.volunteer_activism_outlined,
-                        size: 64,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Belum Ada Permohonan Doa',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Sampaikan permohonan doa Anda agar dapat didoakan oleh Tim Pastoral Gereja.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          context.push(RoutePaths.createPrayerRequest);
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Ajukan Pokok Doa Baru'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: listAsync.when(
+            data: (requests) {
+              if (requests.isEmpty) {
+                return AppEmptyView(
+                  title: 'Belum Ada Permohonan Doa',
+                  message:
+                      'Sampaikan permohonan doa Anda agar dapat didoakan oleh Tim Pastoral Gereja.',
+                  icon: Icons.volunteer_activism_outlined,
+                  actionLabel: 'Ajukan Pokok Doa Baru',
+                  onAction: () => context.push(RoutePaths.createPrayerRequest),
+                );
+              }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: requests.length,
-              itemBuilder: (context, index) {
-                final item = requests[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12.0),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.prayerRequestDetail,
-                        pathParameters: {'id': item.id.toString()},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: requests.length,
+                itemBuilder: (context, index) {
+                  final item = requests[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: AppCard(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.prayerRequestDetail,
+                          pathParameters: {'id': item.id.toString()},
+                        );
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildPrivacyBadge(item.isPrivate),
-                              _buildStatusBadge(item.status),
+                              StatusBadge(
+                                label: item.isPrivate ? 'Privat' : 'Publik',
+                                type: item.isPrivate
+                                    ? StatusBadgeType.neutral
+                                    : StatusBadgeType.info,
+                                isSmall: true,
+                              ),
+                              StatusBadge(
+                                label: _getStatusLabel(item.status),
+                                type: _getStatusBadgeType(item.status),
+                                isSmall: true,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: AppSpacing.xs),
                           Text(
                             item.title,
                             style: const TextStyle(
@@ -209,7 +133,7 @@ class PrayerRequestsScreen extends ConsumerWidget {
                           ),
                           if (item.category != null &&
                               item.category!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               'Kategori: ${item.category}',
                               style: const TextStyle(
@@ -219,18 +143,20 @@ class PrayerRequestsScreen extends ConsumerWidget {
                               ),
                             ),
                           ],
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Text(
                             item.content,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey.shade700,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight,
                               height: 1.3,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppSpacing.sm),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -238,7 +164,9 @@ class PrayerRequestsScreen extends ConsumerWidget {
                                 _formatDate(item.createdAt),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey.shade600,
+                                  color: isDark
+                                      ? AppColors.textMutedDark
+                                      : AppColors.textMutedLight,
                                 ),
                               ),
                               if (item.followUpNotes != null &&
@@ -246,7 +174,7 @@ class PrayerRequestsScreen extends ConsumerWidget {
                                 const Row(
                                   children: [
                                     Icon(
-                                      Icons.comment,
+                                      Icons.comment_rounded,
                                       size: 14,
                                       color: AppColors.primary,
                                     ),
@@ -266,34 +194,15 @@ class PrayerRequestsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Gagal memuat permohonan doa: ${error.toString()}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(prayerRequestListProvider),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+                  );
+                },
+              );
+            },
+            loading: () =>
+                const AppSkeletonListView(itemCount: 4, cardHeight: 110),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal memuat permohonan doa: $error',
+              onRetry: () => ref.invalidate(prayerRequestListProvider),
             ),
           ),
         ),

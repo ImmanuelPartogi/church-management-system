@@ -14,7 +14,8 @@ class AppSpacing {
   static const double xxxl = 64;
 
   // Insets helpers
-  static const EdgeInsets pageMargin = EdgeInsets.symmetric(horizontal: 16, vertical: 16);
+  static const EdgeInsets pageMargin =
+      EdgeInsets.symmetric(horizontal: 16, vertical: 16);
   static const EdgeInsets cardPadding = EdgeInsets.all(16);
 }
 
@@ -66,4 +67,6 @@ class AppBreakpoints {
   static const double tablet = 768;
   static const double desktop = 1024;
   static const double maxContentWidth = 1200;
+  static const double formMaxWidth = 640;
+  static const double detailMaxWidth = 800;
 }

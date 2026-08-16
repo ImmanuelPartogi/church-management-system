@@ -5,6 +5,11 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/service_forms_provider.dart';
 
 class ServiceFormTypesScreen extends ConsumerWidget {
@@ -23,13 +28,14 @@ class ServiceFormTypesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final typesAsync = ref.watch(serviceFormTypesProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Formulir Pelayanan'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.history_rounded),
             tooltip: 'Riwayat Pengajuan',
             onPressed: () {
               context.push(RoutePaths.myServiceApplications);
@@ -41,52 +47,47 @@ class ServiceFormTypesScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(serviceFormTypesProvider);
         },
-        child: typesAsync.when(
-          data: (types) {
-            if (types.isEmpty) {
-              return const Center(
-                child: Text(
-                  'Belum ada jenis formulir pelayanan tersedia',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: types.length,
-              itemBuilder: (context, index) {
-                final type = types[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12.0),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.serviceFormDetail,
-                        pathParameters: {'id': type.id.toString()},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: typesAsync.when(
+            data: (types) {
+              if (types.isEmpty) {
+                return const AppEmptyView(
+                  title: 'Belum ada jenis formulir pelayanan tersedia',
+                  message:
+                      'Belum ada jenis formulir pelayanan tersedia saat ini.',
+                  icon: Icons.assignment_outlined,
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: types.length,
+                itemBuilder: (context, index) {
+                  final type = types[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: AppCard(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.serviceFormDetail,
+                          pathParameters: {'id': type.id.toString()},
+                        );
+                      },
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(10),
+                              color: AppColors.primary.withValues(alpha: 0.15),
+                              borderRadius: AppRadius.borderSm,
                             ),
                             child: const Icon(
-                              Icons.assignment_outlined,
+                              Icons.assignment_rounded,
                               color: AppColors.primary,
                               size: 28,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,64 +108,36 @@ class ServiceFormTypesScreen extends ConsumerWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey.shade600,
+                                      color: isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight,
                                     ),
                                   ),
                                 ],
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'Biaya: ${_formatFee(type.feeAmount)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.blue.shade800,
-                                    ),
-                                  ),
+                                const SizedBox(height: AppSpacing.xs),
+                                StatusBadge(
+                                  label: 'Biaya: ${_formatFee(type.feeAmount)}',
+                                  type: type.feeAmount <= 0
+                                      ? StatusBadgeType.success
+                                      : StatusBadgeType.info,
+                                  isSmall: true,
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(width: AppSpacing.xs),
                           const Icon(Icons.chevron_right, color: Colors.grey),
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Gagal memuat formulir: ${error.toString()}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(serviceFormTypesProvider),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+                  );
+                },
+              );
+            },
+            loading: () => const AppLoadingView(useSkeleton: false),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal memuat formulir: $error',
+              onRetry: () => ref.invalidate(serviceFormTypesProvider),
             ),
           ),
         ),

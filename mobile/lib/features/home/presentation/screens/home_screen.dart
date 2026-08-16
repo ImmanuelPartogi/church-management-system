@@ -149,9 +149,10 @@ class HomeScreen extends ConsumerWidget {
                           user.email,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
@@ -259,7 +260,8 @@ class HomeScreen extends ConsumerWidget {
                     .toList(),
               );
             },
-            loading: () => const AppSkeletonListView(itemCount: 3, cardHeight: 80),
+            loading: () =>
+                const AppSkeletonListView(itemCount: 3, cardHeight: 80),
             error: (err, _) => AppErrorView(
               message: 'Gagal memuat jadwal ibadah',
               onRetry: () => ref.invalidate(scheduleListProvider),
@@ -294,7 +296,8 @@ class HomeScreen extends ConsumerWidget {
                     .toList(),
               );
             },
-            loading: () => const AppSkeletonListView(itemCount: 2, cardHeight: 90),
+            loading: () =>
+                const AppSkeletonListView(itemCount: 2, cardHeight: 90),
             error: (err, _) => AppErrorView(
               message: 'Gagal memuat pengumuman',
               onRetry: () => ref.invalidate(announcementListProvider),
@@ -413,7 +416,10 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWorshipScheduleCard(BuildContext context, WorshipSchedule schedule) {
+  Widget _buildWorshipScheduleCard(
+    BuildContext context,
+    WorshipSchedule schedule,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: AppCard(
@@ -426,7 +432,11 @@ class HomeScreen extends ConsumerWidget {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderMd,
               ),
-              child: const Icon(Icons.event_rounded, color: AppColors.primary, size: 20),
+              child: const Icon(
+                Icons.event_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -435,7 +445,10 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   Text(
                     schedule.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -457,7 +470,10 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAnnouncementCard(BuildContext context, Announcement announcement) {
+  Widget _buildAnnouncementCard(
+    BuildContext context,
+    Announcement announcement,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: AppCard(

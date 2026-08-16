@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../../data/repositories/sermon_repository_impl.dart';
 import '../providers/sermon_provider.dart';
 
@@ -62,7 +68,8 @@ class _SermonDetailScreenState extends ConsumerState<SermonDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(failure.message),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         },
@@ -72,7 +79,8 @@ class _SermonDetailScreenState extends ConsumerState<SermonDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen khotbah berhasil diunduh / dibuka.'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
             ),
           );
         },
@@ -94,103 +102,82 @@ class _SermonDetailScreenState extends ConsumerState<SermonDetailScreen> {
       body: sermonAsync.when(
         data: (sermon) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor:
-                            AppColors.primary.withValues(alpha: 0.15),
-                        child: const Icon(
-                          Icons.auto_stories,
-                          size: 32,
-                          color: AppColors.primary,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Card
+                  AppCard(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor:
+                              AppColors.primary.withValues(alpha: 0.15),
+                          child: const Icon(
+                            Icons.auto_stories,
+                            size: 32,
+                            color: AppColors.primary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        sermon.title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          sermon.title,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.person,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            sermon.preacherName,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                        const SizedBox(height: AppSpacing.xs),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.person_outline,
+                              size: 16,
+                              color: Colors.grey,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Chip(
-                            avatar: const Icon(
-                              Icons.calendar_today,
-                              size: 12,
+                            const SizedBox(width: 4),
+                            Text(
+                              sermon.preacherName,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
                             ),
-                            label: Text(_formatDate(sermon.publishedAt)),
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          const SizedBox(width: 8),
-                          Chip(
-                            avatar: const Icon(
-                              Icons.download,
-                              size: 12,
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            StatusBadge(
+                              label: _formatDate(sermon.publishedAt),
+                              type: StatusBadgeType.neutral,
                             ),
-                            label: Text('${sermon.downloadCount}x diunduh'),
-                            backgroundColor: Colors.blue.shade50,
-                          ),
-                        ],
-                      ),
-                    ],
+                            StatusBadge(
+                              label: '${sermon.downloadCount}x diunduh',
+                              type: StatusBadgeType.info,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Sermon Description / Notes Card
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  // Sermon Description / Notes Card
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -209,96 +196,39 @@ class _SermonDetailScreenState extends ConsumerState<SermonDetailScreen> {
                             fontSize: 14,
                             height: 1.5,
                             color: sermon.description != null
-                                ? Colors.black87
+                                ? (Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimaryLight)
                                 : Colors.grey,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.lg),
 
-                // Action Download / Stream Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
+                  // Action Download / Stream Button
+                  AppButton(
+                    label: _isDownloading
+                        ? 'Mengunduh Dokumen...'
+                        : 'Unduh / Baca Dokumen Khotbah',
+                    fullWidth: true,
+                    isLoading: _isDownloading,
+                    icon: Icons.download_rounded,
                     onPressed: _isDownloading ? null : _handleDownload,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: _isDownloading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.download),
-                    label: Text(
-                      _isDownloading
-                          ? 'Mengunduh Dokumen...'
-                          : 'Unduh / Baca Dokumen Khotbah',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Gagal memuat detail khotbah',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Text(
-                  error.toString().replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.invalidate(sermonDetailProvider(widget.id));
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Coba Lagi'),
-              ),
-            ],
-          ),
+        loading: () =>
+            const AppLoadingView(message: 'Memuat detail khotbah...'),
+        error: (error, stackTrace) => AppErrorView(
+          message: 'Gagal memuat detail khotbah: $error',
+          onRetry: () => ref.invalidate(sermonDetailProvider(widget.id)),
         ),
       ),
     );

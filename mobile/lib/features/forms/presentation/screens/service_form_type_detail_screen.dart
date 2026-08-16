@@ -5,6 +5,11 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/service_forms_provider.dart';
 
 class ServiceFormTypeDetailScreen extends ConsumerWidget {
@@ -28,6 +33,7 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final typeAsync = ref.watch(serviceFormTypeDetailProvider(id));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -36,17 +42,13 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
       body: typeAsync.when(
         data: (type) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -55,14 +57,14 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor:
-                                  AppColors.primary.withValues(alpha: 0.1),
+                                  AppColors.primary.withValues(alpha: 0.15),
                               child: const Icon(
-                                Icons.assignment_turned_in,
+                                Icons.assignment_turned_in_rounded,
                                 color: AppColors.primary,
                                 size: 28,
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
                                 type.name,
@@ -74,7 +76,7 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
                         const Text(
                           'Deskripsi Pelayanan',
                           style: TextStyle(
@@ -89,21 +91,26 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
                                   type.description!.isNotEmpty)
                               ? type.description!
                               : 'Tidak ada deskripsi tambahan.',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             height: 1.5,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.sm),
                         const Divider(),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.xs),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Biaya Administrasi',
                               style: TextStyle(
-                                color: Colors.grey,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                                 fontSize: 14,
                               ),
                             ),
@@ -120,83 +127,54 @@ class ServiceFormTypeDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.amber.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.amber.shade900),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Persiapkan dokumen pendukung yang diperlukan (format PDF, JPG, PNG max 5MB per file) sebelum mengisi formulir.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.amber.shade900,
-                            height: 1.3,
+                  const SizedBox(height: AppSpacing.md),
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withValues(alpha: 0.15),
+                      borderRadius: AppRadius.borderMd,
+                      border: Border.all(
+                        color: AppColors.gold.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded, color: AppColors.gold),
+                        SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            'Persiapkan dokumen pendukung yang diperlukan (format PDF, JPG, PNG max 5MB per file) sebelum mengisi formulir.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.3,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
+                  const SizedBox(height: AppSpacing.lg),
+                  AppButton(
+                    label: 'Ajukan Sekarang',
+                    icon: Icons.edit_document,
+                    fullWidth: true,
                     onPressed: () {
                       context.pushNamed(
                         RouteNames.serviceFormApply,
                         pathParameters: {'id': type.id.toString()},
                       );
                     },
-                    icon: const Icon(Icons.edit_document),
-                    label: const Text('Ajukan Sekarang'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 12),
-                Text(
-                  'Gagal memuat detail formulir: ${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () =>
-                      ref.invalidate(serviceFormTypeDetailProvider(id)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () =>
+            const AppLoadingView(message: 'Memuat detail formulir...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat detail formulir: $error',
+          onRetry: () => ref.invalidate(serviceFormTypeDetailProvider(id)),
         ),
       ),
     );

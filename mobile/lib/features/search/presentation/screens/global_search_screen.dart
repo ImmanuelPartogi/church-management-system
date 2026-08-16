@@ -1,12 +1,19 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../../../app/router/route_names.dart';
-import '../providers/search_provider.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/entities/global_search_result.dart';
+import '../providers/search_provider.dart';
 
 class GlobalSearchScreen extends ConsumerStatefulWidget {
   const GlobalSearchScreen({super.key});
@@ -57,148 +64,70 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
       appBar: AppBar(
         title: const Text('Pencarian Lintas Modul'),
       ),
-      body: Column(
-        children: [
-          // Search Input Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              decoration: InputDecoration(
+      body: ResponsiveLayout(
+        maxWidth: AppBreakpoints.maxContentWidth,
+        phone: Column(
+          children: [
+            // Search Input Bar
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: SearchField(
+                controller: _searchController,
                 hintText: 'Cari anggota, khotbah, lagu, warta...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _clearSearch,
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 14.0,
-                ),
+                onChanged: _onSearchChanged,
+                onClear: _clearSearch,
               ),
             ),
-          ),
 
-          // Category Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                _buildFilterChip('Semua', 'all', activeFilter),
-                _buildFilterChip('Anggota', 'members', activeFilter),
-                _buildFilterChip('Pelayan', 'servants', activeFilter),
-                _buildFilterChip('Khotbah', 'sermons', activeFilter),
-                _buildFilterChip('Lagu', 'hymns', activeFilter),
-                _buildFilterChip('Warta', 'wartas', activeFilter),
-                _buildFilterChip('Pengumuman', 'announcements', activeFilter),
-              ],
+            // Category Filter Chips
+            SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                children: [
+                  _buildFilterChip('Semua', 'all', activeFilter),
+                  _buildFilterChip('Anggota', 'members', activeFilter),
+                  _buildFilterChip('Pelayan', 'servants', activeFilter),
+                  _buildFilterChip('Khotbah', 'sermons', activeFilter),
+                  _buildFilterChip('Lagu', 'hymns', activeFilter),
+                  _buildFilterChip('Warta', 'wartas', activeFilter),
+                  _buildFilterChip('Pengumuman', 'announcements', activeFilter),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
 
-          // Results View
-          Expanded(
-            child: queryText.trim().length < 2
-                ? _buildEmptyQueryHint()
-                : searchAsync.when(
-                    data: (result) {
-                      if (result == null || result.isEmpty) {
-                        return _buildNoResultsState();
-                      }
-                      return _buildResultList(context, result, activeFilter);
-                    },
-                    loading: () => _buildLoadingShimmer(),
-                    error: (err, stack) => _buildErrorState(err.toString()),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value, String activeFilter) {
-    final isSelected = activeFilter == value;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (selected) {
-          if (selected) {
-            ref.read(searchCategoryFilterProvider.notifier).state = value;
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmptyQueryHint() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search, size: 64, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            'Ketik minimal 2 karakter untuk mencari',
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoResultsState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            'Tidak ada hasil ditemukan',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coba kata kunci lain atau pilih kategori yang berbeda.',
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            const Text(
-              'Gagal memuat hasil pencarian',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.refresh(globalSearchResultProvider),
-              child: const Text('Coba Lagi'),
+            // Results View
+            Expanded(
+              child: queryText.trim().length < 2
+                  ? const AppEmptyView(
+                      title: 'Ketik minimal 2 karakter untuk mencari',
+                      message:
+                          'Cari seluruh data jemaat, khotbah, lagu, dan warta.',
+                      icon: Icons.search_rounded,
+                    )
+                  : searchAsync.when(
+                      data: (result) {
+                        if (result == null || result.isEmpty) {
+                          return const AppEmptyView(
+                            title: 'Tidak Ada Hasil',
+                            message:
+                                'Coba kata kunci lain atau pilih kategori yang berbeda.',
+                            icon: Icons.search_off_rounded,
+                          );
+                        }
+                        return _buildResultList(context, result, activeFilter);
+                      },
+                      loading: () => const AppSkeletonListView(
+                        itemCount: 5,
+                        cardHeight: 70,
+                      ),
+                      error: (err, stack) => AppErrorView(
+                        message: 'Gagal memuat hasil pencarian: $err',
+                        onRetry: () => ref.refresh(globalSearchResultProvider),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -206,23 +135,19 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
     );
   }
 
-  Widget _buildLoadingShimmer() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemCount: 6,
-      itemBuilder: (_, __) => Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
-          child: Container(
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
+  Widget _buildFilterChip(String label, String value, String activeFilter) {
+    final isSelected = activeFilter == value;
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.sm),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        selectedColor: AppColors.primary.withValues(alpha: 0.2),
+        onSelected: (selected) {
+          if (selected) {
+            ref.read(searchCategoryFilterProvider.notifier).state = value;
+          }
+        },
       ),
     );
   }
@@ -235,16 +160,23 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
     final showAll = activeFilter == 'all';
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.all(AppSpacing.md),
       children: [
         if ((showAll || activeFilter == 'members') && result.members.isNotEmpty)
           _buildSection(
             title: 'Anggota Jemaat (${result.members.length})',
-            icon: Icons.people_outline,
+            icon: Icons.people_outline_rounded,
             children: result.members
                 .map(
                   (m) => ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.15),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        color: AppColors.primary,
+                      ),
+                    ),
                     title: Text(m.fullName),
                     subtitle: Text(
                       m.maskedPhone ?? 'No. Anggota: ${m.membershipNumber}',
@@ -262,8 +194,13 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
             children: result.servants
                 .map(
                   (s) => ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.shield_outlined),
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.15),
+                      child: const Icon(
+                        Icons.shield_outlined,
+                        color: AppColors.primary,
+                      ),
                     ),
                     title: Text(s.name),
                     subtitle:
@@ -276,11 +213,18 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
         if ((showAll || activeFilter == 'sermons') && result.sermons.isNotEmpty)
           _buildSection(
             title: 'Arsip Khotbah (${result.sermons.length})',
-            icon: Icons.graphic_eq_outlined,
+            icon: Icons.graphic_eq_rounded,
             children: result.sermons
                 .map(
                   (s) => ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.mic)),
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.15),
+                      child: const Icon(
+                        Icons.mic_rounded,
+                        color: AppColors.primary,
+                      ),
+                    ),
                     title: Text(s.title),
                     subtitle: Text('Pengkhotbah: ${s.preacherName}'),
                     onTap: () => context.push('/sermons/${s.id}'),
@@ -291,14 +235,20 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
         if ((showAll || activeFilter == 'hymns') && result.hymns.isNotEmpty)
           _buildSection(
             title: 'Buku Lagu / Hymn (${result.hymns.length})',
-            icon: Icons.music_note_outlined,
+            icon: Icons.music_note_rounded,
             children: result.hymns
                 .map(
                   (h) => ListTile(
                     leading: CircleAvatar(
+                      backgroundColor:
+                          AppColors.primary.withValues(alpha: 0.15),
                       child: Text(
                         '${h.number}',
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                     title: Text(h.title),
@@ -315,8 +265,13 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
             children: result.wartas
                 .map(
                   (w) => ListTile(
-                    leading:
-                        const CircleAvatar(child: Icon(Icons.picture_as_pdf)),
+                    leading: CircleAvatar(
+                      backgroundColor: AppColors.error.withValues(alpha: 0.15),
+                      child: const Icon(
+                        Icons.picture_as_pdf_rounded,
+                        color: AppColors.error,
+                      ),
+                    ),
                     title: Text(w.title),
                     subtitle: Text('Terbit: ${w.publishedAt}'),
                     onTap: () => context.push('/wartas/${w.id}'),
@@ -328,12 +283,17 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
             result.announcements.isNotEmpty)
           _buildSection(
             title: 'Pengumuman (${result.announcements.length})',
-            icon: Icons.campaign_outlined,
+            icon: Icons.campaign_rounded,
             children: result.announcements
                 .map(
                   (a) => ListTile(
-                    leading:
-                        const CircleAvatar(child: Icon(Icons.announcement)),
+                    leading: CircleAvatar(
+                      backgroundColor: AppColors.accent.withValues(alpha: 0.15),
+                      child: const Icon(
+                        Icons.campaign_rounded,
+                        color: AppColors.accent,
+                      ),
+                    ),
                     title: Text(a.title),
                     subtitle: Text(
                       a.content,
@@ -354,31 +314,33 @@ class _GlobalSearchScreenState extends ConsumerState<GlobalSearchScreen> {
     required IconData icon,
     required List<Widget> children,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            children: [
-              Icon(icon, size: 20, color: Theme.of(context).primaryColor),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: AppColors.primary),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Card(
-          margin: const EdgeInsets.only(bottom: 16.0),
-          elevation: 1,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Column(children: children),
-        ),
-      ],
+          AppCard(
+            padding: EdgeInsets.zero,
+            child: Column(children: children),
+          ),
+        ],
+      ),
     );
   }
 }

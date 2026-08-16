@@ -6,6 +6,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/sermon_provider.dart';
 
 class SermonsScreen extends ConsumerStatefulWidget {
@@ -90,275 +97,154 @@ class _SermonsScreenState extends ConsumerState<SermonsScreen> {
         onRefresh: () async {
           ref.invalidate(sermonListProvider);
         },
-        child: Column(
-          children: [
-            // Search TextField
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                decoration: InputDecoration(
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: Column(
+            children: [
+              // Search TextField
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: SearchField(
+                  controller: _searchController,
                   hintText: 'Cari judul khotbah atau nama pengkhotbah...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: _clearSearch,
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
+                  onChanged: _onSearchChanged,
+                  onClear: _clearSearch,
                 ),
               ),
-            ),
 
-            // Sermons List
-            Expanded(
-              child: sermonsAsync.when(
-                data: (sermons) {
-                  if (sermons.isEmpty) {
-                    return ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 60),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.menu_book_outlined,
-                                size: 64,
-                                color: Colors.grey,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Khotbah tidak ditemukan',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Coba kata kunci judul atau pengkhotbah lain.',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+              // Sermons List
+              Expanded(
+                child: sermonsAsync.when(
+                  data: (sermons) {
+                    if (sermons.isEmpty) {
+                      return const AppEmptyView(
+                        title: 'Khotbah Tidak Ditemukan',
+                        message: 'Coba kata kunci judul atau pengkhotbah lain.',
+                        icon: Icons.menu_book_outlined,
+                      );
+                    }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    itemCount: sermons.length,
-                    itemBuilder: (context, index) {
-                      final sermon = sermons[index];
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
+                      ),
+                      itemCount: sermons.length,
+                      itemBuilder: (context, index) {
+                        final sermon = sermons[index];
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12.0),
-                        elevation: 1.5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(12),
-                          leading: CircleAvatar(
-                            radius: 24,
-                            backgroundColor:
-                                AppColors.primary.withValues(alpha: 0.15),
-                            child: const Icon(
-                              Icons.auto_stories,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          title: Text(
-                            sermon.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 6.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: AppCard(
+                            onTap: () {
+                              context.pushNamed(
+                                RouteNames.sermonDetail,
+                                pathParameters: {'id': sermon.id.toString()},
+                              );
+                            },
+                            child: Row(
                               children: [
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.person,
-                                      size: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      sermon.preacherName,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ],
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor:
+                                      AppColors.primary.withValues(alpha: 0.15),
+                                  child: const Icon(
+                                    Icons.auto_stories,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        _formatDate(sermon.publishedAt),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey.shade800,
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        sermon.title,
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.shade50,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        _formatFileSize(sermon.fileSize),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.blue.shade900,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.download,
-                                          size: 12,
-                                          color: Colors.grey,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          '${sermon.downloadCount}',
-                                          style: const TextStyle(
-                                            fontSize: 11,
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.person_outline,
+                                            size: 14,
                                             color: Colors.grey,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              sermon.preacherName,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(context)
+                                                            .brightness ==
+                                                        Brightness.dark
+                                                    ? AppColors
+                                                        .textSecondaryDark
+                                                    : AppColors
+                                                        .textSecondaryLight,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        children: [
+                                          StatusBadge(
+                                            label:
+                                                _formatDate(sermon.publishedAt),
+                                            type: StatusBadgeType.neutral,
+                                            isSmall: true,
+                                          ),
+                                          StatusBadge(
+                                            label: _formatFileSize(
+                                              sermon.fileSize,
+                                            ),
+                                            type: StatusBadgeType.info,
+                                            isSmall: true,
+                                          ),
+                                          StatusBadge(
+                                            label: '${sermon.downloadCount}',
+                                            type: StatusBadgeType.success,
+                                            isSmall: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey,
                                 ),
                               ],
                             ),
                           ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.grey,
-                          ),
-                          onTap: () {
-                            context.pushNamed(
-                              RouteNames.sermonDetail,
-                              pathParameters: {'id': sermon.id.toString()},
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                error: (error, stackTrace) => ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    const SizedBox(height: 60),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Gagal memuat arsip khotbah',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 32.0),
-                            child: Text(
-                              error.toString().replaceAll('Exception: ', ''),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              ref.invalidate(sermonListProvider);
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                        );
+                      },
+                    );
+                  },
+                  loading: () =>
+                      const AppSkeletonListView(itemCount: 4, cardHeight: 90),
+                  error: (error, stackTrace) => AppErrorView(
+                    message: 'Gagal memuat arsip khotbah: $error',
+                    onRetry: () => ref.invalidate(sermonListProvider),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

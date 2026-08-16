@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/member_provider.dart';
 
 class MemberDetailScreen extends ConsumerWidget {
@@ -54,117 +59,84 @@ class MemberDetailScreen extends ConsumerWidget {
               : '?';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Header Profile Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                        child: Text(
-                          initial,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        member.fullName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      if (member.membershipNumber != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Text(
-                            'No. Anggota: ${member.membershipNumber}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade800,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                children: [
+                  // Header Profile Card
+                  AppCard(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.15),
+                              child: Text(
+                                initial,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (member.status != null)
-                            Chip(
-                              avatar: Icon(
-                                Icons.circle,
-                                size: 10,
-                                color: member.status == 'active'
-                                    ? Colors.green
-                                    : Colors.grey,
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member.fullName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (member.membershipNumber != null)
+                                    StatusBadge(
+                                      label:
+                                          'No. Anggota: ${member.membershipNumber}',
+                                      type: StatusBadgeType.neutral,
+                                      isSmall: true,
+                                    ),
+                                ],
                               ),
-                              label: Text(
-                                member.status == 'active'
-                                    ? 'Status: Aktif'
-                                    : 'Status: ${member.status}',
-                              ),
-                              backgroundColor: member.status == 'active'
-                                  ? Colors.green.shade50
-                                  : Colors.grey.shade100,
-                            ),
-                          if (member.hasAppAccount) ...[
-                            const SizedBox(width: 8),
-                            const Chip(
-                              avatar: Icon(
-                                Icons.verified_user,
-                                size: 14,
-                                color: AppColors.primary,
-                              ),
-                              label: Text('Akun Mobile'),
-                              backgroundColor: Color(0xFFEBF3FF),
                             ),
                           ],
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Row(
+                          children: [
+                            if (member.status != null)
+                              StatusBadge(
+                                label: member.status == 'active'
+                                    ? 'Status: Aktif'
+                                    : 'Status: ${member.status}',
+                                type: member.status == 'active'
+                                    ? StatusBadgeType.success
+                                    : StatusBadgeType.neutral,
+                              ),
+                            if (member.hasAppAccount) ...[
+                              const SizedBox(width: AppSpacing.sm),
+                              const StatusBadge(
+                                label: 'Akun Mobile',
+                                type: StatusBadgeType.info,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-                // Member Information Detail Card
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  // Member Information Detail Card
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -177,31 +149,37 @@ class MemberDetailScreen extends ConsumerWidget {
                         ),
                         const Divider(height: 24),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.person_outline,
                           label: 'Jenis Kelamin',
                           value: member.gender ?? '-',
                         ),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.phone_outlined,
                           label: 'No. Telepon',
                           value: member.phone ?? '-',
                         ),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.email_outlined,
                           label: 'Email',
                           value: member.email ?? '-',
                         ),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.location_on_outlined,
                           label: 'Alamat',
                           value: member.address ?? '-',
                         ),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.cake_outlined,
                           label: 'Tanggal Lahir',
                           value: _formatDate(member.birthDate),
                         ),
                         _buildInfoTile(
+                          context: context,
                           icon: Icons.water_drop_outlined,
                           label: 'Tanggal Baptis',
                           value: _formatDate(member.baptismDate),
@@ -209,80 +187,45 @@ class MemberDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Gagal memuat detail jemaat',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Text(
-                  error.toString().replaceAll('Exception: ', ''),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.invalidate(memberDetailProvider(id));
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Coba Lagi'),
-              ),
-            ],
-          ),
+        loading: () => const AppLoadingView(message: 'Memuat detail jemaat...'),
+        error: (error, stackTrace) => AppErrorView(
+          message: 'Gagal memuat detail jemaat: $error',
+          onRetry: () => ref.invalidate(memberDetailProvider(id)),
         ),
       ),
     );
   }
 
   Widget _buildInfoTile({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14.0),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 20, color: AppColors.primary),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondaryLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

@@ -4,6 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/donation_provider.dart';
 
 class DonationDetailScreen extends ConsumerWidget {
@@ -14,45 +19,20 @@ class DonationDetailScreen extends ConsumerWidget {
     required this.id,
   });
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-    String label;
-
+  StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'pending') {
-      bg = Colors.orange.shade50;
-      fg = Colors.orange.shade800;
-      label = 'Menunggu Verifikasi';
-    } else if (lower == 'approved') {
-      bg = Colors.green.shade50;
-      fg = Colors.green.shade800;
-      label = 'Disetujui';
-    } else if (lower == 'rejected') {
-      bg = Colors.red.shade50;
-      fg = Colors.red.shade800;
-      label = 'Ditolak';
-    } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade800;
-      label = status;
-    }
+    if (lower == 'pending') return StatusBadgeType.warning;
+    if (lower == 'approved') return StatusBadgeType.success;
+    if (lower == 'rejected') return StatusBadgeType.error;
+    return StatusBadgeType.neutral;
+  }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
-      ),
-    );
+  String _getStatusLabel(String status) {
+    final lower = status.toLowerCase();
+    if (lower == 'pending') return 'Menunggu Verifikasi';
+    if (lower == 'approved') return 'Disetujui';
+    if (lower == 'rejected') return 'Ditolak';
+    return status;
   }
 
   String _formatAmount(num amount) {
@@ -77,6 +57,7 @@ class DonationDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final donationAsync = ref.watch(donationDetailProvider(id));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -87,17 +68,13 @@ class DonationDetailScreen extends ConsumerWidget {
           final isPdf = donation.proofFileUrl?.endsWith('.pdf') ?? false;
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -112,12 +89,15 @@ class DonationDetailScreen extends ConsumerWidget {
                                 color: AppColors.primary,
                               ),
                             ),
-                            _buildStatusBadge(donation.status),
+                            StatusBadge(
+                              label: _getStatusLabel(donation.status),
+                              type: _getStatusBadgeType(donation.status),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.sm),
                         const Divider(),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.xs),
                         Text(
                           donation.category?.name ?? 'Persembahan',
                           style: const TextStyle(
@@ -125,7 +105,7 @@ class DonationDetailScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.xs),
                         Text(
                           _formatAmount(donation.amount),
                           style: const TextStyle(
@@ -134,111 +114,79 @@ class DonationDetailScreen extends ConsumerWidget {
                             color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Tanggal Transfer:',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Text(
-                              _formatDate(donation.transferDate),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: AppSpacing.md),
+                        _buildRow(
+                          'Tanggal Transfer:',
+                          _formatDate(donation.transferDate),
+                          isDark,
                         ),
                         const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Bank Pengirim:',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Text(
-                              donation.senderBank,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        _buildRow(
+                          'Bank Pengirim:',
+                          donation.senderBank,
+                          isDark,
                         ),
                         if (donation.depositorPhone != null &&
                             donation.depositorPhone!.isNotEmpty) ...[
                           const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'No. Telepon / WA:',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              Text(
-                                donation.depositorPhone!,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          _buildRow(
+                            'No. Telepon / WA:',
+                            donation.depositorPhone!,
+                            isDark,
                           ),
                         ],
                       ],
                     ),
                   ),
-                ),
-                if (donation.status.toLowerCase() == 'rejected' &&
-                    donation.rejectionReason != null &&
-                    donation.rejectionReason!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.cancel, color: Colors.red.shade800),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Alasan Penolakan',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red.shade900,
+                  if (donation.status.toLowerCase() == 'rejected' &&
+                      donation.rejectionReason != null &&
+                      donation.rejectionReason!.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: AppRadius.borderMd,
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.cancel_rounded,
+                                color: AppColors.error,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          donation.rejectionReason!,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.red.shade900,
-                            height: 1.4,
+                              SizedBox(width: 8),
+                              Text(
+                                'Alasan Penolakan',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.error,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            donation.rejectionReason!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.error,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  ],
+                  const SizedBox(height: AppSpacing.md),
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -255,116 +203,128 @@ class DonationDetailScreen extends ConsumerWidget {
                           (donation.notes != null && donation.notes!.isNotEmpty)
                               ? donation.notes!
                               : 'Tidak ada catatan.',
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight,
+                          ),
                         ),
                         if (donation.reviewedAt != null) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppSpacing.sm),
                           const Divider(),
                           const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Diverifikasi Pada:',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              Text(
-                                _formatDate(donation.reviewedAt),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          _buildRow(
+                            'Diverifikasi Pada:',
+                            _formatDate(donation.reviewedAt),
+                            isDark,
                           ),
                         ],
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Bukti Transfer',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: AppSpacing.md),
+                  const Text(
+                    'Bukti Transfer',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                if (donation.proofFileUrl == null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text(
-                      'Tidak ada bukti transfer terlampir',
-                      style: TextStyle(color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                else if (isPdf)
-                  const Card(
-                    child: ListTile(
-                      leading: Icon(Icons.picture_as_pdf, color: Colors.red),
-                      title: Text('Bukti Transfer PDF'),
-                      subtitle: Text('Lampiran dokumen PDF'),
-                    ),
-                  )
-                else
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: donation.proofFileUrl!,
-                      placeholder: (context, url) => const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: CircularProgressIndicator(),
+                  const SizedBox(height: AppSpacing.xs),
+                  if (donation.proofFileUrl == null)
+                    const AppCard(
+                      child: Center(
+                        child: Text(
+                          'Tidak ada bukti transfer terlampir',
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
-                      errorWidget: (context, url, error) => Container(
-                        height: 180,
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: Text(
-                            'Gagal memuat pratinjau bukti transfer',
-                            style: TextStyle(color: Colors.grey),
+                    )
+                  else if (isPdf)
+                    const AppCard(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.picture_as_pdf_rounded,
+                            color: AppColors.error,
+                            size: 28,
+                          ),
+                          SizedBox(width: AppSpacing.sm),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Bukti Transfer PDF',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'Lampiran dokumen PDF',
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ClipRRect(
+                      borderRadius: AppRadius.borderMd,
+                      child: CachedNetworkImage(
+                        imageUrl: donation.proofFileUrl!,
+                        placeholder: (context, url) => const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 180,
+                          color: isDark
+                              ? AppColors.surfaceDark
+                              : Colors.grey.shade200,
+                          child: const Center(
+                            child: Text(
+                              'Gagal memuat pratinjau bukti transfer',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 12),
-                Text(
-                  'Gagal memuat detail donasi: ${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(donationDetailProvider(id)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(message: 'Memuat detail donasi...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat detail donasi: $error',
+          onRetry: () => ref.invalidate(donationDetailProvider(id)),
         ),
       ),
+    );
+  }
+
+  Widget _buildRow(String label, String value, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            fontSize: 13,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+        ),
+      ],
     );
   }
 }

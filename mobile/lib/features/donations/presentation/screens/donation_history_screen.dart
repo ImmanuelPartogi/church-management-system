@@ -5,50 +5,31 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/donation_provider.dart';
 
 class DonationHistoryScreen extends ConsumerWidget {
   const DonationHistoryScreen({super.key});
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-    String label;
-
+  StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'pending') {
-      bg = Colors.orange.shade50;
-      fg = Colors.orange.shade800;
-      label = 'Menunggu Verifikasi';
-    } else if (lower == 'approved') {
-      bg = Colors.green.shade50;
-      fg = Colors.green.shade800;
-      label = 'Disetujui';
-    } else if (lower == 'rejected') {
-      bg = Colors.red.shade50;
-      fg = Colors.red.shade800;
-      label = 'Ditolak';
-    } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade800;
-      label = status;
-    }
+    if (lower == 'pending') return StatusBadgeType.warning;
+    if (lower == 'approved') return StatusBadgeType.success;
+    if (lower == 'rejected') return StatusBadgeType.error;
+    return StatusBadgeType.neutral;
+  }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
-      ),
-    );
+  String _getStatusLabel(String status) {
+    final lower = status.toLowerCase();
+    if (lower == 'pending') return 'Menunggu Verifikasi';
+    if (lower == 'approved') return 'Disetujui';
+    if (lower == 'rejected') return 'Ditolak';
+    return status;
   }
 
   String _formatAmount(num amount) {
@@ -72,13 +53,14 @@ class DonationHistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyAsync = ref.watch(donationHistoryProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Persembahan'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
             tooltip: 'Konfirmasi Persembahan',
             onPressed: () {
               context.push(RoutePaths.donationConfirm);
@@ -90,37 +72,31 @@ class DonationHistoryScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(donationHistoryProvider);
         },
-        child: historyAsync.when(
-          data: (donations) {
-            if (donations.isEmpty) {
-              return const Center(
-                child: Text(
-                  'Belum ada riwayat persembahan',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: donations.length,
-              itemBuilder: (context, index) {
-                final donation = donations[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12.0),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.donationDetail,
-                        pathParameters: {'id': donation.id.toString()},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: historyAsync.when(
+            data: (donations) {
+              if (donations.isEmpty) {
+                return const AppEmptyView(
+                  title: 'Belum ada riwayat persembahan',
+                  message: 'Belum ada riwayat konfirmasi persembahan.',
+                  icon: Icons.history_outlined,
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: donations.length,
+                itemBuilder: (context, index) {
+                  final donation = donations[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: AppCard(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.donationDetail,
+                          pathParameters: {'id': donation.id.toString()},
+                        );
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -135,10 +111,14 @@ class DonationHistoryScreen extends ConsumerWidget {
                                   color: AppColors.primary,
                                 ),
                               ),
-                              _buildStatusBadge(donation.status),
+                              StatusBadge(
+                                label: _getStatusLabel(donation.status),
+                                type: _getStatusBadgeType(donation.status),
+                                isSmall: true,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.xs),
                           Text(
                             donation.category?.name ?? 'Persembahan',
                             style: const TextStyle(
@@ -146,7 +126,7 @@ class DonationHistoryScreen extends ConsumerWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             _formatAmount(donation.amount),
                             style: const TextStyle(
@@ -155,7 +135,7 @@ class DonationHistoryScreen extends ConsumerWidget {
                               color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.xs),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -163,14 +143,18 @@ class DonationHistoryScreen extends ConsumerWidget {
                                 'Bank: ${donation.senderBank}',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey.shade600,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                 ),
                               ),
                               Text(
                                 _formatDate(donation.transferDate),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey.shade600,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                 ),
                               ),
                             ],
@@ -178,34 +162,15 @@ class DonationHistoryScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Gagal memuat riwayat: ${error.toString()}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(donationHistoryProvider),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+                  );
+                },
+              );
+            },
+            loading: () =>
+                const AppSkeletonListView(itemCount: 4, cardHeight: 100),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal memuat riwayat: $error',
+              onRetry: () => ref.invalidate(donationHistoryProvider),
             ),
           ),
         ),

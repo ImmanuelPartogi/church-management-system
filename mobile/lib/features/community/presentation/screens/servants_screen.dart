@@ -6,6 +6,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/servant_provider.dart';
 
 class ServantsScreen extends ConsumerStatefulWidget {
@@ -68,296 +75,186 @@ class _ServantsScreenState extends ConsumerState<ServantsScreen> {
         onRefresh: () async {
           ref.invalidate(servantListProvider);
         },
-        child: Column(
-          children: [
-            // Search Bar Input
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: TextField(
-                controller: _searchController,
-                onChanged: _onSearchChanged,
-                decoration: InputDecoration(
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: Column(
+            children: [
+              // Search Bar Input
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: SearchField(
+                  controller: _searchController,
                   hintText: 'Cari nama pelayan...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: _clearSearch,
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
+                  onChanged: _onSearchChanged,
+                  onClear: _clearSearch,
                 ),
               ),
-            ),
 
-            // Filter Chips
-            SizedBox(
-              height: 48,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: roles.length,
-                itemBuilder: (context, index) {
-                  final role = roles[index];
-                  final isSelected = selectedRole == role['key'];
+              // Filter Chips
+              SizedBox(
+                height: 44,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  itemCount: roles.length,
+                  itemBuilder: (context, index) {
+                    final role = roles[index];
+                    final isSelected = selectedRole == role['key'];
 
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: FilterChip(
-                      selected: isSelected,
-                      label: Text(role['label'] as String),
-                      selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                      checkmarkColor: AppColors.primary,
-                      onSelected: (bool selected) {
-                        ref.read(servantRoleFilterProvider.notifier).state =
-                            selected ? role['key'] : null;
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Servants List
-            Expanded(
-              child: servantsAsync.when(
-                data: (servants) {
-                  if (servants.isEmpty) {
-                    return ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 60),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.person_off_outlined,
-                                size: 64,
-                                color: Colors.grey,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Pelayan tidak ditemukan',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Coba ubah kata kunci pencarian atau filter jabatan.',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    return Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: FilterChip(
+                        selected: isSelected,
+                        label: Text(role['label'] as String),
+                        selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                        checkmarkColor: AppColors.primary,
+                        onSelected: (bool selected) {
+                          ref.read(servantRoleFilterProvider.notifier).state =
+                              selected ? role['key'] : null;
+                        },
+                      ),
                     );
-                  }
+                  },
+                ),
+              ),
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    itemCount: servants.length,
-                    itemBuilder: (context, index) {
-                      final servant = servants[index];
-                      final initial = servant.name.isNotEmpty
-                          ? servant.name[0].toUpperCase()
-                          : '?';
+              const SizedBox(height: AppSpacing.sm),
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12.0),
-                        elevation: 1.5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(12),
-                          leading: CircleAvatar(
-                            radius: 24,
-                            backgroundColor:
-                                AppColors.primary.withValues(alpha: 0.15),
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  servant.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo.shade50,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: Colors.indigo.shade200,
-                                  ),
-                                ),
-                                child: Text(
-                                  servant.roleLabel,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo.shade900,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 6.0),
+              // Servants List
+              Expanded(
+                child: servantsAsync.when(
+                  data: (servants) {
+                    if (servants.isEmpty) {
+                      return const AppEmptyView(
+                        title: 'Pelayan Tidak Ditemukan',
+                        message:
+                            'Coba ubah kata kunci pencarian atau filter jabatan.',
+                        icon: Icons.person_off_outlined,
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
+                      ),
+                      itemCount: servants.length,
+                      itemBuilder: (context, index) {
+                        final servant = servants[index];
+                        final initial = servant.name.isNotEmpty
+                            ? servant.name[0].toUpperCase()
+                            : '?';
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: AppCard(
+                            onTap: () {
+                              context.pushNamed(
+                                RouteNames.servantDetail,
+                                pathParameters: {'id': servant.id.toString()},
+                              );
+                            },
                             child: Row(
                               children: [
-                                if (servant.sectorName != null) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      servant.sectorName!,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                if (servant.maskedPhone != null) ...[
-                                  const Icon(
-                                    Icons.phone,
-                                    size: 14,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    servant.maskedPhone!,
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor:
+                                      AppColors.primary.withValues(alpha: 0.15),
+                                  child: Text(
+                                    initial,
                                     style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
                                     ),
                                   ),
-                                ],
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              servant.name,
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StatusBadge(
+                                            label: servant.roleLabel,
+                                            type: StatusBadgeType.info,
+                                            isSmall: true,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          if (servant.sectorName != null) ...[
+                                            StatusBadge(
+                                              label: servant.sectorName!,
+                                              type: StatusBadgeType.neutral,
+                                              isSmall: true,
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                          if (servant.maskedPhone != null) ...[
+                                            const Icon(
+                                              Icons.phone,
+                                              size: 14,
+                                              color: Colors.grey,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              servant.maskedPhone!,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Theme.of(context)
+                                                            .brightness ==
+                                                        Brightness.dark
+                                                    ? AppColors
+                                                        .textSecondaryDark
+                                                    : AppColors
+                                                        .textSecondaryLight,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey,
+                                ),
                               ],
                             ),
                           ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.grey,
-                          ),
-                          onTap: () {
-                            context.pushNamed(
-                              RouteNames.servantDetail,
-                              pathParameters: {'id': servant.id.toString()},
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-                error: (error, stackTrace) => ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    const SizedBox(height: 60),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Gagal memuat direktori pelayan',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 32.0),
-                            child: Text(
-                              error.toString().replaceAll('Exception: ', ''),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              ref.invalidate(servantListProvider);
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                        );
+                      },
+                    );
+                  },
+                  loading: () =>
+                      const AppSkeletonListView(itemCount: 5, cardHeight: 80),
+                  error: (error, stackTrace) => AppErrorView(
+                    message: 'Gagal memuat direktori pelayan: $error',
+                    onRetry: () => ref.invalidate(servantListProvider),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

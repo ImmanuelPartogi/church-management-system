@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/prayer_request_provider.dart';
 
 class PrayerRequestDetailScreen extends ConsumerWidget {
@@ -13,74 +18,20 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
     required this.id,
   });
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-    String label;
-
+  StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'submitted') {
-      bg = Colors.orange.shade50;
-      fg = Colors.orange.shade800;
-      label = 'Menunggu Didoakan';
-    } else if (lower == 'prayed') {
-      bg = Colors.blue.shade50;
-      fg = Colors.blue.shade800;
-      label = 'Sudah Didoakan';
-    } else if (lower == 'followed_up') {
-      bg = Colors.green.shade50;
-      fg = Colors.green.shade800;
-      label = 'Sudah Ditindaklanjuti';
-    } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade800;
-      label = status;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
-      ),
-    );
+    if (lower == 'submitted') return StatusBadgeType.warning;
+    if (lower == 'prayed') return StatusBadgeType.info;
+    if (lower == 'followed_up') return StatusBadgeType.success;
+    return StatusBadgeType.neutral;
   }
 
-  Widget _buildPrivacyBadge(bool isPrivate) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isPrivate ? Colors.purple.shade50 : Colors.teal.shade50,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isPrivate ? Icons.lock_outline : Icons.public_outlined,
-            size: 14,
-            color: isPrivate ? Colors.purple.shade800 : Colors.teal.shade800,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            isPrivate ? 'Privat' : 'Publik',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isPrivate ? Colors.purple.shade800 : Colors.teal.shade800,
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getStatusLabel(String status) {
+    final lower = status.toLowerCase();
+    if (lower == 'submitted') return 'Menunggu Didoakan';
+    if (lower == 'prayed') return 'Sudah Didoakan';
+    if (lower == 'followed_up') return 'Sudah Ditindaklanjuti';
+    return status;
   }
 
   String _formatDate(String? dateStr) {
@@ -96,6 +47,7 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailAsync = ref.watch(prayerRequestDetailProvider(id));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -107,29 +59,33 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
               item.followUpNotes!.trim().isNotEmpty;
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Card
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Card
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildPrivacyBadge(item.isPrivate),
-                            _buildStatusBadge(item.status),
+                            StatusBadge(
+                              label: item.isPrivate ? 'Privat' : 'Publik',
+                              type: item.isPrivate
+                                  ? StatusBadgeType.neutral
+                                  : StatusBadgeType.info,
+                            ),
+                            StatusBadge(
+                              label: _getStatusLabel(item.status),
+                              type: _getStatusBadgeType(item.status),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           item.title,
                           style: const TextStyle(
@@ -139,7 +95,7 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                         ),
                         if (item.category != null &&
                             item.category!.isNotEmpty) ...[
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             'Kategori: ${item.category}',
                             style: const TextStyle(
@@ -149,20 +105,22 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.sm),
                         Row(
                           children: [
-                            Icon(
-                              Icons.calendar_today,
+                            const Icon(
+                              Icons.calendar_today_rounded,
                               size: 14,
-                              color: Colors.grey.shade600,
+                              color: Colors.grey,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               'Dikirim: ${_formatDate(item.createdAt)}',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey.shade600,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
                               ),
                             ),
                           ],
@@ -170,17 +128,11 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
 
-                // Content Card
-                Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Content Card
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -192,72 +144,75 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                             color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.xs),
                         const Divider(),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.xs),
                         Text(
                           item.content,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             height: 1.5,
+                            color: isDark
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
 
-                // Pastoral Care Follow-up Card
-                if (hasFollowUp ||
-                    item.status.toLowerCase() == 'followed_up' ||
-                    item.status.toLowerCase() == 'prayed') ...[
-                  Card(
-                    elevation: 2,
-                    color: Colors.green.shade50,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.green.shade200),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Pastoral Care Follow-up Card
+                  if (hasFollowUp ||
+                      item.status.toLowerCase() == 'followed_up' ||
+                      item.status.toLowerCase() == 'prayed') ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.1),
+                        borderRadius: AppRadius.borderMd,
+                        border: Border.all(
+                          color: AppColors.success.withValues(alpha: 0.3),
+                        ),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.green.shade100,
+                                radius: 16,
+                                backgroundColor: AppColors.success,
                                 child: Icon(
-                                  Icons.volunteer_activism,
-                                  color: Colors.green.shade800,
-                                  size: 20,
+                                  Icons.volunteer_activism_rounded,
+                                  color: Colors.white,
+                                  size: 18,
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   'Tanggapan / Tindak Lanjut Pastoral',
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.green.shade900,
+                                    color: AppColors.success,
                                   ),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
-                          const Divider(color: Colors.green),
+                          const Divider(color: AppColors.success),
                           const SizedBox(height: 8),
                           Text(
                             hasFollowUp
                                 ? item.followUpNotes!
                                 : 'Permohonan doa Anda telah didoakan oleh Tim Pastoral Gereja.',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.green.shade900,
                               height: 1.4,
                             ),
                           ),
@@ -266,17 +221,17 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Icon(
-                                  Icons.check_circle_outline,
+                                const Icon(
+                                  Icons.check_circle_outline_rounded,
                                   size: 14,
-                                  color: Colors.green.shade800,
+                                  color: AppColors.success,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Ditindaklanjuti pada: ${_formatDate(item.followedUpAt)}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 11,
-                                    color: Colors.green.shade800,
+                                    color: AppColors.success,
                                     fontStyle: FontStyle.italic,
                                   ),
                                 ),
@@ -286,37 +241,17 @@ class PrayerRequestDetailScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 12),
-                Text(
-                  'Gagal memuat detail permohonan doa: ${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () =>
-                      ref.invalidate(prayerRequestDetailProvider(id)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () =>
+            const AppLoadingView(message: 'Memuat detail permohonan doa...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat detail permohonan doa: $error',
+          onRetry: () => ref.invalidate(prayerRequestDetailProvider(id)),
         ),
       ),
     );

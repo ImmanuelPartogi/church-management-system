@@ -5,54 +5,33 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_skeleton.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/service_forms_provider.dart';
 
 class ServiceFormApplicationsScreen extends ConsumerWidget {
   const ServiceFormApplicationsScreen({super.key});
 
-  Widget _buildStatusBadge(String status) {
-    Color bg;
-    Color fg;
-    String label;
-
+  StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'pending') {
-      bg = Colors.orange.shade50;
-      fg = Colors.orange.shade800;
-      label = 'Pending';
-    } else if (lower == 'approved') {
-      bg = Colors.green.shade50;
-      fg = Colors.green.shade800;
-      label = 'Disetujui';
-    } else if (lower == 'rejected') {
-      bg = Colors.red.shade50;
-      fg = Colors.red.shade800;
-      label = 'Ditolak';
-    } else if (lower == 'completed') {
-      bg = Colors.blue.shade50;
-      fg = Colors.blue.shade800;
-      label = 'Selesai';
-    } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade800;
-      label = status;
-    }
+    if (lower == 'pending') return StatusBadgeType.warning;
+    if (lower == 'approved') return StatusBadgeType.success;
+    if (lower == 'completed') return StatusBadgeType.info;
+    if (lower == 'rejected') return StatusBadgeType.error;
+    return StatusBadgeType.neutral;
+  }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: fg,
-        ),
-      ),
-    );
+  String _getStatusLabel(String status) {
+    final lower = status.toLowerCase();
+    if (lower == 'pending') return 'Pending';
+    if (lower == 'approved') return 'Disetujui';
+    if (lower == 'completed') return 'Selesai';
+    if (lower == 'rejected') return 'Ditolak';
+    return status;
   }
 
   String _formatDate(String dateStr) {
@@ -67,6 +46,7 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final applicationsAsync = ref.watch(serviceFormApplicationsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -76,37 +56,31 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(serviceFormApplicationsProvider);
         },
-        child: applicationsAsync.when(
-          data: (applications) {
-            if (applications.isEmpty) {
-              return const Center(
-                child: Text(
-                  'Belum ada riwayat permohonan pelayanan',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: applications.length,
-              itemBuilder: (context, index) {
-                final app = applications[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12.0),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.myServiceApplicationDetail,
-                        pathParameters: {'id': app.id.toString()},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: applicationsAsync.when(
+            data: (applications) {
+              if (applications.isEmpty) {
+                return const AppEmptyView(
+                  title: 'Belum ada riwayat permohonan pelayanan',
+                  message: 'Belum ada riwayat permohonan pelayanan.',
+                  icon: Icons.history_outlined,
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: applications.length,
+                itemBuilder: (context, index) {
+                  final app = applications[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: AppCard(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.myServiceApplicationDetail,
+                          pathParameters: {'id': app.id.toString()},
+                        );
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -121,10 +95,14 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                                   color: AppColors.primary,
                                 ),
                               ),
-                              _buildStatusBadge(app.status),
+                              StatusBadge(
+                                label: _getStatusLabel(app.status),
+                                type: _getStatusBadgeType(app.status),
+                                isSmall: true,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.xs),
                           Text(
                             app.serviceFormType?.name ?? 'Permohonan Pelayanan',
                             style: const TextStyle(
@@ -132,11 +110,11 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.xs),
                           Row(
                             children: [
                               const Icon(
-                                Icons.calendar_today,
+                                Icons.calendar_today_rounded,
                                 size: 14,
                                 color: Colors.grey,
                               ),
@@ -145,7 +123,9 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                                 _formatDate(app.createdAt),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey.shade600,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
                                 ),
                               ),
                               const Spacer(),
@@ -153,7 +133,7 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                                 Row(
                                   children: [
                                     const Icon(
-                                      Icons.attach_file,
+                                      Icons.attach_file_rounded,
                                       size: 14,
                                       color: Colors.grey,
                                     ),
@@ -162,7 +142,9 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                                       '${app.documents.length} berkas',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey.shade600,
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondaryLight,
                                       ),
                                     ),
                                   ],
@@ -172,35 +154,15 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Gagal memuat riwayat: ${error.toString()}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        ref.invalidate(serviceFormApplicationsProvider),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+                  );
+                },
+              );
+            },
+            loading: () =>
+                const AppSkeletonListView(itemCount: 4, cardHeight: 100),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal memuat riwayat: $error',
+              onRetry: () => ref.invalidate(serviceFormApplicationsProvider),
             ),
           ),
         ),

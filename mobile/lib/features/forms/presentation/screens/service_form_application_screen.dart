@@ -5,6 +5,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../../domain/entities/selected_document.dart';
 import '../providers/service_forms_provider.dart';
 
@@ -67,7 +73,7 @@ class _ServiceFormApplicationScreenState
                         hintText: 'Misal: KTP / Akta Kelahiran',
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     ElevatedButton.icon(
                       onPressed: () async {
                         final pickResult = await FilePicker.platform.pickFiles(
@@ -86,7 +92,7 @@ class _ServiceFormApplicationScreenState
                             return;
                           }
 
-                          const maxBytes = 5 * 1024 * 1024; // 5MB
+                          const maxBytes = 5 * 1024 * 1024;
                           if (file.size > maxBytes) {
                             setDialogState(() {
                               fileErrorMsg =
@@ -125,9 +131,9 @@ class _ServiceFormApplicationScreenState
                       const SizedBox(height: 8),
                       Text(
                         'File: $selectedFileName (${_formatFileSize(selectedFileSize ?? 0)})',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.green.shade700,
+                          color: AppColors.success,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -138,7 +144,7 @@ class _ServiceFormApplicationScreenState
                         fileErrorMsg!,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.red,
+                          color: AppColors.error,
                         ),
                       ),
                     ],
@@ -243,7 +249,8 @@ class _ServiceFormApplicationScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Permohonan pelayanan berhasil diajukan!'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         ref.read(serviceFormSubmissionProvider.notifier).reset();
@@ -252,7 +259,8 @@ class _ServiceFormApplicationScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage ?? 'Gagal mengajukan permohonan.'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -267,197 +275,167 @@ class _ServiceFormApplicationScreenState
       body: typeAsync.when(
         data: (type) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    color: AppColors.primary.withValues(alpha: 0.05),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.assignment,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Jenis Pelayanan:',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  type.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.formMaxWidth,
+              phone: Form(
+                key: _formKey,
+                child: AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.sm),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: AppRadius.borderSm,
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.assignment_rounded,
+                              color: AppColors.primary,
                             ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Jenis Pelayanan:',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Text(
+                                    type.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      AppTextField(
+                        label: 'Catatan Pemohon (Opsional)',
+                        controller: _applicantNotesController,
+                        maxLines: 4,
+                        enabled: !isSubmitting,
+                        hintText:
+                            'Tuliskan keterangan atau pesan tambahan untuk majelis...',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Dokumen Pendukung',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          AppButton(
+                            label: 'Tambah Dokumen',
+                            icon: Icons.add_rounded,
+                            variant: AppButtonVariant.outlined,
+                            onPressed: isSubmitting ? null : _pickDocument,
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Catatan Pemohon (Opsional)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _applicantNotesController,
-                    maxLines: 4,
-                    enabled: !isSubmitting,
-                    decoration: InputDecoration(
-                      hintText:
-                          'Tuliskan keterangan atau pesan tambahan untuk majelis...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Dokumen Pendukung',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: AppSpacing.xs),
+                      if (_documents.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.surfaceDark
+                                    : Colors.grey.shade100,
+                            borderRadius: AppRadius.borderSm,
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: const Text(
+                            'Belum ada dokumen yang ditambahkan. Klik "Tambah Dokumen" untuk melampirkan berkas.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _documents.length,
+                          itemBuilder: (context, index) {
+                            final doc = _documents[index];
+                            final isPdf = doc.fileName.endsWith('.pdf');
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: Icon(
+                                  isPdf
+                                      ? Icons.picture_as_pdf_rounded
+                                      : Icons.image_rounded,
+                                  color:
+                                      isPdf ? AppColors.error : AppColors.info,
+                                ),
+                                title: Text(
+                                  doc.documentName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${doc.fileName} (${_formatFileSize(doc.fileSize)})',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: AppColors.error,
+                                  ),
+                                  onPressed: isSubmitting
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            _documents.removeAt(index);
+                                          });
+                                        },
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: isSubmitting ? null : _pickDocument,
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('Tambah Dokumen'),
+                      const SizedBox(height: AppSpacing.lg),
+                      AppButton(
+                        label: 'Ajukan Permohonan',
+                        fullWidth: true,
+                        isLoading: isSubmitting,
+                        onPressed: isSubmitting ? null : _submitApplication,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  if (_documents.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: const Text(
-                        'Belum ada dokumen yang ditambahkan. Klik "Tambah Dokumen" untuk melampirkan berkas.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _documents.length,
-                      itemBuilder: (context, index) {
-                        final doc = _documents[index];
-                        final isPdf = doc.fileName.endsWith('.pdf');
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: Icon(
-                              isPdf ? Icons.picture_as_pdf : Icons.image,
-                              color: isPdf ? Colors.red : Colors.blue,
-                            ),
-                            title: Text(
-                              doc.documentName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${doc.fileName} (${_formatFileSize(doc.fileSize)})',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline,
-                                color: Colors.red,
-                              ),
-                              onPressed: isSubmitting
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        _documents.removeAt(index);
-                                      });
-                                    },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isSubmitting ? null : _submitApplication,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Ajukan Permohonan',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Text('Gagal memuat formulir: ${error.toString()}'),
+        loading: () => const AppLoadingView(message: 'Memuat data formulir...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat formulir: $error',
+          onRetry: () =>
+              ref.invalidate(serviceFormTypeDetailProvider(widget.id)),
         ),
       ),
     );

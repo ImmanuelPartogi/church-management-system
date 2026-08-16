@@ -4,6 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/warta_provider.dart';
 
 class WartaDetailScreen extends ConsumerWidget {
@@ -55,16 +61,17 @@ class WartaDetailScreen extends ConsumerWidget {
           const SnackBar(
             content: Text('Warta berhasil diunduh'),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         ref.read(wartaDownloadProvider(id).notifier).reset();
-        // Invalidate detail to refresh download count from server
         ref.invalidate(wartaDetailProvider(id));
       } else if (next.status == DownloadStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage ?? 'Gagal mengunduh warta'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         ref.read(wartaDownloadProvider(id).notifier).reset();
@@ -77,19 +84,17 @@ class WartaDetailScreen extends ConsumerWidget {
       ),
       body: wartaAsync.when(
         data: (warta) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header card
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ResponsiveLayout(
+              maxWidth: AppBreakpoints.detailMaxWidth,
+              phone: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header card
+                  AppCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -98,16 +103,16 @@ class WartaDetailScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(8),
+                                color: AppColors.error.withValues(alpha: 0.1),
+                                borderRadius: AppRadius.borderSm,
                               ),
-                              child: Icon(
-                                Icons.picture_as_pdf,
-                                color: Colors.red.shade700,
+                              child: const Icon(
+                                Icons.picture_as_pdf_rounded,
+                                color: AppColors.error,
                                 size: 24,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
                                 warta.title,
@@ -119,246 +124,192 @@ class WartaDetailScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
+                        const SizedBox(height: AppSpacing.sm),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
                           children: [
-                            Icon(
-                              Icons.calendar_today_outlined,
-                              size: 14,
-                              color: Colors.grey.shade600,
+                            StatusBadge(
+                              label: _formatDate(warta.publishedAt),
+                              type: StatusBadgeType.neutral,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatDate(warta.publishedAt),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Icon(
-                              Icons.download,
-                              size: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${warta.downloadCount} kali diunduh',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
+                            StatusBadge(
+                              label: '${warta.downloadCount} kali diunduh',
+                              type: StatusBadgeType.info,
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
 
-                // Description section
-                const Text(
-                  'Deskripsi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  (warta.description != null && warta.description!.isNotEmpty)
-                      ? warta.description!
-                      : 'Tidak ada deskripsi untuk warta ini.',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.md),
 
-                // File metadata details
-                const Text(
-                  'Informasi File',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  // Description section
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Deskripsi',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Divider(height: 24),
+                        Text(
+                          (warta.description != null &&
+                                  warta.description!.isNotEmpty)
+                              ? warta.description!
+                              : 'Tidak ada deskripsi untuk warta ini.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.5,
+                            color: warta.description != null
+                                ? (isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimaryLight)
+                                : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  // File metadata details
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Informasi File',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Divider(height: 24),
+                        _buildRow('Nama File', warta.fileName, isDark),
+                        const SizedBox(height: AppSpacing.xs),
+                        _buildRow(
+                          'Ukuran File',
+                          _formatFileSize(warta.fileSize),
+                          isDark,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        _buildRow(
+                          'Format',
+                          warta.mimeType.split('/').last.toUpperCase(),
+                          isDark,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Actions
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Nama File',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Expanded(
-                            child: Text(
-                              warta.fileName,
-                              textAlign: TextAlign.end,
-                              overflow: TextOverflow.ellipsis,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ],
+                      AppButton(
+                        label: 'Baca Warta',
+                        icon: Icons.menu_book_rounded,
+                        fullWidth: true,
+                        onPressed: downloadState.status ==
+                                DownloadStatus.downloading
+                            ? null
+                            : () {
+                                context.pushNamed(
+                                  RouteNames.wartaPdfViewer,
+                                  pathParameters: {'id': warta.id.toString()},
+                                  queryParameters: {'title': warta.title},
+                                );
+                              },
                       ),
-                      const Divider(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Ukuran File',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          Text(
-                            _formatFileSize(warta.fileSize),
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                      const SizedBox(height: AppSpacing.sm),
+                      AppButton(
+                        label:
+                            downloadState.status == DownloadStatus.downloading
+                                ? 'Mengunduh...'
+                                : 'Download Warta',
+                        icon: Icons.download_rounded,
+                        fullWidth: true,
+                        variant: AppButtonVariant.outlined,
+                        isLoading: false,
+                        onPressed: downloadState.status ==
+                                DownloadStatus.downloading
+                            ? null
+                            : () {
+                                ref
+                                    .read(wartaDownloadProvider(id).notifier)
+                                    .download(
+                                      fileName: warta.fileName,
+                                    );
+                              },
                       ),
-                      const Divider(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Format',
-                            style: TextStyle(color: Colors.grey),
+                      if (downloadState.status ==
+                          DownloadStatus.downloading) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        LinearProgressIndicator(
+                          value: downloadState.progress,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor:
+                              const AlwaysStoppedAnimation(AppColors.primary),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Mengunduh: ${(downloadState.progress * 100).toStringAsFixed(0)}%',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMutedLight,
                           ),
-                          Text(
-                            warta.mimeType.split('/').last.toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-                const SizedBox(height: 32),
-
-                // Actions
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed:
-                          downloadState.status == DownloadStatus.downloading
-                              ? null
-                              : () {
-                                  context.pushNamed(
-                                    RouteNames.wartaPdfViewer,
-                                    pathParameters: {'id': warta.id.toString()},
-                                    queryParameters: {'title': warta.title},
-                                  );
-                                },
-                      icon: const Icon(Icons.menu_book),
-                      label: const Text('Baca Warta'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed:
-                          downloadState.status == DownloadStatus.downloading
-                              ? null
-                              : () {
-                                  ref
-                                      .read(wartaDownloadProvider(id).notifier)
-                                      .download(
-                                        fileName: warta.fileName,
-                                      );
-                                },
-                      icon: downloadState.status == DownloadStatus.downloading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                                valueColor:
-                                    AlwaysStoppedAnimation(AppColors.primary),
-                              ),
-                            )
-                          : const Icon(Icons.download),
-                      label: Text(
-                        downloadState.status == DownloadStatus.downloading
-                            ? 'Mengunduh...'
-                            : 'Download Warta',
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    if (downloadState.status == DownloadStatus.downloading) ...[
-                      const SizedBox(height: 12),
-                      LinearProgressIndicator(
-                        value: downloadState.progress,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor:
-                            const AlwaysStoppedAnimation(AppColors.primary),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Mengunduh: ${(downloadState.progress * 100).toStringAsFixed(0)}%',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 12),
-                Text(
-                  'Gagal memuat detail warta: ${error.toString()}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(wartaDetailProvider(id)),
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
-          ),
+        loading: () => const AppLoadingView(message: 'Memuat detail warta...'),
+        error: (error, stack) => AppErrorView(
+          message: 'Gagal memuat detail warta: $error',
+          onRetry: () => ref.invalidate(wartaDetailProvider(id)),
         ),
       ),
+    );
+  }
+
+  Widget _buildRow(String label, String value, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark
+                ? AppColors.textSecondaryDark
+                : AppColors.textSecondaryLight,
+            fontSize: 13,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
+        ),
+      ],
     );
   }
 }

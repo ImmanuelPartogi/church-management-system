@@ -4,6 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/prayer_request_provider.dart';
 
 class CreatePrayerRequestScreen extends ConsumerStatefulWidget {
@@ -91,7 +96,8 @@ class _CreatePrayerRequestScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Permohonan doa berhasil dikirimkan!'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         ref.read(prayerSubmissionProvider.notifier).reset();
@@ -102,7 +108,8 @@ class _CreatePrayerRequestScreenState
             content: Text(
               next.errorMessage ?? 'Gagal mengirimkan permohonan doa.',
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -113,202 +120,161 @@ class _CreatePrayerRequestScreenState
         title: const Text('Buat Permohonan Doa'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title Field
-              const Text(
-                'Judul Pokok Doa *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _titleController,
-                enabled: !isSubmitting,
-                maxLength: 255,
-                decoration: InputDecoration(
-                  hintText: 'Misal: Doa Kesembuhan untuk Orang Tua',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.formMaxWidth,
+          phone: Form(
+            key: _formKey,
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Field
+                  AppTextField(
+                    label: 'Judul Pokok Doa *',
+                    controller: _titleController,
+                    enabled: !isSubmitting,
+                    maxLength: 255,
+                    hintText: 'Misal: Doa Kesembuhan untuk Orang Tua',
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Judul pokok doa wajib diisi';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Judul pokok doa wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-              // Category Selection
-              const Text(
-                'Kategori Pokok Doa',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  // Category Selection
+                  const Text(
+                    'Kategori Pokok Doa',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                ),
-                items: _categories.map((cat) {
-                  return DropdownMenuItem<String>(
-                    value: cat,
-                    child: Text(cat),
-                  );
-                }).toList(),
-                onChanged: isSubmitting
-                    ? null
-                    : (val) {
-                        if (val != null) {
-                          setState(() {
-                            _selectedCategory = val;
-                          });
-                        }
-                      },
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.xs),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _categories.map((cat) {
+                      return DropdownMenuItem<String>(
+                        value: cat,
+                        child: Text(cat),
+                      );
+                    }).toList(),
+                    onChanged: isSubmitting
+                        ? null
+                        : (val) {
+                            if (val != null) {
+                              setState(() {
+                                _selectedCategory = val;
+                              });
+                            }
+                          },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-              // Content Field
-              const Text(
-                'Isi Permohonan Doa *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _contentController,
-                enabled: !isSubmitting,
-                maxLines: 5,
-                maxLength: 5000,
-                decoration: InputDecoration(
-                  hintText:
-                      'Tuliskan permohonan dan pergumulan doa Anda secara jelas...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  // Content Field
+                  AppTextField(
+                    label: 'Isi Permohonan Doa *',
+                    controller: _contentController,
+                    enabled: !isSubmitting,
+                    maxLines: 5,
+                    maxLength: 5000,
+                    hintText:
+                        'Tuliskan permohonan dan pergumulan doa Anda secara jelas...',
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Isi permohonan doa wajib diisi';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Isi permohonan doa wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
-              // Privacy Switch & Explanation Box
-              Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: _isPrivate
-                        ? Colors.purple.shade200
-                        : Colors.teal.shade200,
-                  ),
-                ),
-                color: _isPrivate ? Colors.purple.shade50 : Colors.teal.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                _isPrivate ? Icons.lock : Icons.public,
-                                color: _isPrivate
-                                    ? Colors.purple.shade800
-                                    : Colors.teal.shade800,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _isPrivate
-                                    ? 'Sifat Rahasia (Privat)'
-                                    : 'Sifat Publik',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
+                  // Privacy Switch Box
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: (_isPrivate ? AppColors.accent : AppColors.info)
+                          .withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderMd,
+                      border: Border.all(
+                        color: (_isPrivate ? AppColors.accent : AppColors.info)
+                            .withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  _isPrivate
+                                      ? Icons.lock_rounded
+                                      : Icons.public_rounded,
                                   color: _isPrivate
-                                      ? Colors.purple.shade900
-                                      : Colors.teal.shade900,
+                                      ? AppColors.accent
+                                      : AppColors.info,
                                 ),
-                              ),
-                            ],
-                          ),
-                          Switch(
-                            value: _isPrivate,
-                            activeColor: Colors.purple.shade700,
-                            onChanged: isSubmitting
-                                ? null
-                                : (val) {
-                                    setState(() {
-                                      _isPrivate = val;
-                                    });
-                                  },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isPrivate
-                            ? 'Permohonan doa bersifat rahasia (Privat) dan hanya dapat dibaca oleh Pendeta & Majelis Gereja.'
-                            : 'Permohonan doa bersifat Publik dan dapat dibaca oleh tim pendoa syafaat jemaat.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: _isPrivate
-                              ? Colors.purple.shade900
-                              : Colors.teal.shade900,
-                          height: 1.3,
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  _isPrivate
+                                      ? 'Sifat Rahasia (Privat)'
+                                      : 'Sifat Publik',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: _isPrivate
+                                        ? AppColors.accent
+                                        : AppColors.info,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Switch(
+                              value: _isPrivate,
+                              activeColor: AppColors.accent,
+                              onChanged: isSubmitting
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        _isPrivate = val;
+                                      });
+                                    },
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isSubmitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          _isPrivate
+                              ? 'Permohonan doa bersifat rahasia (Privat) dan hanya dapat dibaca oleh Pendeta & Majelis Gereja.'
+                              : 'Permohonan doa bersifat Publik dan dapat dibaca oleh tim pendoa syafaat jemaat.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                _isPrivate ? AppColors.accent : AppColors.info,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: isSubmitting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Kirim Permohonan Doa',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Submit Button
+                  AppButton(
+                    label: 'Kirim Permohonan Doa',
+                    fullWidth: true,
+                    isLoading: isSubmitting,
+                    onPressed: isSubmitting ? null : _submit,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

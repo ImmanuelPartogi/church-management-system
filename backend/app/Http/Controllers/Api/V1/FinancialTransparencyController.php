@@ -19,14 +19,17 @@ class FinancialTransparencyController extends Controller
     {
         $validated = $request->validated();
 
-        $from = $validated['from'] ?? now()->startOfYear()->format('Y-m-d');
-        $to = $validated['to'] ?? now()->format('Y-m-d');
+        $fromStr = $validated['from'] ?? now()->startOfYear()->format('Y-m-d');
+        $toStr = $validated['to'] ?? now()->format('Y-m-d');
 
-        $totalIncome = (float) FinancialTransaction::whereBetween('transaction_date', [$from, $to])
+        $fromDateTime = $fromStr . ' 00:00:00';
+        $toDateTime = $toStr . ' 23:59:59';
+
+        $totalIncome = (float) FinancialTransaction::whereBetween('transaction_date', [$fromDateTime, $toDateTime])
             ->where('type', FinanceAccountType::Income->value)
             ->sum('amount');
 
-        $totalExpense = (float) FinancialTransaction::whereBetween('transaction_date', [$from, $to])
+        $totalExpense = (float) FinancialTransaction::whereBetween('transaction_date', [$fromDateTime, $toDateTime])
             ->where('type', FinanceAccountType::Expense->value)
             ->sum('amount');
 
@@ -34,7 +37,7 @@ class FinancialTransparencyController extends Controller
 
         /** @var array<int, array{account_code: string, account_name: string, total_amount: float}> $incomeBreakdown */
         $incomeBreakdown = DB::table('financial_transactions')
-            ->whereBetween('financial_transactions.transaction_date', [$from, $to])
+            ->whereBetween('financial_transactions.transaction_date', [$fromDateTime, $toDateTime])
             ->where('financial_transactions.type', FinanceAccountType::Income->value)
             ->join('chart_of_accounts', 'financial_transactions.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->select(
@@ -53,7 +56,7 @@ class FinancialTransparencyController extends Controller
 
         /** @var array<int, array{account_code: string, account_name: string, total_amount: float}> $expenseBreakdown */
         $expenseBreakdown = DB::table('financial_transactions')
-            ->whereBetween('financial_transactions.transaction_date', [$from, $to])
+            ->whereBetween('financial_transactions.transaction_date', [$fromDateTime, $toDateTime])
             ->where('financial_transactions.type', FinanceAccountType::Expense->value)
             ->join('chart_of_accounts', 'financial_transactions.chart_of_account_id', '=', 'chart_of_accounts.id')
             ->select(
@@ -72,8 +75,8 @@ class FinancialTransparencyController extends Controller
 
         $data = [
             'period' => [
-                'from' => $from,
-                'to' => $to,
+                'from' => $fromStr,
+                'to' => $toStr,
             ],
             'summary' => [
                 'total_income' => $totalIncome,

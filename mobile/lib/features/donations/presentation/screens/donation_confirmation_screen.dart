@@ -7,6 +7,11 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/donation_provider.dart';
 
 class DonationConfirmationScreen extends ConsumerStatefulWidget {
@@ -21,7 +26,7 @@ class _DonationConfirmationScreenState
     extends ConsumerState<DonationConfirmationScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  int _selectedCategoryId = 1; // Default to Persembahan Minggu (ID: 1)
+  int _selectedCategoryId = 1;
   final _amountController = TextEditingController();
   final _transferDateController = TextEditingController(
     text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -78,7 +83,7 @@ class _DonationConfirmationScreenState
       context: context,
       initialDate: now,
       firstDate: DateTime(2020),
-      lastDate: now, // Future dates blocked
+      lastDate: now,
     );
     if (picked != null) {
       setState(() {
@@ -104,7 +109,7 @@ class _DonationConfirmationScreenState
         return;
       }
 
-      const maxBytes = 5 * 1024 * 1024; // 5MB
+      const maxBytes = 5 * 1024 * 1024;
       if (file.size > maxBytes) {
         setState(() {
           _proofErrorMsg = 'Ukuran file melebihi 5 MB';
@@ -183,7 +188,8 @@ class _DonationConfirmationScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Konfirmasi persembahan berhasil dikirim!'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         ref.read(donationSubmissionProvider.notifier).reset();
@@ -192,7 +198,8 @@ class _DonationConfirmationScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage ?? 'Gagal mengirimkan konfirmasi.'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -203,260 +210,196 @@ class _DonationConfirmationScreenState
         title: const Text('Konfirmasi Transfer'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Category Selection
-              const Text(
-                'Kategori Persembahan *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<int>(
-                value: _selectedCategoryId,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.formMaxWidth,
+          phone: Form(
+            key: _formKey,
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category Selection
+                  const Text(
+                    'Kategori Persembahan *',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                ),
-                items: _categories.map((cat) {
-                  return DropdownMenuItem<int>(
-                    value: cat['id'] as int,
-                    child: Text(cat['name'] as String),
-                  );
-                }).toList(),
-                onChanged: isSubmitting
-                    ? null
-                    : (val) {
-                        if (val != null) {
-                          setState(() {
-                            _selectedCategoryId = val;
-                          });
-                        }
-                      },
-              ),
-              const SizedBox(height: 16),
-
-              // Amount Field
-              const Text(
-                'Jumlah Persembahan (Rp) *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                enabled: !isSubmitting,
-                onChanged: (val) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'Misal: 100000',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  helperText: _formatAmountPreview(_amountController.text),
-                  helperStyle: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Jumlah persembahan wajib diisi';
-                  }
-                  final amount = num.tryParse(val);
-                  if (amount == null || amount <= 0) {
-                    return 'Jumlah persembahan harus lebih besar dari 0';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Transfer Date Field
-              const Text(
-                'Tanggal Transfer *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _transferDateController,
-                readOnly: true,
-                onTap: isSubmitting ? null : _selectDate,
-                decoration: InputDecoration(
-                  hintText: 'YYYY-MM-DD',
-                  suffixIcon: const Icon(Icons.calendar_month),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Tanggal transfer wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Sender Bank Field
-              const Text(
-                'Bank Pengirim / Asal Transfer *',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _senderBankController,
-                enabled: !isSubmitting,
-                decoration: InputDecoration(
-                  hintText: 'Misal: BCA / Mandiri / QRIS / BRI',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Bank pengirim wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Depositor Phone (Optional)
-              const Text(
-                'No. WhatsApp / HP Pengirim (Opsional)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _depositorPhoneController,
-                keyboardType: TextInputType.phone,
-                enabled: !isSubmitting,
-                decoration: InputDecoration(
-                  hintText: 'Misal: 081234567890',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Notes (Optional)
-              const Text(
-                'Catatan (Opsional)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _notesController,
-                maxLines: 3,
-                enabled: !isSubmitting,
-                decoration: InputDecoration(
-                  hintText: 'Misal: Untuk ucapan syukur ulang tahun...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Proof File Section
-              const Text(
-                'Bukti Transfer (Opsional, PDF/JPG/PNG max 5MB)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              if (_selectedProofName == null)
-                OutlinedButton.icon(
-                  onPressed: isSubmitting ? null : _pickProofFile,
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Pilih Bukti Transfer'),
-                )
-              else
-                Card(
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.receipt_long,
-                      color: AppColors.primary,
+                  const SizedBox(height: AppSpacing.xs),
+                  DropdownButtonFormField<int>(
+                    value: _selectedCategoryId,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                     ),
-                    title: Text(_selectedProofName!),
-                    subtitle: Text(_formatFileSize(_selectedProofSize ?? 0)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
-                      onPressed: isSubmitting
-                          ? null
-                          : () {
+                    items: _categories.map((cat) {
+                      return DropdownMenuItem<int>(
+                        value: cat['id'] as int,
+                        child: Text(cat['name'] as String),
+                      );
+                    }).toList(),
+                    onChanged: isSubmitting
+                        ? null
+                        : (val) {
+                            if (val != null) {
                               setState(() {
-                                _selectedProofPath = null;
-                                _selectedProofName = null;
-                                _selectedProofSize = null;
+                                _selectedCategoryId = val;
                               });
-                            },
-                    ),
+                            }
+                          },
                   ),
-                ),
-              if (_proofErrorMsg != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  _proofErrorMsg!,
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
-                ),
-              ],
-              const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.md),
 
-              // Upload progress indicator
-              if (isSubmitting) ...[
-                LinearProgressIndicator(
-                  value: submissionState.uploadProgress > 0
-                      ? submissionState.uploadProgress
-                      : null,
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    'Mengunggah... ${(submissionState.uploadProgress * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  // Amount Field
+                  AppTextField(
+                    label: 'Jumlah Persembahan (Rp) *',
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    enabled: !isSubmitting,
+                    onChanged: (val) => setState(() {}),
+                    hintText: 'Misal: 100000',
+                    helperText: _formatAmountPreview(_amountController.text),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Jumlah persembahan wajib diisi';
+                      }
+                      final amount = num.tryParse(val);
+                      if (amount == null || amount <= 0) {
+                        return 'Jumlah persembahan harus lebih besar dari 0';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: AppSpacing.md),
 
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isSubmitting ? null : _submitConfirmation,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  // Transfer Date Field
+                  AppTextField(
+                    label: 'Tanggal Transfer *',
+                    controller: _transferDateController,
+                    readOnly: true,
+                    onTap: isSubmitting ? null : _selectDate,
+                    hintText: 'YYYY-MM-DD',
+                    suffixIcon: const Icon(Icons.calendar_today_rounded),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Tanggal transfer wajib diisi';
+                      }
+                      return null;
+                    },
                   ),
-                  child: isSubmitting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Kirim Konfirmasi Persembahan',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Sender Bank Field
+                  AppTextField(
+                    label: 'Bank Pengirim / Asal Transfer *',
+                    controller: _senderBankController,
+                    enabled: !isSubmitting,
+                    hintText: 'Misal: BCA / Mandiri / QRIS / BRI',
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Bank pengirim wajib diisi';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Depositor Phone (Optional)
+                  AppTextField(
+                    label: 'No. WhatsApp / HP Pengirim (Opsional)',
+                    controller: _depositorPhoneController,
+                    keyboardType: TextInputType.phone,
+                    enabled: !isSubmitting,
+                    hintText: 'Misal: 081234567890',
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Notes (Optional)
+                  AppTextField(
+                    label: 'Catatan (Opsional)',
+                    controller: _notesController,
+                    maxLines: 3,
+                    enabled: !isSubmitting,
+                    hintText: 'Misal: Untuk ucapan syukur ulang tahun...',
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Proof File Section
+                  const Text(
+                    'Bukti Transfer (Opsional, PDF/JPG/PNG max 5MB)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  if (_selectedProofName == null)
+                    AppButton(
+                      label: 'Pilih Bukti Transfer',
+                      icon: Icons.upload_file_rounded,
+                      variant: AppButtonVariant.outlined,
+                      onPressed: isSubmitting ? null : _pickProofFile,
+                    )
+                  else
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: AppColors.primary,
                         ),
-                ),
+                        title: Text(_selectedProofName!),
+                        subtitle:
+                            Text(_formatFileSize(_selectedProofSize ?? 0)),
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.red,
+                          ),
+                          onPressed: isSubmitting
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _selectedProofPath = null;
+                                    _selectedProofName = null;
+                                    _selectedProofSize = null;
+                                  });
+                                },
+                        ),
+                      ),
+                    ),
+                  if (_proofErrorMsg != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      _proofErrorMsg!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Upload progress indicator
+                  if (isSubmitting) ...[
+                    LinearProgressIndicator(
+                      value: submissionState.uploadProgress > 0
+                          ? submissionState.uploadProgress
+                          : null,
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        'Mengunggah... ${(submissionState.uploadProgress * 100).toStringAsFixed(0)}%',
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+
+                  // Submit Button
+                  AppButton(
+                    label: 'Kirim Konfirmasi Persembahan',
+                    fullWidth: true,
+                    isLoading: isSubmitting,
+                    onPressed: isSubmitting ? null : _submitConfirmation,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

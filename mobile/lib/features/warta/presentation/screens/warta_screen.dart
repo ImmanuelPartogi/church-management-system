@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_state_views.dart';
+import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/widgets/status_badge.dart';
 import '../providers/warta_provider.dart';
 
 class WartaScreen extends ConsumerWidget {
@@ -49,53 +55,50 @@ class WartaScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(wartaListProvider);
         },
-        child: wartasAsync.when(
-          data: (wartas) {
-            if (wartas.isEmpty) {
-              return const Center(
-                child: Text(
-                  'Tidak ada warta tersedia',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: wartas.length,
-              itemBuilder: (context, index) {
-                final warta = wartas[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12.0),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      context.pushNamed(
-                        RouteNames.wartaDetail,
-                        pathParameters: {'id': warta.id.toString()},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+        child: ResponsiveLayout(
+          maxWidth: AppBreakpoints.maxContentWidth,
+          phone: wartasAsync.when(
+            data: (wartas) {
+              if (wartas.isEmpty) {
+                return const AppEmptyView(
+                  title: 'Tidak ada warta tersedia',
+                  message: 'Warta jemaat mingguan belum diterbitkan.',
+                  icon: Icons.article_outlined,
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                itemCount: wartas.length,
+                itemBuilder: (context, index) {
+                  final warta = wartas[index];
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: AppCard(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.wartaDetail,
+                          pathParameters: {'id': warta.id.toString()},
+                        );
+                      },
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
+                              color: AppColors.error.withValues(alpha: 0.1),
+                              borderRadius: AppRadius.borderSm,
                             ),
-                            child: Icon(
-                              Icons.picture_as_pdf,
-                              color: Colors.red.shade700,
+                            child: const Icon(
+                              Icons.picture_as_pdf_rounded,
+                              color: AppColors.error,
                               size: 28,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,63 +112,40 @@ class WartaScreen extends ConsumerWidget {
                                 ),
                                 if (warta.description != null &&
                                     warta.description!.isNotEmpty) ...[
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 4),
                                   Text(
                                     warta.description!,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey.shade600,
+                                      color: isDark
+                                          ? AppColors.textSecondaryDark
+                                          : AppColors.textSecondaryLight,
                                     ),
                                   ),
                                 ],
-                                const SizedBox(height: 12),
-                                Row(
+                                const SizedBox(height: AppSpacing.sm),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
                                   children: [
-                                    Icon(
-                                      Icons.calendar_today_outlined,
-                                      size: 14,
-                                      color: Colors.grey.shade600,
+                                    StatusBadge(
+                                      label: _formatDate(warta.publishedAt),
+                                      type: StatusBadgeType.neutral,
+                                      isSmall: true,
                                     ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      _formatDate(warta.publishedAt),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                      ),
+                                    StatusBadge(
+                                      label: _formatFileSize(warta.fileSize),
+                                      type: StatusBadgeType.info,
+                                      isSmall: true,
                                     ),
-                                    const SizedBox(width: 16),
-                                    Icon(
-                                      Icons.data_usage_outlined,
-                                      size: 14,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      _formatFileSize(warta.fileSize),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
+                                    if (warta.downloadCount > 0)
+                                      StatusBadge(
+                                        label: 'Unduh: ${warta.downloadCount}',
+                                        type: StatusBadgeType.success,
+                                        isSmall: true,
                                       ),
-                                    ),
-                                    if (warta.downloadCount > 0) ...[
-                                      const SizedBox(width: 16),
-                                      Icon(
-                                        Icons.download,
-                                        size: 14,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${warta.downloadCount}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
                                   ],
                                 ),
                               ],
@@ -174,34 +154,14 @@ class WartaScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Gagal memuat warta: ${error.toString()}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.invalidate(wartaListProvider),
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
-              ),
+                  );
+                },
+              );
+            },
+            loading: () => const AppLoadingView(useSkeleton: false),
+            error: (error, stack) => AppErrorView(
+              message: 'Gagal memuat warta: $error',
+              onRetry: () => ref.invalidate(wartaListProvider),
             ),
           ),
         ),

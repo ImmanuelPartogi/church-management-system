@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 
 enum AppButtonVariant { primary, outlined, text, danger }
+
 enum AppButtonSize { small, medium, large }
 
 /// Standard production button with built-in loading state, icon support,
@@ -45,7 +46,8 @@ class AppButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == AppButtonVariant.primary || variant == AppButtonVariant.danger
+                variant == AppButtonVariant.primary ||
+                        variant == AppButtonVariant.danger
                     ? Colors.white
                     : AppColors.primary,
               ),

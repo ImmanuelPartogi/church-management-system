@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Production form text field component with label, error text, helper,
-/// prefix/suffix icon, validator, and keyboard actions.
+/// prefix/suffix icon, validator, keyboard actions, inputFormatters, readOnly, and onTap.
 class AppTextField extends StatelessWidget {
   const AppTextField({
     required this.controller,
@@ -16,10 +17,14 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.maxLines = 1,
+    this.maxLength,
     this.onChanged,
     this.onSubmitted,
     this.validator,
     this.enabled = true,
+    this.readOnly = false,
+    this.onTap,
+    this.inputFormatters,
   });
 
   final TextEditingController controller;
@@ -33,10 +38,14 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final Widget? suffixIcon;
   final int maxLines;
+  final int? maxLength;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final FormFieldValidator<String>? validator;
   final bool enabled;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +68,14 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           textInputAction: textInputAction,
           maxLines: maxLines,
+          maxLength: maxLength,
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted,
           validator: validator,
           enabled: enabled,
+          readOnly: readOnly,
+          onTap: onTap,
+          inputFormatters: inputFormatters,
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: hintText,

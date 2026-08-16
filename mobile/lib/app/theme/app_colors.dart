@@ -13,6 +13,7 @@ class AppColors {
   static const Color gold = Color(0xFFD97706); // Warm Amber/Gold
   static const Color goldLight = Color(0xFFFBBF24);
   static const Color goldBg = Color(0xFFFEF3C7);
+  static const Color accent = gold;
 
   // Status & Feedback
   static const Color success = Color(0xFF059669); // Soft Emerald

@@ -71,7 +71,11 @@ class AppErrorView extends StatelessWidget {
                 color: AppColors.errorBg,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.error_outline_rounded, size: 36, color: AppColors.error),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                size: 36,
+                color: AppColors.error,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Text(

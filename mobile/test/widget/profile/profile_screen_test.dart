@@ -49,23 +49,26 @@ class FakeProfileRepository implements ProfileRepository {
     String? phone,
     String? address,
   }) async =>
-      Right(UserProfile(
-        id: profile.id,
-        name: name,
-        email: profile.email,
-        phone: phone,
-        address: address,
-        roles: profile.roles,
-        member: profile.member,
-      ),
-    );
+      Right(
+        UserProfile(
+          id: profile.id,
+          name: name,
+          email: profile.email,
+          phone: phone,
+          address: address,
+          roles: profile.roles,
+          member: profile.member,
+        ),
+      );
 
   @override
   Future<Either<Failure, void>> deleteAccount() async => const Right(null);
 }
 
 void main() {
-  testWidgets('renders profile user header, info card, edit button, and delete account action', (tester) async {
+  testWidgets(
+      'renders profile user header, info card, edit button, and delete account action',
+      (tester) async {
     const profile = UserProfile(
       id: 1,
       name: 'Budi Jemaat',

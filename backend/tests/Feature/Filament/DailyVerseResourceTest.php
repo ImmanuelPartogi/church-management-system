@@ -62,7 +62,7 @@ class DailyVerseResourceTest extends TestCase
 
         $this->assertDatabaseHas('daily_verses', [
             'verse_reference' => 'Mazmur 23:1',
-            'date' => '2026-12-31',
+            'content' => 'TUHAN adalah gembalaku, takkan kekurangan aku.',
         ]);
     }
 }

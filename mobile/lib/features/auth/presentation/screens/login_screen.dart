@@ -71,7 +71,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
             child: ResponsiveLayout(
               maxWidth: 420,
               phone: Form(
@@ -202,7 +203,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: Text(
                             'atau masuk dengan',
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.dark
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
                                   ? AppColors.textMutedDark
                                   : AppColors.textMutedLight,
                               fontSize: 12,
