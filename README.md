@@ -6,7 +6,6 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.22+-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.4+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin Portal berbasis Laravel 13 + Filament v5** dengan **Aplikasi Mobile Jemaat berbasis Flutter**. Sistem ini dirancang untuk mempermudah pengelolaan jemaat, jadwal ibadah, warta digital, formulir pelayanan, donasi transfer bank, permohonan doa, dan transparansi keuangan gereja secara terpusat.
 
@@ -23,7 +22,6 @@ Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin
 - [Cara Penggunaan (Usage)](#-cara-penggunaan-usage)
 - [Verifikasi Kualitas & Testing](#-verifikasi-kualitas--testing)
 - [Alur Kontribusi & Git Workflow](#-alur-kontribusi--git-workflow)
-- [Lisensi](#-lisensi)
 
 ---
 
@@ -38,25 +36,39 @@ Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack & Versioning
 
-### Backend & Web Admin
-- **Framework**: [Laravel 13.x](https://laravel.com) (`laravel/framework ^13.8`)
-- **Runtime Environment**: [PHP 8.4+](https://www.php.net) (`php ^8.4`)
-- **Web Admin Panel**: [Filament v5.7](https://filamentphp.com) (`filament/filament ^5.7`)
-- **Database**: MySQL 8.0+
-- **Authentication**: Laravel Sanctum v4.3 & Firebase Auth (`kreait/laravel-firebase ^7.2`)
-- **Authorization / RBAC**: Spatie Laravel Permission v8.3 (`spatie/laravel-permission ^8.3`)
-- **Code Quality**: Laravel Pint v1.27, Larastan v3.10, PHPUnit v12.5
+Berikut adalah rincian lengkap dependensi dan versi paket yang digunakan secara nyata pada codebase backend (`composer.json`) dan mobile (`pubspec.yaml`):
 
-### Mobile Application
-- **Framework**: [Flutter 3.22+](https://flutter.dev) / [Dart 3.4+](https://dart.dev)
-- **State Management**: [Riverpod v2.5.1](https://riverpod.dev) (`flutter_riverpod ^2.5.1`, `riverpod_generator ^2.4.0`)
-- **Networking**: [Dio v5.4.3](https://pub.dev/packages/dio) with `pretty_dio_logger ^1.3.1`
-- **Routing**: [GoRouter v14.2.0](https://pub.dev/packages/go_router)
-- **Functional Error Handling**: [fpdart v1.1.0](https://pub.dev/packages/fpdart) (`Either<Failure, T>`)
-- **Code Generation**: Freezed v2.5.5, JsonSerializable v6.8.0
-- **Push Notifications**: Firebase Cloud Messaging (`firebase_messaging ^15.2.10`, `firebase_core ^3.15.2`, `firebase_auth ^5.7.0`)
+### Backend & Web Admin (`backend/composer.json`)
+| Komponen / Package | Versi Digunakan | Deskripsi Fungsi |
+|---|---|---|
+| **PHP Runtime** | `^8.4` | Bahasa utama server-side |
+| **Laravel Framework** | `^13.8` | Core REST API Framework |
+| **Filament Admin Panel** | `^5.7` | Web Admin Portal & CMS Majelis |
+| **Laravel Sanctum** | `^4.3` | SPA & Mobile API Token Authentication |
+| **Spatie Laravel Permission** | `^8.3` | Role-Based Access Control (RBAC) |
+| **Kreait Laravel Firebase** | `^7.2` | Integration Firebase Admin Auth & FCM |
+| **Laravel Pint** | `^1.27` | Code Style Formatter |
+| **Larastan** | `^3.10` | Static Analysis Tool for PHPStan |
+| **PHPUnit** | `^12.5.12` | Automated Unit & Integration Testing |
+| **Laravel Pail / Pao / Tinker** | `^1.2.5` / `^1.0.6` / `^3.0` | CLI Logging & Interactive Shell |
+
+### Mobile Application (`mobile/pubspec.yaml`)
+| Komponen / Package | Versi Digunakan | Deskripsi Fungsi |
+|---|---|---|
+| **Dart SDK** | `>=3.4.0 <4.0.0` (Flutter `3.22+`) | Language & SDK Environment |
+| **Flutter Riverpod** | `^2.5.1` (`generator ^2.4.0`, `annotation ^2.3.5`) | State Management & Reactive DI |
+| **Dio** | `^5.4.3` (`pretty_dio_logger ^1.3.1`) | HTTP Client Network Layer |
+| **GoRouter** | `^14.2.0` | Declarative Routing & Navigation Shell |
+| **fpdart** | `^1.1.0` | Functional Programming (`Either<Failure, T>`) |
+| **Firebase Auth & Core** | `^5.7.0` / `^3.15.2` (`google_sign_in ^6.2.1`) | Mobile Identity Provider |
+| **Firebase Messaging** | `^15.2.10` | Push Notification Listener |
+| **Flutter Secure Storage & SharedPref**| `^9.2.2` / `^2.2.3` | Local Encrypted Token & Session Cache |
+| **Freezed & JsonSerializable** | `^2.5.5` / `^6.8.0` (`build_runner ^2.4.11`) | Codegen Immutable Models & JSON DTOs |
+| **Syncfusion PDF Viewer** | `^26.1.35` | In-app Warta & Sermon PDF Viewer |
+| **Table Calendar** | `^3.1.2` | Interactive Calendar for Worship Schedules |
+| **UI Kits (Fonts, SVG, Shimmer, Image)** | `google_fonts ^6.2.1`, `flutter_svg ^2.0.10+1`, `shimmer ^3.0.0`, `cached_network_image ^3.3.1` | UI Design System & Smooth Shimmer Effects |
 
 ---
 
@@ -288,9 +300,3 @@ main (produksi, stabil, protected)
    - `fix: memperbaiki error parser date pada warta`
    - `docs: memperbarui petunjuk instalasi backend`
 4. Buat **Pull Request (PR)** ke `develop` dan pastikan seluruh workflow CI (GitHub Actions) lulus 100% sebelum meminta review.
-
----
-
-## 📄 Lisensi
-
-Project ini dilisensikan di bawah **[MIT License](LICENSE)**. Anda bebas mengunduh, memodifikasi, dan mendistribusikan perangkat lunak maupun petunjuk di atas sesuai dengan ketentuan lisensi.
