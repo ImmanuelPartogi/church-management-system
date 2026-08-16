@@ -22,8 +22,8 @@ class FinancialTransparencyController extends Controller
         $fromStr = $validated['from'] ?? now()->startOfYear()->format('Y-m-d');
         $toStr = $validated['to'] ?? now()->format('Y-m-d');
 
-        $fromDateTime = $fromStr . ' 00:00:00';
-        $toDateTime = $toStr . ' 23:59:59';
+        $fromDateTime = $fromStr.' 00:00:00';
+        $toDateTime = $toStr.' 23:59:59';
 
         $totalIncome = (float) FinancialTransaction::whereBetween('transaction_date', [$fromDateTime, $toDateTime])
             ->where('type', FinanceAccountType::Income->value)
