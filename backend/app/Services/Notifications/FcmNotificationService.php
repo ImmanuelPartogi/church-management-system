@@ -79,13 +79,29 @@ class FcmNotificationService
     }
 
     /**
-     * Broadcast notification to active device tokens.
+     * Broadcast notification to active device tokens for a specific church tenant.
      *
      * @param  array<string, mixed>  $data
+     *
+     * @throws \InvalidArgumentException If church context is missing.
      */
-    public function broadcast(string $title, string $body, array $data = [], ?string $role = null): int
-    {
-        $query = DeviceToken::query();
+    public function broadcast(
+        string $title,
+        string $body,
+        array $data = [],
+        ?int $churchId = null,
+        ?string $role = null
+    ): int {
+        $churchId ??= app()->bound('current_church_id') ? app('current_church_id') : null;
+
+        if (! $churchId) {
+            throw new \InvalidArgumentException('Church ID is required to broadcast notifications.');
+        }
+
+        $query = DeviceToken::query()->whereHas('user.memberships', function ($q) use ($churchId) {
+            $q->where('church_id', $churchId)
+                ->where('status', 'active');
+        });
 
         if ($role) {
             $query->whereHas('user', function ($q) use ($role) {
