@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'widgets/root_tenant_prompt_listener.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -18,6 +19,9 @@ class App extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,
       routerConfig: router,
+      builder: (context, child) => RootTenantPromptListener(
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 }

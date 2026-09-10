@@ -226,7 +226,7 @@ class _DonationConfirmationScreenState
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   DropdownButtonFormField<int>(
-                    value: _selectedCategoryId,
+                    initialValue: _selectedCategoryId,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),

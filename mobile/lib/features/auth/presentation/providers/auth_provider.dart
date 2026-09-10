@@ -4,6 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user.dart';
 
+import '../../../church/presentation/providers/tenant_provider.dart';
+
 part 'auth_provider.freezed.dart';
 part 'auth_provider.g.dart';
 
@@ -29,9 +31,12 @@ class AuthNotifier extends _$AuthNotifier {
     final repository = ref.read(authRepositoryProvider);
     final result = await repository.getCurrentUser();
 
-    result.fold(
-      (failure) => state = const AuthState.unauthenticated(),
-      (user) => state = AuthState.authenticated(user),
+    await result.fold(
+      (failure) async => state = const AuthState.unauthenticated(),
+      (user) async {
+        await ref.read(tenantProvider.notifier).reconcileWithUser(user);
+        state = AuthState.authenticated(user);
+      },
     );
   }
 
@@ -40,9 +45,12 @@ class AuthNotifier extends _$AuthNotifier {
     final repository = ref.read(authRepositoryProvider);
     final result = await repository.signInWithEmailAndPassword(email, password);
 
-    result.fold(
-      (failure) => state = AuthState.error(failure.message),
-      (user) => state = AuthState.authenticated(user),
+    await result.fold(
+      (failure) async => state = AuthState.error(failure.message),
+      (user) async {
+        await ref.read(tenantProvider.notifier).reconcileWithUser(user);
+        state = AuthState.authenticated(user);
+      },
     );
   }
 
@@ -51,9 +59,12 @@ class AuthNotifier extends _$AuthNotifier {
     final repository = ref.read(authRepositoryProvider);
     final result = await repository.signInWithGoogle();
 
-    result.fold(
-      (failure) => state = AuthState.error(failure.message),
-      (user) => state = AuthState.authenticated(user),
+    await result.fold(
+      (failure) async => state = AuthState.error(failure.message),
+      (user) async {
+        await ref.read(tenantProvider.notifier).reconcileWithUser(user);
+        state = AuthState.authenticated(user);
+      },
     );
   }
 

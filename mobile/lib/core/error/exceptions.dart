@@ -32,3 +32,26 @@ class ValidationException extends AppException {
 class CacheException extends AppException {
   const CacheException([super.message = 'Gagal membaca data lokal.']);
 }
+
+class ModuleDisabledException extends AppException {
+  final String? module;
+
+  const ModuleDisabledException(
+    super.message, {
+    this.module,
+    super.statusCode = 403,
+  });
+}
+
+class TenantMismatchException extends AppException {
+  const TenantMismatchException([
+    super.message =
+        'Unauthorized tenant access: You are not an active member of this church.',
+  ]) : super(statusCode: 403);
+}
+
+class NoActiveMembershipException extends AppException {
+  const NoActiveMembershipException([
+    super.message = 'User has no active church membership.',
+  ]) : super(statusCode: 403);
+}

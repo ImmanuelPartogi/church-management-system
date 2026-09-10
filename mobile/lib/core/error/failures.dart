@@ -44,3 +44,22 @@ class AuthFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'Terjadi kesalahan tak terduga.']);
 }
+
+class ModuleDisabledFailure extends Failure {
+  final String? module;
+
+  const ModuleDisabledFailure(super.message, {this.module});
+}
+
+class TenantMismatchFailure extends Failure {
+  const TenantMismatchFailure([
+    super.message =
+        'Unauthorized tenant access: You are not an active member of this church.',
+  ]);
+}
+
+class NoActiveMembershipFailure extends Failure {
+  const NoActiveMembershipFailure([
+    super.message = 'User has no active church membership.',
+  ]);
+}

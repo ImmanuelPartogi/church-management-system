@@ -34,6 +34,7 @@ import '../../features/media/presentation/screens/sermons_screen.dart';
 import '../../features/media/presentation/screens/sermon_detail_screen.dart';
 import '../../features/search/presentation/screens/global_search_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/church/presentation/screens/church_selection_screen.dart';
 import 'route_names.dart';
 
 class RouterTransitionListenable extends ChangeNotifier {
@@ -52,10 +53,13 @@ final routerTransitionListenableProvider =
   return RouterTransitionListenable(ref);
 });
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = ref.watch(routerTransitionListenableProvider);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: RoutePaths.home,
     refreshListenable: refreshListenable,
     debugLogDiagnostics: true,
@@ -268,6 +272,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.profile,
         name: RouteNames.profile,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.churchSelect,
+        name: RouteNames.churchSelect,
+        builder: (context, state) => const ChurchSelectionScreen(),
       ),
     ],
   );

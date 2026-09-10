@@ -13,6 +13,7 @@ class SecureStorageService {
 
   static const String _tokenKey = 'sanctum_token';
   static const String _userKey = 'user_data';
+  static const String _activeChurchKey = 'active_church_data';
 
   Future<void> saveToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
@@ -42,6 +43,24 @@ class SecureStorageService {
 
   Future<void> removeUserData() async {
     await _storage.delete(key: _userKey);
+  }
+
+  Future<void> saveActiveChurch(Map<String, dynamic> churchData) async {
+    await _storage.write(key: _activeChurchKey, value: jsonEncode(churchData));
+  }
+
+  Future<Map<String, dynamic>?> getActiveChurch() async {
+    final raw = await _storage.read(key: _activeChurchKey);
+    if (raw == null) return null;
+    try {
+      return jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> removeActiveChurch() async {
+    await _storage.delete(key: _activeChurchKey);
   }
 
   Future<void> clearAll() async {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -10,6 +12,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../../church/presentation/providers/tenant_provider.dart';
 import '../../domain/entities/user_profile.dart';
 import '../providers/profile_provider.dart';
 
@@ -20,6 +23,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
     final updateState = ref.watch(profileUpdateNotifierProvider);
+    final activeChurch = ref.watch(activeChurchProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,6 +43,55 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   // 1. User Header Card
                   _buildUserHeader(context, profile),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Active Church Card
+                  _buildSectionCard(
+                    context,
+                    title: 'Gereja Aktif',
+                    icon: Icons.church_rounded,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                activeChurch?.name ?? 'Belum memilih gereja',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (activeChurch?.address != null &&
+                                  activeChurch!.address!.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  activeChurch.address!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        AppButton(
+                          label: 'Ganti',
+                          icon: Icons.swap_horiz_rounded,
+                          variant: AppButtonVariant.outlined,
+                          onPressed: () => context.push(RoutePaths.churchSelect),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: AppSpacing.md),
 
                   // 2. Account Information Section

@@ -152,7 +152,7 @@ class _CreatePrayerRequestScreenState
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   DropdownButtonFormField<String>(
-                    value: _selectedCategory,
+                    initialValue: _selectedCategory,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
@@ -237,7 +237,7 @@ class _CreatePrayerRequestScreenState
                             ),
                             Switch(
                               value: _isPrivate,
-                              activeColor: AppColors.accent,
+                              activeThumbColor: AppColors.accent,
                               onChanged: isSubmitting
                                   ? null
                                   : (val) {

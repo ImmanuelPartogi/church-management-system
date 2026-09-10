@@ -28,6 +28,7 @@ import '../../../finance/presentation/providers/finance_provider.dart';
 import '../../../directory/presentation/providers/member_provider.dart';
 import '../../../community/presentation/providers/servant_provider.dart';
 import '../../../media/presentation/providers/sermon_provider.dart';
+import '../../../church/presentation/providers/tenant_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final activeChurch = ref.watch(activeChurchProvider);
     final dailyVerseAsync = ref.watch(dailyVerseProvider);
     final announcementsAsync = ref.watch(announcementListProvider);
     final schedulesAsync = ref.watch(scheduleListProvider);
@@ -46,7 +48,51 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Church App'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Church App',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            InkWell(
+              onTap: () => context.push(RoutePaths.churchSelect),
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.location_on_rounded,
+                      size: 12,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 3),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 160),
+                      child: Text(
+                        activeChurch?.name ?? 'Pilih Gereja',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_drop_down,
+                      size: 14,
+                      color: AppColors.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search_rounded),

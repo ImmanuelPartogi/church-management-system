@@ -19,8 +19,8 @@ import '../error/failures.dart';
 ///   }
 /// }
 /// ```
-abstract interface class UseCase<Type, Params> {
-  Future<Either<Failure, Type>> call(Params params);
+abstract interface class UseCase<TypeSuccess, Params> {
+  Future<Either<Failure, TypeSuccess>> call(Params params);
 }
 
 class NoParams {

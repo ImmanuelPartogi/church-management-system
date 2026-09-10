@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 import 'app_button.dart';
+import 'app_module_disabled_view.dart';
+import 'app_no_membership_view.dart';
 import 'app_skeleton.dart';
+
+export 'app_module_disabled_view.dart';
+export 'app_no_membership_view.dart';
 
 /// AppLoadingView displays a shimmer skeleton or indicator with a friendly message.
 class AppLoadingView extends StatelessWidget {
@@ -59,6 +64,25 @@ class AppErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lowerMessage = message.toLowerCase();
+    final isModuleDisabled = lowerMessage.contains('tidak diaktifkan') ||
+        message.contains('MODULE_DISABLED');
+    if (isModuleDisabled) {
+      return AppModuleDisabledView(
+        title: 'Fitur Dinonaktifkan',
+        message: message,
+      );
+    }
+
+    final isNoMembership = lowerMessage.contains('tidak memiliki keanggotaan') ||
+        message.contains('NO_ACTIVE_MEMBERSHIP') ||
+        lowerMessage.contains('no active church membership');
+    if (isNoMembership) {
+      return AppNoMembershipView(
+        message: message,
+      );
+    }
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
