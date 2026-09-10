@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $teams = config('permission.teams');
+        // Historical note: Initial migration was teamless ($teams = false).
+        // Staged transition to teams is handled sequentially in migrations 2026_09_11_000006 and 000007.
+        $teams = false;
         $tableNames = config('permission.table_names');
         $columnNames = config('permission.column_names');
         $pivotRole = $columnNames['role_pivot_key'] ?? 'role_id';

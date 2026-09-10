@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Church;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -16,6 +18,22 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // When teams => true, set team context to default church so roles are seeded with church_id
+        if (config('permission.teams')) {
+            $defaultChurch = Church::firstOrCreate(
+                ['slug' => (string) config('tenant.default_church_slug', 'default')],
+                [
+                    'uuid' => (string) Str::uuid(),
+                    'name' => 'Gereja HKBP Resort Default',
+                    'status' => 'active',
+                    'timezone' => 'Asia/Jakarta',
+                ]
+            );
+            app(PermissionRegistrar::class)->setPermissionsTeamId($defaultChurch->id);
+            app()->instance('current_church_id', $defaultChurch->id);
+            app()->instance('current_church', $defaultChurch);
+        }
 
         // Create permissions
         $permissions = [
@@ -65,13 +83,22 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // Create roles and assign existing permissions
+        $churchId = config('permission.teams') ? ($defaultChurch->id ?? null) : null;
+        $createRole = function (string $name) use ($churchId): Role {
+            $attributes = ['name' => $name, 'guard_name' => 'web'];
+            if ($churchId) {
+                $attributes['church_id'] = $churchId;
+            }
 
-        // Admin: has all permissions
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
+            return Role::firstOrCreate($attributes);
+        };
+
+        // Church Admin: has all permissions within a church
+        $churchAdminRole = $createRole('church_admin');
+        $churchAdminRole->givePermissionTo(Permission::all());
 
         // Bendahara (Treasurer): has full finance permissions and view access
-        $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara']);
+        $bendaharaRole = $createRole('bendahara');
         $bendaharaRole->givePermissionTo([
             'manage bank accounts',
             'manage chart of accounts',
@@ -91,7 +118,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Pastor: has domain management permissions
-        $pastorRole = Role::firstOrCreate(['name' => 'pastor']);
+        $pastorRole = $createRole('pastor');
         $pastorRole->givePermissionTo([
             'manage members',
             'manage schedules',
@@ -130,7 +157,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Staff: can manage schedules, announcements, daily verses, wartas, sermons, songbooks, songs and view community
-        $staffRole = Role::firstOrCreate(['name' => 'staff']);
+        $staffRole = $createRole('staff');
         $staffRole->givePermissionTo([
             'manage schedules',
             'manage announcements',
@@ -161,12 +188,23 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // Member: can view public schedules, announcements, daily verses, wartas, sermons, songbooks, songs
-        $memberRole = Role::firstOrCreate(['name' => 'member']);
+        $memberRole = $createRole('member');
         $memberRole->givePermissionTo([
             'view schedules',
             'view announcements',
             'view daily verses',
             'view wartas',
+            'view form types',
+            'view form applications',
+            'view prayer requests',
+            'view bank accounts',
+            'view chart of accounts',
+            'view donations',
+            'view financial transactions',
+            'view resorts',
+            'view sectors',
+            'view fellowships',
+            'view church servants',
             'view sermons',
             'view songbooks',
             'view songs',

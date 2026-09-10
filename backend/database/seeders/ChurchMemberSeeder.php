@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ChurchMember;
+use App\Models\ChurchUserMembership;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,8 @@ class ChurchMemberSeeder extends Seeder
      */
     public function run(): void
     {
+        $churchId = app('current_church_id') ?? 1;
+
         // 1. Create Pastor User and Profile
         $pastorUser = User::create([
             'name' => 'Rev. John Doe',
@@ -23,7 +26,7 @@ class ChurchMemberSeeder extends Seeder
         ]);
         $pastorUser->assignRole('pastor');
 
-        ChurchMember::create([
+        $pastorMember = ChurchMember::create([
             'user_id' => $pastorUser->id,
             'membership_number' => 'MEM-2026-0001',
             'full_name' => 'Rev. John Doe',
@@ -36,6 +39,18 @@ class ChurchMemberSeeder extends Seeder
             'status' => 'active',
         ]);
 
+        ChurchUserMembership::firstOrCreate(
+            [
+                'church_id' => $churchId,
+                'user_id' => $pastorUser->id,
+            ],
+            [
+                'church_member_id' => $pastorMember->id,
+                'role' => 'pastor',
+                'status' => 'active',
+            ]
+        );
+
         // 2. Create Staff User and Profile
         $staffUser = User::create([
             'name' => 'Jane Smith',
@@ -45,7 +60,7 @@ class ChurchMemberSeeder extends Seeder
         ]);
         $staffUser->assignRole('staff');
 
-        ChurchMember::create([
+        $staffMember = ChurchMember::create([
             'user_id' => $staffUser->id,
             'membership_number' => 'MEM-2026-0002',
             'full_name' => 'Jane Smith',
@@ -57,6 +72,52 @@ class ChurchMemberSeeder extends Seeder
             'baptism_date' => '2005-04-10',
             'status' => 'active',
         ]);
+
+        ChurchUserMembership::firstOrCreate(
+            [
+                'church_id' => $churchId,
+                'user_id' => $staffUser->id,
+            ],
+            [
+                'church_member_id' => $staffMember->id,
+                'role' => 'staff',
+                'status' => 'active',
+            ]
+        );
+
+        // 2.1 Create Bendahara (Treasurer) User and Profile
+        $bendaharaUser = User::create([
+            'name' => 'Robert Siregar',
+            'email' => 'bendahara@church.org',
+            'firebase_uid' => 'mock-bendahara-uid',
+            'password' => Hash::make('password123'),
+        ]);
+        $bendaharaUser->assignRole('bendahara');
+
+        $bendaharaMember = ChurchMember::create([
+            'user_id' => $bendaharaUser->id,
+            'membership_number' => 'MEM-2026-0003',
+            'full_name' => 'Robert Siregar',
+            'gender' => 'Male',
+            'birth_date' => '1982-11-10',
+            'phone' => '+6281234567899',
+            'email' => 'bendahara@church.org',
+            'address' => 'Jl. Senayan No. 18, Jakarta Selatan',
+            'baptism_date' => '2000-08-15',
+            'status' => 'active',
+        ]);
+
+        ChurchUserMembership::firstOrCreate(
+            [
+                'church_id' => $churchId,
+                'user_id' => $bendaharaUser->id,
+            ],
+            [
+                'church_member_id' => $bendaharaMember->id,
+                'role' => 'bendahara',
+                'status' => 'active',
+            ]
+        );
 
         // 3. Create normal Member Users and Profiles
         $membersData = [
@@ -84,7 +145,7 @@ class ChurchMemberSeeder extends Seeder
             ],
         ];
 
-        $index = 3;
+        $index = 4;
         foreach ($membersData as $data) {
             $user = User::create([
                 'name' => $data['name'],
@@ -94,7 +155,7 @@ class ChurchMemberSeeder extends Seeder
             ]);
             $user->assignRole('member');
 
-            ChurchMember::create([
+            $member = ChurchMember::create([
                 'user_id' => $user->id,
                 'membership_number' => 'MEM-2026-'.str_pad((string) $index, 4, '0', STR_PAD_LEFT),
                 'full_name' => $data['name'],
@@ -106,6 +167,19 @@ class ChurchMemberSeeder extends Seeder
                 'baptism_date' => $data['baptism_date'],
                 'status' => $data['status'],
             ]);
+
+            ChurchUserMembership::firstOrCreate(
+                [
+                    'church_id' => $churchId,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'church_member_id' => $member->id,
+                    'role' => 'member',
+                    'status' => 'active',
+                ]
+            );
+
             $index++;
         }
 
