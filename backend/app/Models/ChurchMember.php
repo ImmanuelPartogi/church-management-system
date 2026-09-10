@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToChurch;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class ChurchMember extends Model
 {
     /** @use HasFactory<Factory<self>> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the user account associated with the member.

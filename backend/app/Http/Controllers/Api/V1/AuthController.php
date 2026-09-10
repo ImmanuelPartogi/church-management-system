@@ -40,7 +40,9 @@ class AuthController extends Controller
                     'id' => $result['user']->id,
                     'name' => $result['user']->name,
                     'email' => $result['user']->email,
+                    'is_super_admin' => (bool) $result['user']->is_super_admin,
                     'roles' => $result['user']->getRoleNames(),
+                    'memberships' => $this->getUserMemberships($result['user']),
                 ],
             ], 'Authentication successful.');
         } catch (\Exception $e) {
@@ -59,8 +61,34 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'is_super_admin' => (bool) $user->is_super_admin,
             'roles' => $user->getRoleNames(),
+            'memberships' => $this->getUserMemberships($user),
         ], 'Profile retrieved successfully.');
+    }
+
+    /**
+     * Get deterministic active memberships for user.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function getUserMemberships($user): array
+    {
+        return $user->memberships()
+            ->where('status', 'active')
+            ->orderBy('joined_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->with('church')
+            ->get()
+            ->map(fn ($m) => [
+                'church_id' => $m->church_id,
+                'church_uuid' => $m->church?->uuid,
+                'church_name' => $m->church?->name,
+                'church_slug' => $m->church?->slug,
+                'role' => $m->role,
+            ])
+            ->values()
+            ->all();
     }
 
     /**

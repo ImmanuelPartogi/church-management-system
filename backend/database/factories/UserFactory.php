@@ -2,9 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Church;
+use App\Models\ChurchUserMembership;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
@@ -41,5 +44,36 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Indicate that the user should not have a default church membership.
+     */
+    public function withoutMembership(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->memberships()->delete();
+        });
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            if (Schema::hasTable('churches') && Schema::hasTable('church_user_memberships')) {
+                $defaultChurchId = Church::where('slug', (string) config('tenant.default_church_slug', 'default'))->value('id');
+                if ($defaultChurchId && ! $user->memberships()->where('church_id', $defaultChurchId)->exists()) {
+                    ChurchUserMembership::create([
+                        'user_id' => $user->id,
+                        'church_id' => $defaultChurchId,
+                        'role' => 'member',
+                        'status' => 'active',
+                        'joined_at' => now(),
+                    ]);
+                }
+            }
+        });
     }
 }

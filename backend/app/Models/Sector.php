@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToChurch;
 use Database\Factories\SectorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Sector extends Model
 {
     /** @use HasFactory<SectorFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

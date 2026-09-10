@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FinanceAccountType;
+use App\Traits\BelongsToChurch;
 use Database\Factories\ChartOfAccountFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ChartOfAccount extends Model
 {
     /** @use HasFactory<ChartOfAccountFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

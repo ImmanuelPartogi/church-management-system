@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToChurch;
 use Database\Factories\WartaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 class Warta extends Model
 {
     /** @use HasFactory<WartaFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FinanceAccountType;
+use App\Traits\BelongsToChurch;
 use Database\Factories\FinancialTransactionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FinancialTransaction extends Model
 {
     /** @use HasFactory<FinancialTransactionFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

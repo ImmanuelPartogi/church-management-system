@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PaymentStatus;
 use App\Enums\ServiceFormStatus;
+use App\Traits\BelongsToChurch;
 use Database\Factories\ServiceFormApplicationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ServiceFormApplication extends Model
 {
     /** @use HasFactory<ServiceFormApplicationFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

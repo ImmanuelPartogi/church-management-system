@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ChurchServantRole;
+use App\Traits\BelongsToChurch;
 use Database\Factories\ChurchServantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ChurchServant extends Model
 {
     /** @use HasFactory<ChurchServantFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

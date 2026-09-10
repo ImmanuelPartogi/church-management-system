@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToChurch;
 use Database\Factories\ServiceFormTypeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ServiceFormType extends Model
 {
     /** @use HasFactory<ServiceFormTypeFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

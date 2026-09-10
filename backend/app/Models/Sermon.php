@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToChurch;
 use Database\Factories\SermonFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +33,7 @@ use Illuminate\Support\Carbon;
 class Sermon extends Model
 {
     /** @use HasFactory<SermonFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

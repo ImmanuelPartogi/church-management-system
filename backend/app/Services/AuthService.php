@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Church;
+use App\Models\ChurchUserMembership;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class AuthService
@@ -41,6 +44,24 @@ class AuthService
 
             // Default new users to the 'member' role
             $user->assignRole('member');
+
+            // Synchronously create initial ChurchUserMembership in active church context
+            if (Schema::hasTable('churches') && Schema::hasTable('church_user_memberships')) {
+                $targetChurchId = app()->bound('current_church_id') ? app('current_church_id') : null;
+                if (! $targetChurchId) {
+                    $targetChurchId = Church::where('slug', (string) config('tenant.default_church_slug', 'default'))->value('id');
+                }
+
+                if ($targetChurchId) {
+                    ChurchUserMembership::create([
+                        'user_id' => $user->id,
+                        'church_id' => $targetChurchId,
+                        'role' => 'member',
+                        'status' => 'active',
+                        'joined_at' => now(),
+                    ]);
+                }
+            }
         }
 
         // Revoke previous tokens

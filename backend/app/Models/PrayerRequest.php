@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PrayerRequestStatus;
+use App\Traits\BelongsToChurch;
 use Database\Factories\PrayerRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PrayerRequest extends Model
 {
     /** @use HasFactory<PrayerRequestFactory> */
-    use HasFactory;
+    use BelongsToChurch, HasFactory;
 
     /**
      * Get the attributes that should be cast.

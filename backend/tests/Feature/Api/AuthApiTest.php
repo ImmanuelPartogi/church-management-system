@@ -22,7 +22,7 @@ class AuthApiTest extends TestCase
 
         // Create default roles because assignRole('member') is called during firebase registration
         Role::firstOrCreate(['name' => 'member']);
-        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'church_admin']);
     }
 
     /**
