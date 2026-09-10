@@ -195,6 +195,16 @@ php artisan key:generate
 # Jalankan migrasi database beserta data awal (seeders)
 php artisan migrate --seed
 
+# [Wajib pada Update/Deployment ke Phase 4B+]
+# Backfill provisioning modul default (12 modul) untuk seluruh tenant legacy yang belum memiliki record modul:
+php artisan churches:backfill-modules
+# (Opsional: gunakan --dry-run untuk simulasi tanpa menulis ke database, atau --church=<id> untuk target spesifik)
+
+# [Wajib pada Update/Deployment ke Phase 5+ (Queue Worker Daemon)]
+# Broadcast notifikasi FCM dan pemrosesan latar belakang kini berjalan secara asinkron.
+# Pastikan worker berjalan terus-menerus di server produksi:
+php artisan queue:work --tries=3 --backoff=15,60,300
+
 # Install dependensi frontend & build asset admin panel
 npm install
 npm run build
@@ -220,7 +230,7 @@ dart run build_runner build --delete-conflicting-outputs
 ## 🚀 Cara Penggunaan (Usage)
 
 ### Menjalankan Server Backend & Web Admin Local
-Di dalam folder [`backend/`](file:///e:/Nero/church-management-system/backend):
+Di dalam folder [`backend/`](file:///backend):
 ```bash
 # Menggunakan command bawaan script dev (menjalankan server, queue worker, & vite secara paralel)
 composer run dev
@@ -230,6 +240,57 @@ php artisan serve
 ```
 - **Portal Web Admin Filament**: Akses melalui browser di `http://127.0.0.1:8000/admin`
 - **REST API Base Endpoint**: `http://127.0.0.1:8000/api/v1`
+
+### ⚙️ Background Queue Worker (Prasyarat Wajib Produksi Phase 5+)
+
+Mulai Phase 5, pengiriman push broadcast pengumuman (`SendChurchAnnouncementBroadcastJob`) dan proses domain latar belakang lainnya diproses secara asinkron di antrean. **Jika worker daemon tidak berjalan di server produksi, job akan tertahan di database dan notifikasi tidak akan terkirim ke jemaat.**
+
+#### Menjalankan Worker di Lingkungan Lokal
+```bash
+cd backend
+php artisan queue:work
+```
+
+#### Menjalankan Worker di Produksi (Supervisor Daemon)
+Buat file konfigurasi Supervisor pada `/etc/supervisor/conf.d/church-cms-worker.conf`:
+```ini
+[program:church-cms-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/church-management-system/backend/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/church-cms-worker.log
+stopwaitsecs=3600
+```
+Aktifkan konfigurasi:
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start church-cms-worker:*
+```
+
+#### Monitoring & Troubleshooting Antrean
+```bash
+# Memeriksa ukuran & status antrean:
+php artisan queue:monitor default
+
+# Melihat status worker supervisor:
+sudo supervisorctl status church-cms-worker:*
+
+# Memeriksa log kegagalan permanen (failed jobs):
+php artisan queue:failed
+
+# Mencoba ulang seluruh job yang gagal:
+php artisan queue:retry all
+
+# Menghapus job yang gagal:
+php artisan queue:flush
+```
 
 ### Menjalankan Aplikasi Mobile Flutter
 Di dalam folder [`mobile/`](file:///e:/Nero/church-management-system/mobile):
