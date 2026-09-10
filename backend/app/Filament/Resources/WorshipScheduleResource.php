@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\WorshipScheduleResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\WorshipSchedule;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class WorshipScheduleResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'schedules';
+    }
+
     protected static ?string $model = WorshipSchedule::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';

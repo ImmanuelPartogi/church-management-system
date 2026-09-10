@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceFormTypeResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ServiceFormType;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class ServiceFormTypeResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'forms';
+    }
+
     protected static ?string $model = ServiceFormType::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-rectangle-stack';

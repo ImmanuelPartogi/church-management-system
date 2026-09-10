@@ -25,7 +25,7 @@ class PrayerRequestResourceTest extends TestCase
     public function test_authorized_admin_can_render_prayer_request_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $user = User::factory()->create();
         $member = ChurchMember::factory()->create(['user_id' => $user->id]);
@@ -93,7 +93,7 @@ class PrayerRequestResourceTest extends TestCase
     public function test_admin_can_follow_up_prayer_request(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $user = User::factory()->create();
         $member = ChurchMember::factory()->create(['user_id' => $user->id]);

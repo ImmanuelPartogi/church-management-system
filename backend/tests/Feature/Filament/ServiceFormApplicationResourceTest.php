@@ -26,7 +26,7 @@ class ServiceFormApplicationResourceTest extends TestCase
     public function test_authorized_admin_can_render_applications_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $user = User::factory()->create();
         $member = ChurchMember::factory()->create(['user_id' => $user->id]);
@@ -59,7 +59,7 @@ class ServiceFormApplicationResourceTest extends TestCase
     public function test_admin_can_process_and_approve_application(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $user = User::factory()->create();
         $member = ChurchMember::factory()->create(['user_id' => $user->id]);

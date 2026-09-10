@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\ChurchServantRole;
 use App\Filament\Resources\ChurchServantResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ChurchServant;
 use Filament\Actions;
 use Filament\Forms;
@@ -14,6 +15,13 @@ use Filament\Tables\Table;
 
 class ChurchServantResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'community';
+    }
+
     protected static ?string $model = ChurchServant::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-academic-cap';

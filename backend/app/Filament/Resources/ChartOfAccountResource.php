@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\FinanceAccountType;
 use App\Filament\Resources\ChartOfAccountResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ChartOfAccount;
 use Filament\Actions;
 use Filament\Forms;
@@ -14,6 +15,13 @@ use Filament\Tables\Table;
 
 class ChartOfAccountResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'finance';
+    }
+
     protected static ?string $model = ChartOfAccount::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-bars-3-center-left';

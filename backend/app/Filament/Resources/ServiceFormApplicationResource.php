@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\PaymentStatus;
 use App\Enums\ServiceFormStatus;
 use App\Filament\Resources\ServiceFormApplicationResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ServiceFormApplication;
 use Filament\Actions;
 use Filament\Forms;
@@ -17,6 +18,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ServiceFormApplicationResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'forms';
+    }
+
     protected static ?string $model = ServiceFormApplication::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-check';

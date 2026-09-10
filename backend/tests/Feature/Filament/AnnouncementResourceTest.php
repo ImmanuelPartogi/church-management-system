@@ -3,10 +3,12 @@
 namespace Tests\Feature\Filament;
 
 use App\Filament\Resources\AnnouncementResource;
+use App\Jobs\SendChurchAnnouncementBroadcastJob;
 use App\Models\Announcement;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -23,7 +25,7 @@ class AnnouncementResourceTest extends TestCase
     public function test_authorized_admin_can_render_announcement_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $announcement = Announcement::factory()->create();
 
@@ -48,7 +50,7 @@ class AnnouncementResourceTest extends TestCase
     public function test_admin_can_create_announcement(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         Livewire::actingAs($admin)
             ->test(AnnouncementResource\Pages\CreateAnnouncement::class)
@@ -65,5 +67,30 @@ class AnnouncementResourceTest extends TestCase
             'title' => 'Pengumuman Gotong Royong',
             'status' => 'published',
         ]);
+    }
+
+    public function test_admin_can_trigger_broadcast_action_which_pushes_job_to_queue(): void
+    {
+        Queue::fake();
+
+        $admin = User::factory()->create();
+        $admin->assignRole('church_admin');
+
+        $announcement = Announcement::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(AnnouncementResource\Pages\ListAnnouncements::class)
+            ->callTableAction('sendNotification', $announcement, [
+                'title' => 'Judul Broadcast Queued',
+                'body' => 'Isi broadcast queued',
+                'route' => '/announcements',
+            ])
+            ->assertHasNoTableActionErrors();
+
+        Queue::assertPushed(SendChurchAnnouncementBroadcastJob::class, function ($job) use ($announcement) {
+            return $job->announcementId === $announcement->id
+                && $job->getChurchId() === $announcement->church_id
+                && $job->title === 'Judul Broadcast Queued';
+        });
     }
 }

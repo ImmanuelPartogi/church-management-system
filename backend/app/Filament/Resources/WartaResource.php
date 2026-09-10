@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\WartaResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Warta;
+use App\Support\TenantStorage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -13,6 +15,13 @@ use Filament\Tables\Table;
 
 class WartaResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'warta';
+    }
+
     protected static ?string $model = Warta::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-document-text';
@@ -42,7 +51,7 @@ class WartaResource extends Resource
                     ->required()
                     ->acceptedFileTypes(['application/pdf'])
                     ->maxSize(10240) // 10MB
-                    ->directory('wartas')
+                    ->directory(fn () => TenantStorage::path('wartas'))
                     ->preserveFilenames()
                     ->columnSpanFull()
                     ->label('Warta PDF Document (PDF only, max 10MB)'),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ResortResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Resort;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class ResortResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'community';
+    }
+
     protected static ?string $model = Resort::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-home-modern';

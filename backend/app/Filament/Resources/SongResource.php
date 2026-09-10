@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SongResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Song;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class SongResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'hymns';
+    }
+
     protected static ?string $model = Song::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-musical-note';

@@ -23,7 +23,7 @@ class WorshipScheduleResourceTest extends TestCase
     public function test_authorized_admin_can_render_worship_schedule_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $schedule = WorshipSchedule::factory()->create();
 
@@ -48,7 +48,7 @@ class WorshipScheduleResourceTest extends TestCase
     public function test_admin_can_create_worship_schedule(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         Livewire::actingAs($admin)
             ->test(WorshipScheduleResource\Pages\CreateWorshipSchedule::class)

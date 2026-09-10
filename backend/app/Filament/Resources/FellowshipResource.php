@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FellowshipResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Fellowship;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class FellowshipResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'community';
+    }
+
     protected static ?string $model = Fellowship::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-user-group';

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SectorResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Sector;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class SectorResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'community';
+    }
+
     protected static ?string $model = Sector::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-map-pin';

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChurchBankAccountResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ChurchBankAccount;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class ChurchBankAccountResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'finance';
+    }
+
     protected static ?string $model = ChurchBankAccount::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-building-library';

@@ -23,7 +23,7 @@ class ServiceFormTypeResourceTest extends TestCase
     public function test_authorized_admin_can_render_service_form_type_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $type = ServiceFormType::factory()->create();
 
@@ -48,7 +48,7 @@ class ServiceFormTypeResourceTest extends TestCase
     public function test_admin_can_create_service_form_type(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         Livewire::actingAs($admin)
             ->test(ServiceFormTypeResource\Pages\CreateServiceFormType::class)

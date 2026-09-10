@@ -3,8 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AnnouncementResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
+use App\Jobs\SendChurchAnnouncementBroadcastJob;
 use App\Models\Announcement;
-use App\Services\Notifications\FcmNotificationService;
+use App\Support\TenantStorage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -16,6 +18,13 @@ use Illuminate\Support\Str;
 
 class AnnouncementResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'announcements';
+    }
+
     protected static ?string $model = Announcement::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-megaphone';
@@ -43,7 +52,7 @@ class AnnouncementResource extends Resource
 
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->directory('announcements')
+                    ->directory(fn () => TenantStorage::path('announcements'))
                     ->nullable()
                     ->label('Cover Image'),
 
@@ -121,20 +130,17 @@ class AnnouncementResource extends Resource
                             ->required(),
                     ])
                     ->action(function (Announcement $record, array $data): void {
-                        /** @var FcmNotificationService $fcmService */
-                        $fcmService = app(FcmNotificationService::class);
-                        $count = $fcmService->broadcast(
-                            $data['title'],
-                            $data['body'],
-                            [
-                                'type' => 'announcement',
-                                'entity_id' => (string) $record->id,
-                                'route' => $data['route'],
-                            ]
+                        SendChurchAnnouncementBroadcastJob::dispatch(
+                            announcementId: (int) $record->id,
+                            title: $data['title'],
+                            body: $data['body'],
+                            route: $data['route'],
+                            churchId: (int) $record->church_id,
                         );
+
                         Notification::make()
-                            ->title('Push notification terkirim.')
-                            ->body("Berhasil diproses untuk {$count} perangkat.")
+                            ->title('Push notification dijadwalkan.')
+                            ->body('Notifikasi broadcast pengumuman telah dimasukkan ke antrean pengiriman jemaat.')
                             ->success()
                             ->send();
                     }),

@@ -23,7 +23,7 @@ class ChurchMemberResourceTest extends TestCase
     public function test_authorized_admin_can_render_church_member_resource_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $member = ChurchMember::factory()->create(['user_id' => $admin->id]);
 
@@ -48,7 +48,7 @@ class ChurchMemberResourceTest extends TestCase
     public function test_admin_can_create_church_member(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         Livewire::actingAs($admin)
             ->test(ChurchMemberResource\Pages\CreateChurchMember::class)

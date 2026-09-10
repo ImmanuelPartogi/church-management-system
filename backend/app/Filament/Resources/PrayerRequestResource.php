@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\PrayerRequestStatus;
 use App\Filament\Resources\PrayerRequestResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\PrayerRequest;
 use Filament\Actions;
 use Filament\Forms;
@@ -17,6 +18,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PrayerRequestResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'prayer_requests';
+    }
+
     protected static ?string $model = PrayerRequest::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-heart';

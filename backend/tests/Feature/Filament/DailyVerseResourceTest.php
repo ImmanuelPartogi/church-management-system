@@ -23,7 +23,7 @@ class DailyVerseResourceTest extends TestCase
     public function test_authorized_admin_can_render_daily_verse_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $verse = DailyVerse::factory()->create();
 
@@ -48,7 +48,7 @@ class DailyVerseResourceTest extends TestCase
     public function test_admin_can_create_daily_verse(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         Livewire::actingAs($admin)
             ->test(DailyVerseResource\Pages\CreateDailyVerse::class)

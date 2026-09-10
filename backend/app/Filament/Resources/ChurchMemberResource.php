@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChurchMemberResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\ChurchMember;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class ChurchMemberResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'membership';
+    }
+
     protected static ?string $model = ChurchMember::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-user-group';

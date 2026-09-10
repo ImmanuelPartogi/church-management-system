@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DailyVerseResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\DailyVerse;
 use Filament\Actions;
 use Filament\Forms;
@@ -13,6 +14,13 @@ use Filament\Tables\Table;
 
 class DailyVerseResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'daily_verse';
+    }
+
     protected static ?string $model = DailyVerse::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-book-open';

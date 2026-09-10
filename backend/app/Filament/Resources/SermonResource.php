@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SermonResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\Sermon;
+use App\Support\TenantStorage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -13,6 +15,13 @@ use Filament\Tables\Table;
 
 class SermonResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'sermons';
+    }
+
     protected static ?string $model = Sermon::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-microphone';
@@ -45,7 +54,7 @@ class SermonResource extends Resource
 
                 Forms\Components\FileUpload::make('file_path')
                     ->acceptedFileTypes(['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/m4a', 'audio/aac', 'application/pdf'])
-                    ->directory('sermons')
+                    ->directory(fn () => TenantStorage::path('sermons'))
                     ->maxSize(51200) // Max 50MB
                     ->required()
                     ->columnSpanFull()

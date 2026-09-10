@@ -5,8 +5,10 @@ namespace App\Filament\Resources;
 use App\Enums\DonationStatus;
 use App\Enums\FinanceAccountType;
 use App\Filament\Resources\DonationConfirmationResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\DonationConfirmation;
 use App\Models\FinancialTransaction;
+use App\Support\TenantStorage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -20,6 +22,13 @@ use Illuminate\Support\Str;
 
 class DonationConfirmationResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'donations';
+    }
+
     protected static ?string $model = DonationConfirmation::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-banknotes';
@@ -76,7 +85,7 @@ class DonationConfirmationResource extends Resource
 
                 Forms\Components\FileUpload::make('proof_file_path')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
-                    ->directory('donation_proofs')
+                    ->directory(fn () => TenantStorage::path('donation_proofs'))
                     ->maxSize(5120) // 5MB
                     ->columnSpanFull()
                     ->label('Proof of Transfer Receipt'),

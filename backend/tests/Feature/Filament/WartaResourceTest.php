@@ -25,7 +25,7 @@ class WartaResourceTest extends TestCase
     public function test_authorized_admin_can_render_warta_list(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $warta = Warta::factory()->create();
 
@@ -52,7 +52,7 @@ class WartaResourceTest extends TestCase
         Storage::fake('public');
 
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $admin->assignRole('church_admin');
 
         $file = UploadedFile::fake()->create('warta-minggu.pdf', 100, 'application/pdf');
 

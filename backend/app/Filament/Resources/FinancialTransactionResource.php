@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\FinanceAccountType;
 use App\Filament\Resources\FinancialTransactionResource\Pages;
+use App\Filament\Traits\HasModuleAccess;
 use App\Models\FinancialTransaction;
 use Filament\Actions;
 use Filament\Forms;
@@ -15,6 +16,13 @@ use Illuminate\Support\Facades\Auth;
 
 class FinancialTransactionResource extends Resource
 {
+    use HasModuleAccess;
+
+    public static function getModuleKey(): string
+    {
+        return 'finance';
+    }
+
     protected static ?string $model = FinancialTransaction::class;
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-calculator';
