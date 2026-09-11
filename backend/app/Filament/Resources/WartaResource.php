@@ -4,14 +4,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WartaResource\Pages;
 use App\Filament\Traits\HasModuleAccess;
+use App\Jobs\SendChurchWartaBroadcastJob;
 use App\Models\Warta;
 use App\Support\TenantStorage;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class WartaResource extends Resource
 {
@@ -109,6 +112,41 @@ class WartaResource extends Resource
             ->actions([
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),
+                Actions\Action::make('sendNotification')
+                    ->label('Kirim Push')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('success')
+                    ->visible(fn (Warta $record) => (bool) $record->is_published)
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Pengiriman Push Notifikasi')
+                    ->modalDescription('Apakah Anda yakin ingin mengirim push notifikasi broadcast untuk warta ini ke seluruh jemaat terdaftar di gereja ini?')
+                    ->modalSubmitActionLabel('Ya, Kirim Sekarang')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->default(fn (Warta $record) => 'Warta Jemaat: '.$record->title)
+                            ->required(),
+                        Forms\Components\Textarea::make('body')
+                            ->default(fn (Warta $record) => Str::limit(strip_tags($record->description ?? $record->title), 100))
+                            ->required(),
+                        Forms\Components\TextInput::make('route')
+                            ->default(fn (Warta $record) => '/wartas')
+                            ->required(),
+                    ])
+                    ->action(function (Warta $record, array $data): void {
+                        SendChurchWartaBroadcastJob::dispatch(
+                            wartaId: (int) $record->id,
+                            title: $data['title'],
+                            body: $data['body'],
+                            route: $data['route'],
+                            churchId: (int) $record->church_id,
+                        );
+
+                        Notification::make()
+                            ->title('Push notification dijadwalkan.')
+                            ->body('Notifikasi broadcast warta jemaat telah dimasukkan ke antrean pengiriman.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([

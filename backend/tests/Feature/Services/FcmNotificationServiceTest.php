@@ -74,20 +74,26 @@ class FcmNotificationServiceTest extends TestCase
 
         DeviceToken::create([
             'user_id' => $user1->id,
+            'church_id' => $churchA->id,
             'token' => 'token-user-1-church-a',
             'platform' => 'android',
+            'is_active' => true,
         ]);
 
         DeviceToken::create([
             'user_id' => $user2->id,
+            'church_id' => $churchB->id,
             'token' => 'token-user-2-church-b',
             'platform' => 'android',
+            'is_active' => true,
         ]);
 
         DeviceToken::create([
             'user_id' => $user3->id,
+            'church_id' => $churchA->id,
             'token' => 'token-user-3-church-a-pending',
             'platform' => 'android',
+            'is_active' => false,
         ]);
 
         $messagingMock = Mockery::mock(Messaging::class);
@@ -117,8 +123,10 @@ class FcmNotificationServiceTest extends TestCase
 
         DeviceToken::create([
             'user_id' => $user->id,
+            'church_id' => $churchA->id,
             'token' => 'token-user-default-church',
             'platform' => 'android',
+            'is_active' => true,
         ]);
 
         $messagingMock = Mockery::mock(Messaging::class);

@@ -98,15 +98,24 @@ class FcmNotificationService
             throw new \InvalidArgumentException('Church ID is required to broadcast notifications.');
         }
 
-        $query = DeviceToken::query()->whereHas('user.memberships', function ($q) use ($churchId) {
-            $q->where('church_id', $churchId)
-                ->where('status', 'active');
+        $data['church_id'] ??= (string) $churchId;
+
+        $query = DeviceToken::forChurch($churchId)->active();
+
+        // Defense-in-depth: if token has a user_id, ensure active membership in this church
+        $query->where(function ($q) use ($churchId) {
+            $q->whereNull('user_id')
+                ->orWhereHas('user.memberships', function ($m) use ($churchId) {
+                    $m->where('church_id', $churchId)
+                        ->where('status', 'active');
+                });
         });
 
         if ($role) {
-            $query->whereHas('user', function ($q) use ($role) {
-                $q->whereHas('roles', function ($r) use ($role) {
-                    $r->where('name', $role);
+            $query->whereHas('user', function ($q) use ($role, $churchId) {
+                $q->whereHas('roles', function ($r) use ($role, $churchId) {
+                    $r->where('name', $role)
+                        ->where('church_id', $churchId);
                 });
             });
         }

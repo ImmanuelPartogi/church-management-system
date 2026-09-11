@@ -118,6 +118,10 @@ class AnnouncementResource extends Resource
                     ->label('Kirim Push')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Pengiriman Push Notifikasi')
+                    ->modalDescription('Apakah Anda yakin ingin mengirim push notifikasi broadcast untuk pengumuman ini ke seluruh jemaat terdaftar di gereja ini?')
+                    ->modalSubmitActionLabel('Ya, Kirim Sekarang')
                     ->form([
                         Forms\Components\TextInput::make('title')
                             ->default(fn (Announcement $record) => $record->title)

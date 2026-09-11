@@ -83,8 +83,10 @@ class SendChurchAnnouncementBroadcastJobTest extends TestCase
         $userA = User::factory()->create();
         DeviceToken::create([
             'user_id' => $userA->id,
+            'church_id' => $churchA->id,
             'token' => 'token-device-a',
             'platform' => 'android',
+            'is_active' => true,
         ]);
 
         // Member of Church B
@@ -98,8 +100,10 @@ class SendChurchAnnouncementBroadcastJobTest extends TestCase
         ]);
         DeviceToken::create([
             'user_id' => $userB->id,
+            'church_id' => $churchB->id,
             'token' => 'token-device-b',
             'platform' => 'android',
+            'is_active' => true,
         ]);
 
         $messagingMock = Mockery::mock(Messaging::class);
