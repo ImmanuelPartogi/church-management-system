@@ -62,4 +62,39 @@ class ChurchUserMembership extends Model
     {
         return $this->belongsTo(ChurchMember::class, 'church_member_id');
     }
+
+    /**
+     * The "booted" method of the model.
+     * Synchronizes device token lifecycle with membership status changes (defense-in-depth).
+     */
+    protected static function booted(): void
+    {
+        // 1. When membership status is updated
+        static::updated(function (self $membership) {
+            if ($membership->isDirty('status')) {
+                $isActive = $membership->status === 'active';
+                DeviceToken::where('user_id', $membership->user_id)
+                    ->where('church_id', $membership->church_id)
+                    ->update(['is_active' => $isActive]);
+            }
+        });
+
+        // 2. When membership is deleted (both hard-delete and future soft-delete)
+        static::deleted(function (self $membership) {
+            DeviceToken::where('user_id', $membership->user_id)
+                ->where('church_id', $membership->church_id)
+                ->update(['is_active' => false]);
+        });
+
+        // 3. When membership is restored (anticipating future SoftDeletes)
+        if (method_exists(static::class, 'restored')) {
+            static::restored(function (self $membership) {
+                if ($membership->status === 'active') {
+                    DeviceToken::where('user_id', $membership->user_id)
+                        ->where('church_id', $membership->church_id)
+                        ->update(['is_active' => true]);
+                }
+            });
+        }
+    }
 }
