@@ -28,6 +28,14 @@ class ChurchServantObserver
     }
 
     /**
+     * Handle the ChurchServant "restored" event (defensive lifecycle guard if SoftDeletes is activated).
+     */
+    public function restored(ChurchServant $servant): void
+    {
+        $this->syncSintuaRole($servant);
+    }
+
+    /**
      * Sync the Spatie "sintua" role for the servant's associated user within the church tenant.
      */
     protected function syncSintuaRole(ChurchServant $servant): void

@@ -10,10 +10,12 @@ use App\Models\Sector;
 use App\Models\ServiceFormApplication;
 use App\Models\ServiceFormType;
 use App\Models\User;
+use App\Observers\ChurchServantObserver;
 use App\Services\Sacrament\SacramentWorkflowService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class SacramentWorkflowTest extends TestCase
@@ -386,5 +388,72 @@ class SacramentWorkflowTest extends TestCase
         $this->assertTrue($leadPastorUser->can('approvePastoral', $sacramentApp));
         $this->assertFalse($assistantPastorUser->can('approvePastoral', $sacramentApp));
         $this->assertFalse($leadPastorUser->can('approvePastoral', $nonSacramentApp));
+    }
+
+    public function test_servant_observer_syncs_sintua_role_lifecycle_including_defensive_restored(): void
+    {
+        $user = User::factory()->create();
+        $member = ChurchMember::factory()->create(['user_id' => $user->id]);
+
+        $this->assertFalse($user->hasRole('sintua'));
+
+        // 1. Create active sintua servant -> auto assigns 'sintua' role
+        $servant = ChurchServant::factory()->create([
+            'member_id' => $member->id,
+            'role' => 'sintua',
+            'active' => true,
+        ]);
+
+        $this->assertTrue($user->fresh()->hasRole('sintua'));
+
+        // 2. Deactivate servant -> revokes 'sintua' role
+        $servant->update(['active' => false]);
+        $this->assertFalse($user->fresh()->hasRole('sintua'));
+
+        // 3. Reactivate servant -> re-assigns 'sintua' role
+        $servant->update(['active' => true]);
+        $this->assertTrue($user->fresh()->hasRole('sintua'));
+
+        // 4. Defensive restored hook -> ensures role stays synced
+        app(ChurchServantObserver::class)->restored($servant);
+        $this->assertTrue($user->fresh()->hasRole('sintua'));
+
+        // 5. Delete servant -> revokes 'sintua' role
+        $servant->delete();
+        $this->assertFalse($user->fresh()->hasRole('sintua'));
+    }
+
+    public function test_is_lead_pastor_authorization_is_enforced_via_domain_policy_without_direct_spatie_permission_pollution(): void
+    {
+        $pastorUser = User::factory()->create();
+        $pastorUser->assignRole('pastor');
+        $pastorMember = ChurchMember::factory()->create(['user_id' => $pastorUser->id]);
+
+        // Creating lead pastor servant
+        $servant = ChurchServant::factory()->create([
+            'member_id' => $pastorMember->id,
+            'role' => 'pdt_resort',
+            'is_lead_pastor' => true,
+            'active' => true,
+        ]);
+
+        // Assert no direct model permission pollution in model_has_permissions
+        $directPermissions = DB::table('model_has_permissions')
+            ->where('model_id', $pastorUser->id)
+            ->where('model_type', User::class)
+            ->count();
+        $this->assertSame(0, $directPermissions, 'Direct model permissions should not be created; RBAC role inheritance must be used.');
+
+        $sacramentType = ServiceFormType::factory()->create(['is_sacrament' => true]);
+        $sacramentApp = ServiceFormApplication::factory()->create([
+            'service_form_type_id' => $sacramentType->id,
+        ]);
+
+        // Authorized as lead pastor
+        $this->assertTrue($pastorUser->can('approvePastoral', $sacramentApp));
+
+        // Immediately revoked if lead pastor flag is removed
+        $servant->update(['is_lead_pastor' => false]);
+        $this->assertFalse($pastorUser->fresh()->can('approvePastoral', $sacramentApp));
     }
 }
