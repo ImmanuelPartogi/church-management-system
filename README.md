@@ -14,8 +14,10 @@ Platform manajemen gereja terintegrasi yang menggabungkan **REST API & Web Admin
 ## 📋 Daftar Isi
 
 - [Overview](#-overview)
-- [Tech Stack](#-tech-stack)
+- [Tech Stack](#-tech-stack--versioning)
 - [Arsitektur & Structure Project](#-arsitektur--structure-project)
+- [Arsitektur Multi-Tenant & Roadmap ADR](#-arsitektur-multi-tenant--roadmap-adr)
+- [Dokumentasi Lengkap & Runbook Operasional](#-dokumentasi-lengkap--runbook-operasional)
 - [Fitur Utama](#-fitur-utama)
 - [Prerequisites](#-prerequisites)
 - [Instalasi & Setup](#-instalasi--setup)
@@ -47,11 +49,12 @@ Berikut adalah rincian lengkap dependensi dan versi paket yang digunakan secara 
 | **Laravel Framework** | `^13.8` | Core REST API Framework |
 | **Filament Admin Panel** | `^5.7` | Web Admin Portal & CMS Majelis |
 | **Laravel Sanctum** | `^4.3` | SPA & Mobile API Token Authentication |
-| **Spatie Laravel Permission** | `^8.3` | Role-Based Access Control (RBAC) |
+| **Spatie Laravel Permission** | `^8.3` | Role-Based Access Control (RBAC) & Teams Multi-Tenancy |
+| **Barryvdh Laravel DomPDF** | `^3.1` | In-Memory PDF Generation & Streaming (Zero Disk Footprint) |
 | **Kreait Laravel Firebase** | `^7.2` | Integration Firebase Admin Auth & FCM |
 | **Laravel Pint** | `^1.27` | Code Style Formatter |
 | **Larastan** | `^3.10` | Static Analysis Tool for PHPStan |
-| **PHPUnit** | `^12.5.12` | Automated Unit & Integration Testing |
+| **PHPUnit** | `^12.5.12` | Automated Unit & Integration Testing (314 Tests Passing) |
 | **Laravel Pail / Pao / Tinker** | `^1.2.5` / `^1.0.6` / `^3.0` | CLI Logging & Interactive Shell |
 
 ### Mobile Application (`mobile/pubspec.yaml`)
@@ -84,46 +87,61 @@ church-management-system/
 │   │   ├── Filament/            # Resources & Pages Portal Web Admin (19 Resources)
 │   │   ├── Http/
 │   │   │   ├── Controllers/Api/V1/ # REST API Controllers (18 Controllers, 41 Active Endpoints)
-│   │   │   └── Middleware/      # Custom middleware (Authenticate, Sanitize)
+│   │   │   └── Middleware/      # Custom middleware (Authenticate, Sanitize, ResolveChurchContext)
 │   │   ├── Models/              # Eloquent Models & Relationship definitions (23 Models)
 │   │   ├── Policies/            # Spatie RBAC Authorization Policies
 │   │   ├── Providers/           # Service Providers (App, AdminPanelProvider)
-│   │   └── Services/            # Business Logic & Integration Services (FCM, Auth)
+│   │   └── Services/            # Business Logic & Integration Services (FCM, Auth, Reporting)
 │   ├── config/                  # Konfigurasi aplikasi, auth, & packages
-│   ├── database/                # Database Migrations (29 files), Factories, & Seeders
-│   ├── routes/                  # Route definitions (api.php, web.php)
-│   └── tests/                   # Automated PHPUnit / Pest Test Suites (87 Tests)
+│   ├── database/                # Database Migrations, Factories, & Seeders
+│   ├── routes/                  # Route definitions (api.php, web.php, console.php)
+│   └── tests/                   # Automated PHPUnit Test Suites (314 Tests, 1196 Assertions - 100% Green)
 │
 ├── mobile/                      # Aplikasi Mobile Jemaat (Flutter Clean Architecture)
 │   ├── android/                 # Native Android wrapper & build setup
 │   ├── ios/                     # Native iOS wrapper & build setup
 │   ├── lib/
 │   │   ├── app/                 # Root App Widget & GoRouter navigation configuration
-│   │   ├── core/                # Infrastructure: Network Dio, Storage, Theme, UseCases
-│   │   └── features/            # Feature-first Clean Architecture Modules:
-│   │       ├── auth/            # Login, Firebase Auth exchange, Session
-│   │       ├── home/            # Dashboard jemaat & quick menu
-│   │       ├── schedule/        # Jadwal Ibadah & kalender petugas
-│   │       ├── warta/           # Warta gereja digital & viewer PDF
-│   │       ├── forms/           # Pengajuan pelayanan & dokumen pendukung
-│   │       ├── donations/       # Konfirmasi donasi manual & rekening gereja
-│   │       ├── prayer_requests/ # Permohonan doa & catatan pastoral
-│   │       ├── hymns/           # Buku nyanyian / lirik lagu ibadah
-│   │       ├── finance/         # Laporan transparansi keuangan gereja
-│   │       ├── directory/       # Direktori jemaat & pengurus majelis
-│   │       ├── media/           # Khotbah PDF & arsip media
-│   │       ├── search/          # Pencarian global Lintas Modul
-│   │       └── profile/         # Profil pengguna & manajemen akun
-│   └── test/                    # Automated Unit & Widget Test Suites (63 Tests)
+│   │   ├── core/                # Infrastructure: Network Dio, Storage, Theme, Tenant Scoping
+│   │   └── features/            # Feature-first Clean Architecture Modules
+│   └── test/                    # Automated Unit & Widget Test Suites (84 Tests - 100% Green)
 │
-├── docs/                        # Dokumentasi bersama & kontrak API
-│   ├── api-contract.md          # Kontrak REST API & JSON Payload Schema
-│   ├── database.md              # Diagram skema ERD & spesifikasi tabel
-│   └── PRODUCTION_READINESS_AUDIT.md # Hasil audit keamanan & kesiapan rilis
+├── docs/                        # Dokumentasi Arsitektur & Operasional Produksi
+│   ├── ARCHITECTURE_DECISION_RECORDS.md # Katalog Lengkap ADR 1 s/d ADR 11
+│   ├── PRODUCTION_OPERATIONS_RUNBOOK.md # Panduan Deployment, Supervisor, Cron, & Runbook
+│   └── KNOWN_LIMITATIONS.md            # Registry Batasan Teknis & Technical Debt
 │
 ├── .github/                     # Workflow CI/CD (Backend & Mobile Workflows)
 └── README.md                    # Dokumentasi utama proyek
 ```
+
+---
+
+## 🏛 Arsitektur Multi-Tenant & Roadmap ADR
+
+Sistem ini menerapkan isolasi multi-tenant tingkat tinggi dengan pengawasan konsolidasi sinode terpusat:
+
+| Milestone / Phase | Keputusan Arsitektural (ADR) | Kapabilitas Kunci | Status |
+| :--- | :--- | :--- | :--- |
+| **Phase 1E** | **ADR 1**: Strict Tenant Isolation | Trait `BelongsToChurch`, `ChurchScope`, non-fillable `church_id`, `withoutChurch()` macro | ✅ COMPLETED |
+| **Phase 2** | **ADR 2**: Spatie Teams Migration | Spatie RBAC dengan scoping `team_id` terikat ke `church_id` | ✅ COMPLETED |
+| **Phase 3** | **ADR 3**: Context Resolution | Middleware `ResolveChurchContext` dengan validasi anti-spoofing | ✅ COMPLETED |
+| **Phase 4A** | **ADR 4 & 5**: Tenant Management | `ChurchPolicy`, endpoint publik `/churches`, Filament Topbar Switcher | ✅ COMPLETED |
+| **Phase 4B** | **ADR 6**: 12-Module Feature Flags | Taksonomi 12 modul, middleware `module:{key}`, `HasModuleAccess` | ✅ COMPLETED |
+| **Phase 4C** | **ADR 7**: Mobile Multi-Tenant | `TenantInterceptor`, rekonsiliasi state jemaat multi-membership | ✅ COMPLETED |
+| **Phase 5** | **ADR 8**: Async Scoping & Hardening | `TenantAwareJob` zero-leak context teardown, direktori storage partisi | ✅ COMPLETED |
+| **Phase 6A** | **ADR 9**: Synod Reporting Engine | `GenerateSynodReportSnapshotJob`, atomic cache locks, metrik helikopter | ✅ COMPLETED |
+| **Phase 7** | **ADR 10**: Self-Service Onboarding | Form registrasi mandiri publik, HMAC signed route, approval atomik | ✅ COMPLETED |
+| **Phase 8** | **ADR 11**: In-Memory Export Pipeline | Ekspor resmi PDF & CSV, zero disk footprint, dynamic memory restoration | ✅ COMPLETED |
+
+---
+
+## 📚 Dokumentasi Lengkap & Runbook Operasional
+
+Untuk detail spesifikasi teknis dan panduan operasional server produksi, rujuk dokumen berikut:
+1. [**Architecture Decision Records Catalog (`docs/ARCHITECTURE_DECISION_RECORDS.md`)**](file:///docs/ARCHITECTURE_DECISION_RECORDS.md): Spesifikasi arsitektural lengkap ADR 1 hingga ADR 11.
+2. [**Production Operations & Deployment Runbook (`docs/PRODUCTION_OPERATIONS_RUNBOOK.md`)**](file:///docs/PRODUCTION_OPERATIONS_RUNBOOK.md): Panduan instalasi Ubuntu, konfigurasi Supervisor queue worker daemon, pengaturan Cron scheduler, dan mitigasi tanggap darurat.
+3. [**Known Limitations & Technical Debt Registry (`docs/KNOWN_LIMITATIONS.md`)**](file:///docs/KNOWN_LIMITATIONS.md): Dokumentasi transparan batasan teknis (profiling N+1 query rentang 50–300 gereja, circuit breaker threshold 300 gereja untuk ekspor PDF).
 
 ---
 
@@ -141,8 +159,11 @@ Sistem menyediakan fungsi terpadu untuk pengurus gereja dan jemaat:
 | **Permohonan Doa** | Pengajuan Doa Pastoral (Public/Private), Lihat Status Doa | Tanggapi Permohonan Doa & Catatan Pendampingan Pastoral |
 | **Transparansi Keuangan**| Ringkasan Laporan Laba-Rugi / Pemasukan-Pengeluaran Gereja | Kelola Chart of Accounts (COA) & Transaksi Keuangan |
 | **Direktori & Pengurus**| Cari Kontak Jemaat, Sektor, Resort, & Daftar Pengurus Gereja | Kelola Master Data Jemaat, Sektor, Resort, & Majelis |
-| **Media & Buku Lagu** | Pencarian Lirik Lagu Ibadah, Khotbah, & Dokumen PDF | Kelola Master Songbook (Lagu/Lirik) & Arsip Khotbah |
 | **Notifikasi FCM** | Receiver Push Notification Pesan Gereja & Update Pengajuan | Kirim Pengumuman Broadcast FCM ke Seluruh Device Jemaat |
+| **Multi-Tenant & Switcher** | Auto-switch tenant aktif & modal prompt multi-membership | Topbar Tenant Switcher & isolasi Spatie Teams |
+| **Pendaftaran Mandiri (Onboarding)** | Pendaftaran gereja publik & verifikasi email HMAC signed route | Queue review pendaftaran & approval atomik Super Admin |
+| **Dashboard Sinode HKBP** | - | Konsolidasi data seluruh gereja, metrik helikopter, komparasi |
+| **Ekspor Laporan Resmi (PDF/CSV)** | - | Ekspor in-memory PDF dokumen resmi & CSV UTF-8 BOM |
 
 ---
 
@@ -292,6 +313,21 @@ php artisan queue:retry all
 php artisan queue:flush
 ```
 
+#### Menjalankan Laravel Scheduler di Produksi (Cron Job)
+Sistem memiliki tugas terjadwal otomatis (*scheduled tasks*) yang didefinisikan di `routes/console.php`:
+- `church-registrations:prune-stale --days=7`: Pembersihan harian (pukul 02:00) pendaftaran mandiri yang tidak diverifikasi $>7$ hari untuk melepaskan slug ke *available pool*.
+- `synod:generate-report`: Pembuatan snapshot agregat laporan sinode lintas-gereja harian (pukul 00:05).
+
+Agar seluruh tugas terjadwal berjalan otomatis di server produksi, tambahkan satu baris cron pada user web server (`crontab -e -u www-data`):
+```cron
+* * * * * cd /var/www/church-management-system/backend && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Memeriksa daftar dan jadwal tugas otomatis:
+```bash
+php artisan schedule:list
+```
+
 ### Menjalankan Aplikasi Mobile Flutter
 Di dalam folder [`mobile/`](file:///e:/Nero/church-management-system/mobile):
 ```bash
@@ -321,7 +357,7 @@ vendor/bin/phpstan analyse --memory-limit=512M
 # Menjalankan Automated Unit & Integration Tests (PHPUnit)
 php artisan test
 ```
-*Catatan Testing Backend*: PHPUnit menggunakan koneksi SQLite in-memory secara default (`phpunit.xml`). Pastikan ekstensi `pdo_sqlite` aktif pada PHP CLI Anda.
+*Status Terkini*: **314 tests, 1196 assertions, 0 failures (100% Green)**. PHPUnit menggunakan koneksi SQLite in-memory secara default (`phpunit.xml`). Pastikan ekstensi `pdo_sqlite` aktif pada PHP CLI Anda.
 
 ### Pemeriksaan Mobile (Flutter)
 ```bash
@@ -336,6 +372,7 @@ dart format --output=none --set-exit-if-changed .
 # Menjalankan Unit & Widget Tests
 flutter test
 ```
+*Status Terkini*: **84 tests passed, 0 failures (100% Green)**. Seluruh interaksi jaringan dimock menggunakan Mocktail dan Fake Async.
 
 ---
 
