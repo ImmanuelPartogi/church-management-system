@@ -27,6 +27,9 @@ class ChurchResource extends JsonResource
             'address' => $this->address,
             'phone' => $this->phone,
             'logo_url' => $this->logo_path ? asset('storage/'.$this->logo_path) : null,
+            'theme_primary_color' => $this->theme_primary_color ?? '#1B4B66',
+            'theme_secondary_color' => $this->theme_secondary_color ?? '#F5A623',
+            'theme_version' => (int) ($this->theme_version ?? 1),
         ];
     }
 }
