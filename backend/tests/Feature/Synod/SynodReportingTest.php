@@ -7,6 +7,7 @@ use App\Exceptions\Queue\UnauthorizedCrossTenantDispatchException;
 use App\Jobs\GenerateSynodReportSnapshotJob;
 use App\Models\Church;
 use App\Models\ChurchMember;
+use App\Models\ChurchModule;
 use App\Models\DonationConfirmation;
 use App\Models\ServiceFormApplication;
 use App\Models\SynodReportSnapshot;
@@ -16,6 +17,7 @@ use Illuminate\Bus\UniqueLock;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -126,6 +128,14 @@ class SynodReportingTest extends TestCase
         $this->assertContains('active', $statuses);
         $this->assertContains('suspended', $statuses);
 
+        // Provisioning status: both churches should be provisioned (via booted() hook and ModuleSeeder)
+        foreach ($snapshot->church_comparisons as $comparison) {
+            $this->assertArrayHasKey('provisioning_status', $comparison);
+            $this->assertArrayHasKey('total_modules_provisioned', $comparison);
+            $this->assertSame('provisioned', $comparison['provisioning_status']);
+            $this->assertGreaterThan(0, $comparison['total_modules_provisioned']);
+        }
+
         // Module adoption JSON breakdown
         $this->assertIsArray($snapshot->module_adoption);
         $this->assertNotEmpty($snapshot->module_adoption);
@@ -134,6 +144,48 @@ class SynodReportingTest extends TestCase
             $this->assertArrayHasKey('adoption_percentage', $adoptionRow);
             $this->assertSame(1, $adoptionRow['total_active_churches']);
         }
+    }
+
+    public function test_church_comparisons_distinguishes_unprovisioned_from_all_modules_disabled(): void
+    {
+        // Arrange: Church A is the default provisioned church, Church B has no modules at all (unprovisioned)
+        $churchProvisioned = Church::first();
+
+        // Create Church B WITHOUT triggering booted() auto-provisioning:
+        // We bypass the model event by inserting directly via query builder.
+        $churchUnprovisionedId = DB::table('churches')->insertGetId([
+            'uuid' => (string) Str::uuid(),
+            'name' => 'HKBP Legacy (Unprovisioned)',
+            'slug' => 'hkbp-legacy-unprovisioned',
+            'status' => 'active',
+            'timezone' => 'Asia/Jakarta',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Verify: Church B truly has 0 rows in church_modules
+        $this->assertSame(0, ChurchModule::where('church_id', $churchUnprovisionedId)->count());
+
+        // Act
+        GenerateSynodReportSnapshotJob::dispatchSync();
+
+        // Assert
+        $snapshot = SynodReportSnapshot::latestSnapshot();
+        $this->assertNotNull($snapshot);
+
+        $comparisons = collect($snapshot->church_comparisons);
+        $this->assertCount(2, $comparisons);
+
+        // Provisioned church
+        $provisioned = $comparisons->firstWhere('id', $churchProvisioned->id);
+        $this->assertSame('provisioned', $provisioned['provisioning_status']);
+        $this->assertGreaterThan(0, $provisioned['total_modules_provisioned']);
+
+        // Unprovisioned legacy church
+        $unprovisioned = $comparisons->firstWhere('id', $churchUnprovisionedId);
+        $this->assertSame('unprovisioned', $unprovisioned['provisioning_status']);
+        $this->assertSame(0, $unprovisioned['total_modules_provisioned']);
+        $this->assertSame(0, $unprovisioned['active_modules_count']);
     }
 
     public function test_cross_tenant_dispatcher_guard_allows_super_admin_and_records_user_id(): void

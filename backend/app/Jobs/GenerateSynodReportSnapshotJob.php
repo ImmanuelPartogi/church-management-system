@@ -93,14 +93,33 @@ class GenerateSynodReportSnapshotJob implements CrossTenantJob, ShouldBeUnique, 
         $totalAllSacraments = ServiceFormApplication::withoutChurch()->count();
 
         // 4. Church Comparisons
+        //
+        // KNOWN LIMITATION (N+1 Query Pattern):
+        // Each church triggers 3 individual queries (member count, module count, donation sum).
+        // At current scale (<50 churches) this completes in sub-second within an async job.
+        // When synod grows to hundreds of churches, refactor to batch aggregation using
+        // DB::table()->selectRaw('church_id, COUNT(*)')->groupBy('church_id') or withCount().
+        //
+        // PROVISIONING ASSUMPTION:
+        // Church::booted() auto-provisions 12 modules on creation (Phase 4B).
+        // Legacy churches should have been backfilled via `php artisan churches:backfill-modules`.
+        // If a church has 0 rows in church_modules, it is flagged as 'unprovisioned' here
+        // to distinguish from a church that intentionally disabled all modules.
         $churchComparisons = $allChurches->map(function ($church) {
+            $totalModulesProvisioned = ChurchModule::where('church_id', $church->id)->count();
+            $activeModulesCount = $totalModulesProvisioned > 0
+                ? ChurchModule::where('church_id', $church->id)->where('is_enabled', true)->count()
+                : 0;
+
             return [
                 'id' => $church->id,
                 'name' => $church->name,
                 'slug' => $church->slug,
                 'status' => $church->status,
                 'member_count' => ChurchMember::withoutChurch()->where('church_id', $church->id)->count(),
-                'active_modules_count' => ChurchModule::where('church_id', $church->id)->where('is_enabled', true)->count(),
+                'active_modules_count' => $activeModulesCount,
+                'total_modules_provisioned' => $totalModulesProvisioned,
+                'provisioning_status' => $totalModulesProvisioned > 0 ? 'provisioned' : 'unprovisioned',
                 'total_donations' => (float) DonationConfirmation::withoutChurch()
                     ->where('church_id', $church->id)
                     ->where('status', DonationStatus::Approved->value)
