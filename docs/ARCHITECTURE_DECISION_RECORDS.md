@@ -20,6 +20,8 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
 | **ADR 10** | Self-Service Church Registration & HMAC Signed Route Onboarding Pipeline | ACCEPTED | Phase 7 |
 | **ADR 11** | In-Memory Synod Report Export Pipeline with Zero Disk Footprint | ACCEPTED | Phase 8 |
 | **ADR 12** | Dynamic Mobile Theming per Church & 3-Tier Fallback | ACCEPTED | Phase 9 |
+| **ADR 13** | Sacrament Approval Workflow & Sectoral Hierarchy RBAC | PROPOSED | Phase 10 Track B |
+| **ADR 14** | Intra-Tenant Member-Level Scoping Architecture | ACCEPTED | Phase 10 Track C & Phase 12 |
 
 ---
 
@@ -120,4 +122,20 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
   - **Asymmetric Security Design (Fail-Open)**: Pewarnaan visual menerapkan prinsip *fail-open*; kesalahan storage lokal, kegagalan network, atau format hex tidak valid otomatis jatuh ke warna platform tanpa pernah melempar unhandled exception atau mengunci aplikasi.
   - **3-Tier Mobile Fallback**: Aplikasi Flutter mengimplementasikan Riverpod `ThemeNotifier` dengan urutan: Tier 1 (Cache Lokal `SecureStorageService`) -> Tier 2 (Payload API dengan invalidasi `theme_version`) -> Tier 3 (Default Platform `#1B4B66` dan `#F5A623`).
   - **Preservasi Identitas Lintas Logout (ADR 7.3)**: `ThemeNotifier` hanya mendengarkan `tenantProvider`. Pembersihan token saat logout tidak menghapus active church ataupun tema aktif, memastikan pengalaman *guest browsing* tetap konsisten.
+
+### ADR 13: Sacrament Approval Workflow & Sectoral Hierarchy RBAC
+- **Konteks**: Alur persetujuan pelayanan sakramen (Baptis, Sidi, Pernikahan) bertingkat dari tingkat Sektor/Wijk (`Sintua Wijk`) hingga Pendeta Ressort.
+- **Status**: PROPOSED (Phase 10 Track B).
+- **Rancangan Inti**:
+  - Integrasi hirarki baris data berbasis `sector_id` pada jemaat dan pelayan gereja.
+  - State machine approval berurutan: `draft` -> `submitted` -> `reviewed_by_sintua` -> `approved_by_pastor` -> `completed`.
+
+### ADR 14: Intra-Tenant Member-Level Scoping Architecture
+- **Konteks**: Isolasi data personal jemaat di dalam gereja lokal yang sama (mencegah kebocoran data persembahan dan dokumen antar-anggota jemaat).
+- **Status**: ACCEPTED (Phase 10 Track C & Phase 12).
+- **Keputusan**:
+  - **Trait `BelongsToMember`**: Model personal mengimplementasikan `scopeForMember(User $user)` yang mengunci query ke `user_id === auth()->id()`.
+  - **Pemisahan Jalur Dual-Pathway**: Endpoint `/me/donations` murni terkunci ke `user_id`, sedangkan antarmuka Filament staf gereja (`bendahara`) tetap mengagregasi seluruh persembahan di bawah wewenang tenant `church_id`.
+  - **Integritas Dokumen Sah (PDF)**: Query ekspor Surat Rekapitulasi Persembahan (PDF resmi) wajib menerapkan filter hardcoded `status = 'approved'` untuk mencegah penyalahgunaan persembahan pending/rejected sebagai bukti tanda terima sah.
+  - **Resilience Profil Jemaat**: Kunci kepemilikan mengikat langsung pada `user_id` dengan fallback graceful untuk atribut profil `ChurchMember` jika akun mandiri belum ditautkan oleh admin.
 
