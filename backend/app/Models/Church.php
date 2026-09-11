@@ -20,11 +20,37 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'address',
     'phone',
     'logo_path',
+    'theme_primary_color',
+    'theme_secondary_color',
+    'theme_version',
 ])]
 class Church extends Model
 {
     /** @use HasFactory<Factory<self>> */
     use HasFactory, SoftDeletes;
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'theme_primary_color' => '#1B4B66',
+        'theme_secondary_color' => '#F5A623',
+        'theme_version' => 1,
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'theme_version' => 'integer',
+        ];
+    }
 
     /**
      * The "booted" method of the model.
@@ -33,6 +59,12 @@ class Church extends Model
     {
         static::created(function (Church $church) {
             app(ChurchModuleService::class)->provisionDefaults($church);
+        });
+
+        static::updating(function (Church $church) {
+            if ($church->isDirty(['theme_primary_color', 'theme_secondary_color', 'logo_path'])) {
+                $church->theme_version = ((int) ($church->theme_version ?? 1)) + 1;
+            }
         });
     }
 
