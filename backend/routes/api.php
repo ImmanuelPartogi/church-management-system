@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\FinancialTransparencyController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\PrayerRequestController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\PublicChurchRegistrationController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\SermonController;
 use App\Http\Controllers\Api\V1\ServantController;
@@ -33,6 +34,19 @@ Route::get('/health', function () {
         ],
     ]);
 })->withoutMiddleware(ResolveChurchContext::class);
+
+// Phase 7: Self-Service Church Registration & Onboarding Endpoints
+Route::prefix('public/church-registration')
+    ->withoutMiddleware(ResolveChurchContext::class)
+    ->group(function () {
+        Route::post('/', [PublicChurchRegistrationController::class, 'submit'])
+            ->middleware('throttle:5,60');
+        Route::get('/check-slug', [PublicChurchRegistrationController::class, 'checkSlug'])
+            ->middleware('throttle:15,60');
+        Route::get('/verify/{registration}', [PublicChurchRegistrationController::class, 'verify'])
+            ->name('public.church-registration.verify')
+            ->middleware('signed');
+    });
 
 // Public routes
 // Phase 4A Public Churches Directory (Mobile Onboarding)
