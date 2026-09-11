@@ -50,5 +50,34 @@ void main() {
       verifyNever(mockRouter.push(argThat(anything)));
       verifyNever(mockRouter.go(argThat(anything)));
     });
+
+    test('handleNotificationData triggers onSwitchChurch when church_id is present', () {
+      int? switchedChurchId;
+
+      notificationService.handleNotificationData(
+        mockRouter,
+        {
+          'church_id': '42',
+          'route': '/announcements',
+        },
+        onSwitchChurch: (churchId) {
+          switchedChurchId = churchId;
+        },
+      );
+
+      expect(switchedChurchId, equals(42));
+      verify(mockRouter.push('/announcements')).called(1);
+    });
+
+    test('handleNotificationData routes without onSwitchChurch when church_id is missing', () {
+      notificationService.handleNotificationData(
+        mockRouter,
+        {
+          'route': '/wartas/55',
+        },
+      );
+
+      verify(mockRouter.push('/wartas/55')).called(1);
+    });
   });
 }

@@ -93,15 +93,23 @@ class NotificationService {
     }
   }
 
-  Future<bool> syncTokenWithBackend(Dio dioClient, String token) async {
+  Future<bool> syncTokenWithBackend(
+    Dio dioClient,
+    String token, {
+    int? churchId,
+  }) async {
     try {
+      final payload = <String, dynamic>{
+        'token': token,
+        'platform':
+            defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+      };
+      if (churchId != null) {
+        payload['church_id'] = churchId;
+      }
       final response = await dioClient.post<Map<String, dynamic>>(
         ApiConstants.deviceTokenEndpoint,
-        data: {
-          'token': token,
-          'platform':
-              defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
-        },
+        data: payload,
       );
       return response.statusCode == 200;
     } catch (e) {
@@ -110,7 +118,40 @@ class NotificationService {
     }
   }
 
-  void handleNotificationData(GoRouter router, Map<String, dynamic> data) {
+  Future<bool> deleteTokenFromBackend(
+    Dio dioClient,
+    String token, {
+    int? churchId,
+  }) async {
+    try {
+      final payload = <String, dynamic>{'token': token};
+      if (churchId != null) {
+        payload['church_id'] = churchId;
+      }
+      final response = await dioClient.delete<Map<String, dynamic>>(
+        ApiConstants.deviceTokenEndpoint,
+        data: payload,
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('Delete device token failed: $e');
+      return false;
+    }
+  }
+
+  void handleNotificationData(
+    GoRouter router,
+    Map<String, dynamic> data, {
+    void Function(int churchId)? onSwitchChurch,
+  }) {
+    final rawChurchId = data['church_id'];
+    if (rawChurchId != null && onSwitchChurch != null) {
+      final parsedChurchId = int.tryParse(rawChurchId.toString());
+      if (parsedChurchId != null) {
+        onSwitchChurch(parsedChurchId);
+      }
+    }
+
     final rawRoute = data['route'] as String?;
     handleNotificationNavigation(router, rawRoute);
   }
