@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DonationStatus;
 use App\Traits\BelongsToChurch;
+use App\Traits\BelongsToMember;
 use Database\Factories\DonationConfirmationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,7 +36,7 @@ use Illuminate\Support\Carbon;
 class DonationConfirmation extends Model
 {
     /** @use HasFactory<DonationConfirmationFactory> */
-    use BelongsToChurch, HasFactory;
+    use BelongsToChurch, BelongsToMember, HasFactory;
 
     /**
      * Get the attributes that should be cast.

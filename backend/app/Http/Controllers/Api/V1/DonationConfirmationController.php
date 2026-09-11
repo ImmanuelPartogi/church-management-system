@@ -22,7 +22,7 @@ class DonationConfirmationController extends Controller
     {
         $user = $request->user();
 
-        $donations = DonationConfirmation::where('user_id', $user->id)
+        $donations = DonationConfirmation::forMember($user)
             ->with(['chartOfAccount', 'reviewer'])
             ->latest('transfer_date')
             ->latest('id')
