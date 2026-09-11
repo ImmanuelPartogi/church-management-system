@@ -40,6 +40,35 @@ class ChurchPolicy
     }
 
     /**
+     * Determine whether the user can update the theme and visual branding of the church.
+     *
+     * Granular Authorization:
+     * - Super Admin: Authorized for any church.
+     * - Church Admin: Authorized ONLY if church matches the canonical context (app('current_church_id'))
+     *   AND the user holds an active membership in that church.
+     * Zero session dependency: Does not read session('active_church_id').
+     */
+    public function updateTheme(User $user, Church $church): bool
+    {
+        if ($user->is_super_admin) {
+            return true;
+        }
+
+        if (! app()->bound('current_church_id')) {
+            return false;
+        }
+
+        $activeChurchId = (int) app('current_church_id');
+
+        return $user->hasRole('church_admin')
+            && (int) $church->id === $activeChurchId
+            && $user->memberships()
+                ->where('church_id', $church->id)
+                ->where('status', 'active')
+                ->exists();
+    }
+
+    /**
      * Determine whether the user can delete the church.
      * Architectural Decision: UI deletion of church tenants is strictly disabled to prevent
      * accidental cascading deletions on 11 operational tables. Deactivation must be done

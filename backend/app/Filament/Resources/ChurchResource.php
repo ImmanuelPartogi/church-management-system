@@ -107,6 +107,18 @@ class ChurchResource extends Resource
                     ->directory('church-logos')
                     ->nullable()
                     ->label('Logo Gereja'),
+
+                Forms\Components\ColorPicker::make('theme_primary_color')
+                    ->default('#1B4B66')
+                    ->required()
+                    ->label('Warna Primer (Brand Utama)')
+                    ->helperText('Rekomendasi rasio kontras WCAG AA: minimal 4.5:1 terhadap teks putih.'),
+
+                Forms\Components\ColorPicker::make('theme_secondary_color')
+                    ->default('#F5A623')
+                    ->required()
+                    ->label('Warna Sekunder (Aksen & Tombol)')
+                    ->helperText('Rekomendasi rasio kontras WCAG AA: minimal 4.5:1 terhadap teks putih.'),
             ]);
     }
 
