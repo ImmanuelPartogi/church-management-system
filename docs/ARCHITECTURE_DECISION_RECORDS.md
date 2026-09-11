@@ -20,7 +20,7 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
 | **ADR 10** | Self-Service Church Registration & HMAC Signed Route Onboarding Pipeline | ACCEPTED | Phase 7 |
 | **ADR 11** | In-Memory Synod Report Export Pipeline with Zero Disk Footprint | ACCEPTED | Phase 8 |
 | **ADR 12** | Dynamic Mobile Theming per Church & 3-Tier Fallback | ACCEPTED | Phase 9 |
-| **ADR 13** | Sacrament Approval Workflow & Sectoral Hierarchy RBAC | PROPOSED | Phase 10 Track B |
+| **ADR 13** | Sacrament Approval Workflow & Sectoral Hierarchy RBAC | ACCEPTED | Phase 11 / Phase 10 Track B |
 | **ADR 14** | Intra-Tenant Member-Level Scoping Architecture | ACCEPTED | Phase 10 Track C & Phase 12 |
 
 ---
@@ -124,11 +124,13 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
   - **Preservasi Identitas Lintas Logout (ADR 7.3)**: `ThemeNotifier` hanya mendengarkan `tenantProvider`. Pembersihan token saat logout tidak menghapus active church ataupun tema aktif, memastikan pengalaman *guest browsing* tetap konsisten.
 
 ### ADR 13: Sacrament Approval Workflow & Sectoral Hierarchy RBAC
-- **Konteks**: Alur persetujuan pelayanan sakramen (Baptis, Sidi, Pernikahan) bertingkat dari tingkat Sektor/Wijk (`Sintua Wijk`) hingga Pendeta Ressort.
-- **Status**: PROPOSED (Phase 10 Track B).
-- **Rancangan Inti**:
-  - Integrasi hirarki baris data berbasis `sector_id` pada jemaat dan pelayan gereja.
-  - State machine approval berurutan: `draft` -> `submitted` -> `reviewed_by_sintua` -> `approved_by_pastor` -> `completed`.
+- **Konteks**: Alur persetujuan pelayanan sakramen (Baptis, Sidi, Pernikahan, Atestasi) bertingkat dari tingkat Sektor/Wijk (Sintua) hingga pengesahan Pendeta Ressort.
+- **Status**: ACCEPTED (Phase 11 / Phase 10 Track B).
+- **Keputusan Arsitektur**:
+  - **Granularitas Sektor Sintua**: Many-to-Many via pivot terisolasi `church_servant_sectors` yang wajib memuat kolom `church_id` (composite unique: `church_id, church_servant_id, sector_id`) untuk mencegah penugasan lintas tenant.
+  - **Rantai Identitas & Auto-Sync Role**: Otorisasi ditarik dari `User -> ChurchMember -> ChurchServant`. Dilengkapi model event hooks (`ChurchServantObserver`, `ChurchMemberObserver`) untuk auto-assign/revoke role Spatie `sintua` saat terjadi pembuatan atau penautan akun (termasuk klaim self-registration Phase 7), didukung command rekonsiliasi idempotent `church:sync-servant-roles`.
+  - **Diferensiasi Pastoral Fail-Closed**: Pengesahan akhir sakramen (`approve final sacraments`) dibatasi secara eksklusif ke satu Pendeta Ressort / Pimpinan Jemaat (`is_lead_pastor` / `pdt_resort`), mencegah pembagian wewenang kanonik yang terlalu longgar ke seluruh pendeta pembantu/vikaris.
+  - **Fail-Loud Konfigurasi Sektor**: Flag eksplisit `requires_sector_verification` (boolean) pada tabel `churches`. Sistem menolak inferensi dari ketiadaan data; jika aktif namun data sektor kosong atau pemohon belum memiliki sektor, permohonan sakramen tertahan dengan pesan validasi eksplisit (*fail-loud*).
 
 ### ADR 14: Intra-Tenant Member-Level Scoping Architecture
 - **Konteks**: Isolasi data personal jemaat di dalam gereja lokal yang sama (mencegah kebocoran data persembahan dan dokumen antar-anggota jemaat).
