@@ -9,6 +9,9 @@ class ChurchModel {
   final String? address;
   final String? phone;
   final String? logoUrl;
+  final String? themePrimaryColor;
+  final String? themeSecondaryColor;
+  final int? themeVersion;
 
   const ChurchModel({
     required this.id,
@@ -19,6 +22,9 @@ class ChurchModel {
     this.address,
     this.phone,
     this.logoUrl,
+    this.themePrimaryColor,
+    this.themeSecondaryColor,
+    this.themeVersion,
   });
 
   factory ChurchModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +37,11 @@ class ChurchModel {
       address: json['address']?.toString(),
       phone: json['phone']?.toString(),
       logoUrl: json['logo_url']?.toString(),
+      themePrimaryColor: json['theme_primary_color']?.toString(),
+      themeSecondaryColor: json['theme_secondary_color']?.toString(),
+      themeVersion: json['theme_version'] is int
+          ? json['theme_version'] as int
+          : int.tryParse(json['theme_version']?.toString() ?? ''),
     );
   }
 
@@ -44,6 +55,9 @@ class ChurchModel {
       'address': address,
       'phone': phone,
       'logo_url': logoUrl,
+      'theme_primary_color': themePrimaryColor,
+      'theme_secondary_color': themeSecondaryColor,
+      'theme_version': themeVersion,
     };
   }
 
@@ -57,6 +71,9 @@ class ChurchModel {
       address: address,
       phone: phone,
       logoUrl: logoUrl,
+      themePrimaryColor: themePrimaryColor,
+      themeSecondaryColor: themeSecondaryColor,
+      themeVersion: themeVersion,
     );
   }
 
@@ -70,6 +87,9 @@ class ChurchModel {
       address: church.address,
       phone: church.phone,
       logoUrl: church.logoUrl,
+      themePrimaryColor: church.themePrimaryColor,
+      themeSecondaryColor: church.themeSecondaryColor,
+      themeVersion: church.themeVersion,
     );
   }
 }

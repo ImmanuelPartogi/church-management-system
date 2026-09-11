@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/theme_notifier.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import 'widgets/root_tenant_prompt_listener.dart';
@@ -11,11 +12,12 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final themeState = ref.watch(themeNotifierProvider);
 
     return MaterialApp.router(
       title: 'Church App',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
+      theme: AppTheme.lightFromTheme(themeState),
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,
       routerConfig: router,

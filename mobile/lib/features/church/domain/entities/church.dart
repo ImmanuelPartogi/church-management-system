@@ -7,6 +7,9 @@ class Church {
   final String? address;
   final String? phone;
   final String? logoUrl;
+  final String? themePrimaryColor;
+  final String? themeSecondaryColor;
+  final int? themeVersion;
 
   const Church({
     required this.id,
@@ -17,6 +20,9 @@ class Church {
     this.address,
     this.phone,
     this.logoUrl,
+    this.themePrimaryColor,
+    this.themeSecondaryColor,
+    this.themeVersion,
   });
 
   @override

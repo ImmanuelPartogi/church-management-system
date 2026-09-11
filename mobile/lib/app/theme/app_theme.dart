@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/church_theme_state.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
@@ -6,24 +7,29 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData get light {
+  static ThemeData get light => lightFromTheme(const ChurchThemeState());
+
+  static ThemeData lightFromTheme(ChurchThemeState theme) {
+    final primary = theme.primaryColor;
+    final secondary = theme.secondaryColor;
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       textTheme: AppTypography.textTheme(false),
       scaffoldBackgroundColor: AppColors.backgroundLight,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
+      colorScheme: ColorScheme.light(
+        primary: primary,
         onPrimary: Colors.white,
-        secondary: AppColors.gold,
+        secondary: secondary,
         onSecondary: Colors.white,
         surface: AppColors.surfaceLight,
         onSurface: AppColors.textPrimaryLight,
         error: AppColors.error,
         onError: Colors.white,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
+      appBarTheme: AppBarTheme(
+        backgroundColor: primary,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
@@ -63,7 +69,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: primary,
           foregroundColor: Colors.white,
           elevation: 0,
           minimumSize: const Size(88, 48),
@@ -74,7 +80,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: primary,
           minimumSize: const Size(88, 48),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           side: const BorderSide(color: AppColors.borderLight),

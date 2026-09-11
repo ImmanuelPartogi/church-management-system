@@ -59,6 +59,26 @@ class SecureStorageService {
     }
   }
 
+  static const String _themePrefix = 'church_theme_';
+
+  Future<void> saveChurchTheme(int churchId, Map<String, dynamic> themeData) async {
+    await _storage.write(key: '$_themePrefix$churchId', value: jsonEncode(themeData));
+  }
+
+  Future<Map<String, dynamic>?> getChurchTheme(int churchId) async {
+    final raw = await _storage.read(key: '$_themePrefix$churchId');
+    if (raw == null) return null;
+    try {
+      return jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> removeChurchTheme(int churchId) async {
+    await _storage.delete(key: '$_themePrefix$churchId');
+  }
+
   Future<void> removeActiveChurch() async {
     await _storage.delete(key: _activeChurchKey);
   }
