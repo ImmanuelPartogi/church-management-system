@@ -11,7 +11,7 @@ Dokumen ini mencatat secara transparan batasan teknis yang diketahui (*known lim
 | **KL-01** | `GenerateSynodReportSnapshotJob` (N+1 Query) | Aman pada < 50 Gereja (<200 ms) | Rentang 50–300 Gereja (Wajib profiling DB nyata) | ACCEPTED DEBT |
 | **KL-02** | `SynodChurchesComparisonWidget` (In-Memory Sort) | Aman pada < 50 Gereja (<5 ms) | Rentang 50–300 Gereja (Evaluasi memory collection) | ACCEPTED DEBT |
 | **KL-03** | `SynodReportExportService` (Synchronous DomPDF) | Terukur pada 100 Gereja (~1 s) | > 300 Gereja (Circuit Breaker terukur non-linear) | ACCEPTED DEBT |
-| **KL-04** | Upstream Dependency CVEs (`composer audit`) | 3 Paket Teridentifikasi | Target Pasti: 25 September 2026 (Max 14 Hari) | OPEN ACTION (HIGH) |
+| **KL-04** | Upstream Dependency CVEs (`composer audit`) | `league/commonmark` dipatch ke `^2.10.1` (0 HIGH CVEs) | Sisa Livewire/Filament: 25 Sept 2026 | PARTIALLY RESOLVED (0 HIGH) |
 
 ---
 
@@ -79,15 +79,18 @@ Dokumen ini mencatat secara transparan batasan teknis yang diketahui (*known lim
 ### KL-04: Upstream Dependency Vulnerabilities (Vendor CVEs Belum Di-patch)
 - **Status Deteksi**: Teridentifikasi melalui `composer audit` pada September 2026.
 - **Rincian Kerentanan & Severity Level**:
-  1. **`league/commonmark` (v2.8.3)**:
-     - **Tingkat Keparahan**: **HIGH** (5 advisories) & **MEDIUM** (2 advisories).
-     - **Advisories Utama**:
+  1. **`league/commonmark` (v2.8.3 => Patched ke v2.10.1 pada 11 September 2026)**:
+     - **Tingkat Keparahan**: **HIGH** (5 advisories) & **MEDIUM** (2 advisories) — **STATUS: RESOLVED / CLOSED**.
+     - **Advisories Ditutup**:
        - `GHSA-8rr7-cvq3-gmfh` (High): Denial of Service via distinctly-named attributes.
        - `GHSA-jjv6-8j6v-6j52` (High): Denial of Service in SmartPunct and Attributes extensions.
        - `GHSA-f8fg-pg57-v4j8` (High): XSS filter bypass with U+000C form feed in AttributesExtension.
        - `GHSA-j8pm-gj4c-rq4x` (High): Denial of Service via crafted code fences, reference links, emphasis delimiters.
        - `CVE-2026-71488` (High): Quadratic-time DoS when parsing crafted Markdown.
-     - **Versi Perbaikan (Patched)**: `^2.10.1`.
+       - Serta 2 medium advisories (`GHSA-mj63-m3rc-8ppr`, `GHSA-29pj-957v-52mc`).
+     - **Versi Terpasang**: `^2.10.1` (Terkonfirmasi kompatibel via `composer why league/commonmark` terhadap `laravel/framework v13.23.0` yang mensyaratkan `^2.8.1`).
+     - **Hasil Audit Pasca-patch**: **0 HIGH CVEs** di seluruh repository.
+     - **Verifikasi Regresi**: 334 backend tests (1376 assertions) 100% passed, Pint clean.
   2. **`livewire/livewire` (v4.3.3)**:
      - **Tingkat Keparahan**: **MEDIUM** (1 advisory).
      - **Advisory**: `CVE-2026-81887` (Medium): DOM-based cross-site scripting (XSS) during client-side state handling.
@@ -101,7 +104,6 @@ Dokumen ini mencatat secara transparan batasan teknis yang diketahui (*known lim
 - **Hasil Audit Empiris Permukaan Serangan (Attack Surface Verification)**:
   - *Verifikasi Komponen Input Filament*: Audit kode menyeluruh (`grep -roh "Forms\\Components\\[A-Za-z0-9_]*" app/Filament/`) membuktikan **0 penggunaan `MarkdownEditor` maupun `RichEditor`** di seluruh Resource Filament. Seluruh input konten teks oleh `church_admin` (seperti `Announcement.content`, `Warta.description`, `PrayerRequest.request`, `Sermon.title`) murni menggunakan `Forms\Components\Textarea` atau `TextInput`.
   - *Verifikasi Pipeline Queue & Background Jobs*: Audit menyeluruh pada job `SendChurchAnnouncementBroadcastJob` dan seluruh job di `app/Jobs/` membuktikan string teks diteruskan secara mentah (*raw string*) ke payload FCM (`FcmNotificationService::broadcast()`), tanpa pernah memanggil `Str::markdown()` atau parser markdown pihak ketiga. Tidak ada jalur eksekusi DoS worker hang lintas-tenant via markdown parsing.
-  - *Asal Usul Dependensi*: `league/commonmark` hadir di codebase semata-mata sebagai dependensi bawaan (*transitive dependency*) dari `laravel/framework v13.x` (diperlukan internal framework untuk fitur mail template), bukan fitur yang diekspos ke pengguna akhir.
-- **Rencana Aksi & Prosedur Eksekusi**:
-  - **Target Waktu Pasti**: Ditetapkan sebagai tugas prioritas tinggi tersendiri (*Dedicated Security & Dependency Upgrade Sprint*) maksimal dalam 14 hari kalender (**Target: 25 September 2026**).
-  - **Perintah Eksekusi**: `composer update "filament/*" league/commonmark livewire/livewire -W` diikuti verifikasi regresi penuh pada 314 test backend dan browser smoke testing pada Filament admin panel.
+  - *Asal Usul Dependensi*: `league/commonmark` hadir di codebase semata-mata sebagai dependensi bawaan (*transitive dependency*) dari `laravel/framework v13.x` (diperlukan internal framework untuk fitur mail template).
+- **Rencana Aksi Sisa (Filament & Livewire)**:
+  - **Target Waktu**: Tetap dijadwalkan pada Sprint Pemeliharaan berkala (**Target: 25 September 2026**). Upgrade Livewire/Filament memerlukan penyesuaian dependensi cascading (~58 paket termasuk symfony/monolog) sehingga akan diuji dengan browser smoke testing terpisah.
