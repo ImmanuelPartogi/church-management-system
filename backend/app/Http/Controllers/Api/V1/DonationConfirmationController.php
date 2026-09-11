@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDonationConfirmationRequest;
 use App\Http\Resources\Api\DonationConfirmationResource;
 use App\Models\DonationConfirmation;
+use App\Services\Reporting\MemberDonationExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DonationConfirmationController extends Controller
 {
@@ -20,15 +22,60 @@ class DonationConfirmationController extends Controller
      */
     public function myDonations(Request $request): JsonResponse
     {
+        $request->validate([
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'chart_of_account_id' => ['nullable', 'integer', 'exists:chart_of_accounts,id'],
+            'status' => ['nullable', 'string', 'in:all,pending,approved,rejected'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
         $user = $request->user();
 
-        $donations = DonationConfirmation::forMember($user)
-            ->with(['chartOfAccount', 'reviewer'])
-            ->latest('transfer_date')
+        $query = DonationConfirmation::forMember($user)
+            ->with(['chartOfAccount', 'reviewer']);
+
+        if ($request->filled('status') && $request->input('status') !== 'all') {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('transfer_date', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('transfer_date', '<=', $request->input('end_date'));
+        }
+
+        if ($request->filled('chart_of_account_id')) {
+            $query->where('chart_of_account_id', $request->input('chart_of_account_id'));
+        }
+
+        $donations = $query->latest('transfer_date')
             ->latest('id')
-            ->paginate(10);
+            ->paginate($request->integer('per_page', 10));
 
         return $this->jsonPaginated(DonationConfirmationResource::collection($donations), 'Donation history retrieved successfully.');
+    }
+
+    /**
+     * Export personal donation history as PDF (Statement of Giving) or CSV (personal ledger).
+     */
+    public function export(Request $request, MemberDonationExportService $exportService): StreamedResponse
+    {
+        $validated = $request->validate([
+            'format' => ['required', 'string', 'in:pdf,csv'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'chart_of_account_id' => ['nullable', 'integer', 'exists:chart_of_accounts,id'],
+            'status' => ['nullable', 'string', 'in:all,pending,approved,rejected'],
+        ]);
+
+        if ($validated['format'] === 'pdf') {
+            return $exportService->exportPdf($request->user(), $validated);
+        }
+
+        return $exportService->exportCsv($request->user(), $validated);
     }
 
     /**

@@ -153,6 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/donations/confirm', [DonationConfirmationController::class, 'confirm']);
         Route::get('/donations/my-donations', [DonationConfirmationController::class, 'myDonations']);
         Route::get('/me/donations', [DonationConfirmationController::class, 'myDonations']);
+        Route::get('/me/donations/export', [DonationConfirmationController::class, 'export']);
         Route::get('/donations/{id}', [DonationConfirmationController::class, 'show']);
     });
 
