@@ -45,9 +45,19 @@ class DonationRepositoryImpl implements DonationRepository {
   @override
   Future<Either<Failure, List<DonationConfirmation>>> getMyDonations({
     int page = 1,
+    String? startDate,
+    String? endDate,
+    String? status,
+    int? chartOfAccountId,
   }) async {
     try {
-      final models = await _remoteDataSource.getMyDonations(page: page);
+      final models = await _remoteDataSource.getMyDonations(
+        page: page,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+        chartOfAccountId: chartOfAccountId,
+      );
       return Right(models.map((m) => m.toEntity()).toList());
     } on DioException catch (e) {
       final apiException = ApiException.fromDioError(e);
@@ -60,6 +70,38 @@ class DonationRepositoryImpl implements DonationRepository {
     } catch (e) {
       return Left(
         ServerFailure('Gagal mengambil riwayat donasi: ${e.toString()}'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<int>>> exportDonations({
+    required String format,
+    String? startDate,
+    String? endDate,
+    int? chartOfAccountId,
+    String? status,
+  }) async {
+    try {
+      final bytes = await _remoteDataSource.exportDonations(
+        format: format,
+        startDate: startDate,
+        endDate: endDate,
+        chartOfAccountId: chartOfAccountId,
+        status: status,
+      );
+      return Right(bytes);
+    } on DioException catch (e) {
+      final apiException = ApiException.fromDioError(e);
+      return Left(
+        ServerFailure(
+          apiException.message,
+          statusCode: apiException.statusCode,
+        ),
+      );
+    } catch (e) {
+      return Left(
+        ServerFailure('Gagal mengunduh dokumen persembahan: ${e.toString()}'),
       );
     }
   }

@@ -34,10 +34,28 @@ class DonationRemoteDataSource {
 
   Future<List<DonationConfirmationModel>> getMyDonations({
     int page = 1,
+    String? startDate,
+    String? endDate,
+    String? status,
+    int? chartOfAccountId,
   }) async {
+    final queryParams = <String, dynamic>{'page': page};
+    if (startDate != null && startDate.isNotEmpty) {
+      queryParams['start_date'] = startDate;
+    }
+    if (endDate != null && endDate.isNotEmpty) {
+      queryParams['end_date'] = endDate;
+    }
+    if (status != null && status.isNotEmpty && status != 'all') {
+      queryParams['status'] = status;
+    }
+    if (chartOfAccountId != null) {
+      queryParams['chart_of_account_id'] = chartOfAccountId;
+    }
+
     final response = await _dio.get<Map<String, dynamic>>(
       ApiConstants.myDonationsEndpoint,
-      queryParameters: {'page': page},
+      queryParameters: queryParams,
     );
     final json = response.data as Map<String, dynamic>;
     final list = json['data'] as List<dynamic>;
@@ -48,6 +66,36 @@ class DonationRemoteDataSource {
               DonationConfirmationModel.fromJson(item as Map<String, dynamic>),
         )
         .toList();
+  }
+
+  Future<List<int>> exportDonations({
+    required String format,
+    String? startDate,
+    String? endDate,
+    int? chartOfAccountId,
+    String? status,
+  }) async {
+    final queryParams = <String, dynamic>{'format': format};
+    if (startDate != null && startDate.isNotEmpty) {
+      queryParams['start_date'] = startDate;
+    }
+    if (endDate != null && endDate.isNotEmpty) {
+      queryParams['end_date'] = endDate;
+    }
+    if (chartOfAccountId != null) {
+      queryParams['chart_of_account_id'] = chartOfAccountId;
+    }
+    if (status != null && status.isNotEmpty && status != 'all') {
+      queryParams['status'] = status;
+    }
+
+    final response = await _dio.get<List<int>>(
+      ApiConstants.myDonationsExportEndpoint,
+      queryParameters: queryParams,
+      options: Options(responseType: ResponseType.bytes),
+    );
+
+    return response.data ?? <int>[];
   }
 
   Future<DonationConfirmationModel> getDonationDetail(int id) async {

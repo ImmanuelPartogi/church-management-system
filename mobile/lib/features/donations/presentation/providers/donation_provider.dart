@@ -15,13 +15,92 @@ final churchBankAccountsProvider =
   );
 });
 
+class DonationFilterState {
+  final String status;
+  final String? startDate;
+  final String? endDate;
+  final int? chartOfAccountId;
+
+  const DonationFilterState({
+    this.status = 'all',
+    this.startDate,
+    this.endDate,
+    this.chartOfAccountId,
+  });
+
+  DonationFilterState copyWith({
+    String? status,
+    String? startDate,
+    String? endDate,
+    int? chartOfAccountId,
+    bool clearDates = false,
+    bool clearCategory = false,
+  }) {
+    return DonationFilterState(
+      status: status ?? this.status,
+      startDate: clearDates ? null : (startDate ?? this.startDate),
+      endDate: clearDates ? null : (endDate ?? this.endDate),
+      chartOfAccountId:
+          clearCategory ? null : (chartOfAccountId ?? this.chartOfAccountId),
+    );
+  }
+}
+
+class DonationFilterNotifier extends StateNotifier<DonationFilterState> {
+  DonationFilterNotifier() : super(const DonationFilterState());
+
+  void setStatus(String status) {
+    state = state.copyWith(status: status);
+  }
+
+  void setDateRange(String? start, String? end) {
+    state = state.copyWith(startDate: start, endDate: end);
+  }
+
+  void clearDateRange() {
+    state = state.copyWith(clearDates: true);
+  }
+
+  void setCategory(int? id) {
+    state = state.copyWith(chartOfAccountId: id, clearCategory: id == null);
+  }
+
+  void reset() {
+    state = const DonationFilterState();
+  }
+}
+
+final donationFilterProvider =
+    StateNotifierProvider<DonationFilterNotifier, DonationFilterState>((ref) {
+  return DonationFilterNotifier();
+});
+
 final donationHistoryProvider =
     FutureProvider<List<DonationConfirmation>>((ref) async {
   final repository = ref.watch(donationRepositoryProvider);
-  final result = await repository.getMyDonations(page: 1);
+  final filter = ref.watch(donationFilterProvider);
+  final result = await repository.getMyDonations(
+    page: 1,
+    status: filter.status,
+    startDate: filter.startDate,
+    endDate: filter.endDate,
+    chartOfAccountId: filter.chartOfAccountId,
+  );
   return result.fold(
     (failure) => throw Exception(failure.message),
     (list) => list,
+  );
+});
+
+final verifiedGivingSummaryProvider = Provider<num>((ref) {
+  final historyAsync = ref.watch(donationHistoryProvider);
+  return historyAsync.maybeWhen(
+    data: (donations) {
+      return donations
+          .where((d) => d.status.toLowerCase() == 'approved')
+          .fold<num>(0, (sum, item) => sum + item.amount);
+    },
+    orElse: () => 0,
   );
 });
 

@@ -9,6 +9,18 @@ abstract class DonationRepository {
 
   Future<Either<Failure, List<DonationConfirmation>>> getMyDonations({
     int page = 1,
+    String? startDate,
+    String? endDate,
+    String? status,
+    int? chartOfAccountId,
+  });
+
+  Future<Either<Failure, List<int>>> exportDonations({
+    required String format,
+    String? startDate,
+    String? endDate,
+    int? chartOfAccountId,
+    String? status,
   });
 
   Future<Either<Failure, DonationConfirmation>> getDonationDetail(int id);

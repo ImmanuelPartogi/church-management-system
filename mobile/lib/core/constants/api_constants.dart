@@ -33,6 +33,7 @@ class ApiConstants {
   static const String churchBankAccountsEndpoint = '/church-bank-accounts';
   static const String donationConfirmEndpoint = '/donations/confirm';
   static const String myDonationsEndpoint = '/donations/my-donations';
+  static const String myDonationsExportEndpoint = '/me/donations/export';
   static String donationDetailEndpoint(int id) => '/donations/$id';
 
   static const String prayerRequestsEndpoint = '/prayer-requests';
