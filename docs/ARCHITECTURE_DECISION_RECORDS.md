@@ -19,6 +19,7 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
 | **ADR 9** | Cross-Tenant Reporting, Synod Aggregation & Atomic Cache Locks | ACCEPTED | Phase 6A |
 | **ADR 10** | Self-Service Church Registration & HMAC Signed Route Onboarding Pipeline | ACCEPTED | Phase 7 |
 | **ADR 11** | In-Memory Synod Report Export Pipeline with Zero Disk Footprint | ACCEPTED | Phase 8 |
+| **ADR 12** | Dynamic Mobile Theming per Church & 3-Tier Fallback | ACCEPTED | Phase 9 |
 
 ---
 
@@ -108,3 +109,15 @@ Dokumen ini memuat ringkasan keputusan arsitektural (ADR 1 hingga ADR 11) yang m
   - CSV dibuat di in-memory buffer `php://temp` dengan UTF-8 BOM (`\xEF\xBB\xBF`) untuk kompatibilitas langsung di Microsoft Excel.
   - Pengaman memori dinamis: `$originalMemoryLimit` dibaca dan dikonversi via `parseIniSize()`; elevasi ke 256M hanya jika diperlukan dan dipulihkan kembali pada blok `finally` (anti-leak worker context).
   - Audit log permanen `SynodDashboard.exported` mencatat otorisasi dan inisiasi penarikan data finansial sinode oleh Super Admin.
+
+### ADR 12: Dynamic Mobile Theming per Church & 3-Tier Fallback
+- **Konteks**: Setiap tenant gereja memiliki identitas visual sendiri (warna primer, warna sekunder, versi tema, logo resmi) yang harus dapat dikonfigurasi oleh `church_admin` dan `super_admin`, dipublikasikan secara aman, dan dirender dinamis di aplikasi mobile Flutter.
+- **Keputusan**:
+  - **Zero-Backfill Migration**: Kolom `theme_primary_color` (`#1B4B66`), `theme_secondary_color` (`#F5A623`), dan `theme_version` (1) ditambahkan ke tabel `churches` dengan default skema database, tanpa kebutuhan script backfill data legacy.
+  - **Auto-Increment Cache Invalidation**: Model event `updating` otomatis menaikkan `theme_version` hanya ketika kolom tema mengalami perubahan (`isDirty()`).
+  - **Otorisasi Granular & Isolasi Sesi**: `ChurchPolicy::update` tetap terkunci khusus Super Admin. Method `updateTheme` mengizinkan `church_admin` mengubah tema gereja aktifnya murni berdasarkan `app('current_church_id')` (tanpa ketergantungan pada sesi) dan verifikasi status membership aktif di database.
+  - **Deterministic Mount (Opsi a)**: Halaman `ManageChurchTheme` menggunakan route statis `/church-theme` tanpa parameter dinamis, mengevaluasi `Gate::authorize('updateTheme', $church)` saat `mount()` dan `save()`, serta menerapkan zero-trust filtering agar kolom sensitif (`slug`, `status`) tidak dapat diutak-atik.
+  - **Asymmetric Security Design (Fail-Open)**: Pewarnaan visual menerapkan prinsip *fail-open*; kesalahan storage lokal, kegagalan network, atau format hex tidak valid otomatis jatuh ke warna platform tanpa pernah melempar unhandled exception atau mengunci aplikasi.
+  - **3-Tier Mobile Fallback**: Aplikasi Flutter mengimplementasikan Riverpod `ThemeNotifier` dengan urutan: Tier 1 (Cache Lokal `SecureStorageService`) -> Tier 2 (Payload API dengan invalidasi `theme_version`) -> Tier 3 (Default Platform `#1B4B66` dan `#F5A623`).
+  - **Preservasi Identitas Lintas Logout (ADR 7.3)**: `ThemeNotifier` hanya mendengarkan `tenantProvider`. Pembersihan token saat logout tidak menghapus active church ataupun tema aktif, memastikan pengalaman *guest browsing* tetap konsisten.
+
