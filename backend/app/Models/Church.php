@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'theme_primary_color',
     'theme_secondary_color',
     'theme_version',
+    'requires_sector_verification',
 ])]
 class Church extends Model
 {
@@ -38,6 +39,7 @@ class Church extends Model
         'theme_primary_color' => '#1B4B66',
         'theme_secondary_color' => '#F5A623',
         'theme_version' => 1,
+        'requires_sector_verification' => true,
     ];
 
     /**
@@ -49,6 +51,7 @@ class Church extends Model
     {
         return [
             'theme_version' => 'integer',
+            'requires_sector_verification' => 'boolean',
         ];
     }
 

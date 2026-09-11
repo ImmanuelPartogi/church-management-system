@@ -80,10 +80,21 @@ class ChurchServantResource extends Resource
                     ->nullable()
                     ->label('Sector Assignment'),
 
+                Forms\Components\Select::make('assignedSectors')
+                    ->relationship('assignedSectors', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->label('Sektor Binaan (Sintua)')
+                    ->helperText('Pilih sektor-sektor yang dibina oleh Sintua ini untuk verifikasi sakramen.'),
+
                 Forms\Components\Select::make('fellowship_id')
                     ->relationship('fellowship', 'name')
                     ->nullable()
                     ->label('Fellowship Assignment'),
+
+                Forms\Components\Toggle::make('is_lead_pastor')
+                    ->label('Pendeta Ressort / Pimpinan Jemaat')
+                    ->helperText('Beri tanda jika pelayan ini berwenang mengesahkan sakramen pastoral.'),
 
                 Forms\Components\Textarea::make('description')
                     ->rows(3)
@@ -117,6 +128,10 @@ class ChurchServantResource extends Resource
                     ])
                     ->label('Jabatan / Pelayanan'),
 
+                Tables\Columns\IconColumn::make('is_lead_pastor')
+                    ->boolean()
+                    ->label('Lead Pastor'),
+
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
                     ->label('No. Telepon'),
@@ -148,6 +163,8 @@ class ChurchServantResource extends Resource
                     ->label('Filter Sektor'),
                 Tables\Filters\TernaryFilter::make('active')
                     ->label('Active Status'),
+                Tables\Filters\TernaryFilter::make('is_lead_pastor')
+                    ->label('Lead Pastor'),
             ])
             ->actions([
                 Actions\ViewAction::make(),

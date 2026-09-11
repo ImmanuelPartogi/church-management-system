@@ -7,6 +7,7 @@ use App\Enums\ServiceFormStatus;
 use App\Filament\Resources\ServiceFormApplicationResource\Pages;
 use App\Filament\Traits\HasModuleAccess;
 use App\Models\ServiceFormApplication;
+use App\Services\Sacrament\SacramentWorkflowService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -116,9 +117,11 @@ class ServiceFormApplicationResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
+                        'gray' => ServiceFormStatus::Draft,
                         'warning' => ServiceFormStatus::Pending,
                         'info' => ServiceFormStatus::Processing,
-                        'success' => ServiceFormStatus::Approved,
+                        'primary' => ServiceFormStatus::SectorVerified,
+                        'success' => fn ($state) => in_array($state, [ServiceFormStatus::Approved, ServiceFormStatus::PastorApproved, ServiceFormStatus::Completed]),
                         'danger' => ServiceFormStatus::Rejected,
                     ])
                     ->label('Status Workflow'),
@@ -138,11 +141,21 @@ class ServiceFormApplicationResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
+                        'draft' => 'Draft',
                         'pending' => 'Pending',
+                        'sector_verified' => 'Terverifikasi Sektor',
+                        'pastor_approved' => 'Disetujui Pendeta',
                         'processing' => 'Processing',
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
+                        'completed' => 'Completed',
                     ]),
+                Tables\Filters\TernaryFilter::make('is_sacrament')
+                    ->label('Tipe Sakramen')
+                    ->queries(
+                        true: fn ($query) => $query->whereHas('serviceFormType', fn ($q) => $q->where('is_sacrament', true)),
+                        false: fn ($query) => $query->whereHas('serviceFormType', fn ($q) => $q->where('is_sacrament', false)),
+                    ),
                 Tables\Filters\SelectFilter::make('payment_status')
                     ->options([
                         'unpaid' => 'Unpaid',
@@ -150,11 +163,12 @@ class ServiceFormApplicationResource extends Resource
                     ]),
             ])
             ->actions([
+                // Non-Sacrament Actions
                 Actions\Action::make('process')
                     ->label('Process')
                     ->icon('heroicon-o-play')
                     ->color('info')
-                    ->visible(fn (ServiceFormApplication $record) => $record->status === ServiceFormStatus::Pending)
+                    ->visible(fn (ServiceFormApplication $record) => ! $record->isSacrament() && $record->status === ServiceFormStatus::Pending)
                     ->requiresConfirmation()
                     ->action(function (ServiceFormApplication $record) {
                         $record->update([
@@ -170,7 +184,7 @@ class ServiceFormApplicationResource extends Resource
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn (ServiceFormApplication $record) => $record->status === ServiceFormStatus::Processing)
+                    ->visible(fn (ServiceFormApplication $record) => ! $record->isSacrament() && $record->status === ServiceFormStatus::Processing)
                     ->requiresConfirmation()
                     ->action(function (ServiceFormApplication $record) {
                         $record->update([
@@ -188,7 +202,7 @@ class ServiceFormApplicationResource extends Resource
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (ServiceFormApplication $record) => $record->status === ServiceFormStatus::Processing)
+                    ->visible(fn (ServiceFormApplication $record) => ! $record->isSacrament() && $record->status === ServiceFormStatus::Processing)
                     ->form([
                         Forms\Components\Textarea::make('rejection_reason')
                             ->required()
@@ -205,6 +219,114 @@ class ServiceFormApplicationResource extends Resource
                             ->title('Application Rejected')
                             ->danger()
                             ->send();
+                    }),
+
+                // Sacrament Approval Hierarchy Actions
+                Actions\Action::make('verify_sector')
+                    ->label('Verifikasi Sektor')
+                    ->icon('heroicon-o-shield-check')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Verifikasi Domisili Sektor')
+                    ->modalDescription('Apakah Anda yakin data domisili dan keanggotaan jemaat di sektor ini telah valid?')
+                    ->visible(fn (ServiceFormApplication $record) => $record->isSacrament() && $record->status === ServiceFormStatus::Pending && Auth::user()?->can('verifySector', $record))
+                    ->action(function (ServiceFormApplication $record) {
+                        try {
+                            app(SacramentWorkflowService::class)->verifySector($record, Auth::user());
+                            Notification::make()
+                                ->title('Permohonan berhasil diverifikasi oleh Sintua Sektor')
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Gagal verifikasi sektor: '.$e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+                Actions\Action::make('approve_pastoral')
+                    ->label('Pengesahan Pastoral')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\Select::make('scheduled_worship_id')
+                            ->label('Jadwal Ibadah Sakramen (Opsional)')
+                            ->relationship('scheduledWorship', 'title')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+                    ])
+                    ->visible(fn (ServiceFormApplication $record) => $record->isSacrament() && in_array($record->status, [ServiceFormStatus::SectorVerified, ServiceFormStatus::Pending]) && Auth::user()?->can('approvePastoral', $record))
+                    ->action(function (ServiceFormApplication $record, array $data) {
+                        try {
+                            app(SacramentWorkflowService::class)->approvePastoral(
+                                $record,
+                                Auth::user(),
+                                $data['scheduled_worship_id'] ?? null
+                            );
+                            Notification::make()
+                                ->title('Permohonan sakramen telah disahkan secara pastoral')
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Gagal pengesahan pastoral: '.$e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+                Actions\Action::make('reject_sacrament')
+                    ->label('Tolak Sakramen')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->form([
+                        Forms\Components\Textarea::make('rejection_reason')
+                            ->required()
+                            ->label('Alasan Penolakan Sakramen'),
+                    ])
+                    ->visible(fn (ServiceFormApplication $record) => $record->isSacrament() && in_array($record->status, [ServiceFormStatus::Pending, ServiceFormStatus::SectorVerified]) && Auth::user()?->can('rejectSacrament', $record))
+                    ->action(function (ServiceFormApplication $record, array $data) {
+                        try {
+                            app(SacramentWorkflowService::class)->reject(
+                                $record,
+                                Auth::user(),
+                                $data['rejection_reason']
+                            );
+                            Notification::make()
+                                ->title('Permohonan sakramen ditolak')
+                                ->warning()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Gagal menolak sakramen: '.$e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
+                Actions\Action::make('complete_sacrament')
+                    ->label('Selesaikan Sakramen')
+                    ->icon('heroicon-o-academic-cap')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Pelaksanaan Sakramen')
+                    ->modalDescription('Tindakan ini akan menandai sakramen selesai dan memperbarui tanggal sakramen pada profil anggota jemaat.')
+                    ->visible(fn (ServiceFormApplication $record) => $record->isSacrament() && $record->status === ServiceFormStatus::PastorApproved && Auth::user()?->can('complete', $record))
+                    ->action(function (ServiceFormApplication $record) {
+                        try {
+                            app(SacramentWorkflowService::class)->complete($record);
+                            Notification::make()
+                                ->title('Sakramen selesai dan profil jemaat diperbarui')
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Gagal menyelesaikan sakramen: '.$e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
                     }),
 
                 Actions\ViewAction::make(),

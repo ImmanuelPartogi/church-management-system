@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'description',
     'fee_amount',
     'active',
+    'is_sacrament',
 ])]
 class ServiceFormType extends Model
 {
@@ -31,6 +32,7 @@ class ServiceFormType extends Model
         return [
             'fee_amount' => 'decimal:2',
             'active' => 'boolean',
+            'is_sacrament' => 'boolean',
         ];
     }
 

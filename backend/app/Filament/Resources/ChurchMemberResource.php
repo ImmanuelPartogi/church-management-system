@@ -82,9 +82,20 @@ class ChurchMemberResource extends Resource
                     ->columnSpanFull()
                     ->label('Address'),
 
+                Forms\Components\Select::make('sector_id')
+                    ->relationship('sector', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->nullable()
+                    ->label('Sektor / Wijk'),
+
                 Forms\Components\DatePicker::make('baptism_date')
                     ->nullable()
                     ->label('Baptism Date'),
+
+                Forms\Components\DatePicker::make('sidi_date')
+                    ->nullable()
+                    ->label('Tanggal Peneguhan Sidi'),
 
                 Forms\Components\Select::make('status')
                     ->options([
@@ -125,6 +136,11 @@ class ChurchMemberResource extends Resource
                     ->searchable()
                     ->label('Email'),
 
+                Tables\Columns\TextColumn::make('sector.name')
+                    ->sortable()
+                    ->searchable()
+                    ->label('Sektor'),
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'success' => 'active',
@@ -140,6 +156,9 @@ class ChurchMemberResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('sector_id')
+                    ->relationship('sector', 'name')
+                    ->label('Filter Sektor'),
                 Tables\Filters\SelectFilter::make('gender')
                     ->options([
                         'Male' => 'Male',

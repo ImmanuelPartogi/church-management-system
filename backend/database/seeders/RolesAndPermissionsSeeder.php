@@ -76,6 +76,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view sermons',
             'view songbooks',
             'view songs',
+            'verify sectoral sacraments',
+            'approve final sacraments',
         ];
 
         foreach ($permissions as $permission) {
@@ -154,6 +156,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'view sermons',
             'view songbooks',
             'view songs',
+            'verify sectoral sacraments',
+            'approve final sacraments',
+        ]);
+
+        // Sintua: sectoral elder that verifies sacrament requests and views member/community data
+        $sintuaRole = $createRole('sintua');
+        $sintuaRole->givePermissionTo([
+            'verify sectoral sacraments',
+            'view form applications',
+            'view members',
+            'view sectors',
+            'view church servants',
         ]);
 
         // Staff: can manage schedules, announcements, daily verses, wartas, sermons, songbooks, songs and view community

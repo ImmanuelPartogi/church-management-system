@@ -20,18 +20,26 @@ class ServiceFormApplicationDetailScreen extends ConsumerWidget {
 
   StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
+    if (lower == 'draft') return StatusBadgeType.neutral;
     if (lower == 'pending') return StatusBadgeType.warning;
+    if (lower == 'processing') return StatusBadgeType.info;
+    if (lower == 'sector_verified') return StatusBadgeType.info;
+    if (lower == 'pastor_approved') return StatusBadgeType.success;
     if (lower == 'approved') return StatusBadgeType.success;
-    if (lower == 'completed') return StatusBadgeType.info;
+    if (lower == 'completed') return StatusBadgeType.success;
     if (lower == 'rejected') return StatusBadgeType.error;
     return StatusBadgeType.neutral;
   }
 
   String _getStatusLabel(String status) {
     final lower = status.toLowerCase();
-    if (lower == 'pending') return 'Pending (Sedang Diproses)';
+    if (lower == 'draft') return 'Draf Permohonan';
+    if (lower == 'pending') return 'Menunggu Verifikasi Sektor';
+    if (lower == 'processing') return 'Sedang Diproses';
+    if (lower == 'sector_verified') return 'Terverifikasi Sintua Sektor';
+    if (lower == 'pastor_approved') return 'Disahkan Pendeta Ressort';
     if (lower == 'approved') return 'Disetujui';
-    if (lower == 'completed') return 'Selesai';
+    if (lower == 'completed') return 'Sakramen Selesai';
     if (lower == 'rejected') return 'Ditolak';
     return status;
   }
@@ -125,6 +133,7 @@ class ServiceFormApplicationDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  _buildSacramentTracker(app, isDark),
                   if (app.status.toLowerCase() == 'rejected' &&
                       app.rejectionReason != null &&
                       app.rejectionReason!.isNotEmpty) ...[
@@ -329,6 +338,130 @@ class ServiceFormApplicationDetailScreen extends ConsumerWidget {
               ref.invalidate(serviceFormApplicationDetailProvider(id)),
         ),
       ),
+    );
+  }
+
+  bool _isSacramentForm(dynamic app) {
+    final slug = app.serviceFormType?.slug?.toLowerCase() ?? '';
+    final isKnownSacrament = ['baptis', 'sidi', 'nikah'].contains(slug);
+    final isSacramentStatus = [
+      'sector_verified',
+      'pastor_approved',
+    ].contains(app.status.toLowerCase());
+    return isKnownSacrament || isSacramentStatus;
+  }
+
+  Widget _buildSacramentTracker(dynamic app, bool isDark) {
+    if (!_isSacramentForm(app)) return const SizedBox.shrink();
+
+    final status = app.status.toLowerCase();
+    final isRejected = status == 'rejected';
+
+    int currentStep = 1;
+    if (status == 'draft') currentStep = 0;
+    if (status == 'pending') currentStep = 1;
+    if (status == 'sector_verified') currentStep = 2;
+    if (status == 'pastor_approved') currentStep = 3;
+    if (status == 'completed' || status == 'approved') currentStep = 4;
+
+    final steps = [
+      {'title': 'Diajukan', 'subtitle': 'Permohonan berhasil dikirim jemaat'},
+      {'title': 'Verifikasi Sektor', 'subtitle': 'Pemeriksaan domisili oleh Sintua Sektor'},
+      {'title': 'Persetujuan Pastoral', 'subtitle': 'Pengesahan doktrinal oleh Pendeta Ressort'},
+      {'title': 'Pelaksanaan Sakramen', 'subtitle': 'Sakramen dilayankan & dicatat di register'},
+    ];
+
+    return Column(
+      children: [
+        const SizedBox(height: AppSpacing.md),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.account_tree_outlined, color: AppColors.primary, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Alur Persetujuan Sakramen',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              ...List.generate(steps.length, (index) {
+                final isPassed = !isRejected && currentStep > index;
+                final isCurrent = !isRejected && currentStep == index;
+                final isFailed = isRejected && currentStep == index;
+
+                Color circleColor = Colors.grey.shade400;
+                IconData iconData = Icons.circle_outlined;
+
+                if (isPassed || (index == 0 && !isRejected)) {
+                  circleColor = AppColors.success;
+                  iconData = Icons.check_circle_rounded;
+                } else if (isCurrent) {
+                  circleColor = AppColors.primary;
+                  iconData = Icons.radio_button_checked_rounded;
+                } else if (isFailed) {
+                  circleColor = AppColors.error;
+                  iconData = Icons.cancel_rounded;
+                }
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      children: [
+                        Icon(iconData, color: circleColor, size: 22),
+                        if (index < steps.length - 1)
+                          Container(
+                            width: 2,
+                            height: 32,
+                            color: isPassed
+                                ? AppColors.success.withValues(alpha: 0.5)
+                                : Colors.grey.shade300,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              steps[index]['title']!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: (isPassed || isCurrent) ? FontWeight.bold : FontWeight.normal,
+                                color: isFailed
+                                    ? AppColors.error
+                                    : (isCurrent
+                                        ? AppColors.primary
+                                        : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight)),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              steps[index]['subtitle']!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

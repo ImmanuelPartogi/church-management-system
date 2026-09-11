@@ -21,13 +21,29 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'phone',
     'email',
     'address',
+    'sector_id',
     'baptism_date',
+    'sidi_date',
     'status',
 ])]
 class ChurchMember extends Model
 {
     /** @use HasFactory<Factory<self>> */
     use BelongsToChurch, HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'birth_date' => 'date',
+            'baptism_date' => 'date',
+            'sidi_date' => 'date',
+        ];
+    }
 
     /**
      * Get the user account associated with the member.
@@ -37,6 +53,16 @@ class ChurchMember extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the sector (wijk) this member belongs to.
+     *
+     * @return BelongsTo<Sector, $this>
+     */
+    public function sector(): BelongsTo
+    {
+        return $this->belongsTo(Sector::class);
     }
 
     /**

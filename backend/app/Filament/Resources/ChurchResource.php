@@ -119,6 +119,13 @@ class ChurchResource extends Resource
                     ->required()
                     ->label('Warna Sekunder (Aksen & Tombol)')
                     ->helperText('Rekomendasi rasio kontras WCAG AA: minimal 4.5:1 terhadap teks putih.'),
+
+                Forms\Components\Toggle::make('requires_sector_verification')
+                    ->default(true)
+                    ->required()
+                    ->label('Wajibkan Verifikasi Sektor')
+                    ->helperText('Aktifkan jika gereja ini membagi jemaat ke dalam sektor/wijk. Jika dinonaktifkan, permohonan sakramen langsung masuk ke antrean Pendeta tanpa melalui verifikasi Sintua Sektor.')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -152,6 +159,10 @@ class ChurchResource extends Resource
                     ->label('Telepon')
                     ->default('-'),
 
+                Tables\Columns\IconColumn::make('requires_sector_verification')
+                    ->boolean()
+                    ->label('Verifikasi Sektor'),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -165,6 +176,8 @@ class ChurchResource extends Resource
                         'suspended' => 'Suspended',
                     ])
                     ->label('Filter Status'),
+                Tables\Filters\TernaryFilter::make('requires_sector_verification')
+                    ->label('Verifikasi Sektor'),
             ])
             ->actions([
                 Actions\Action::make('toggleStatus')

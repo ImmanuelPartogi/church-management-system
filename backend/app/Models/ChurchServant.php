@@ -3,23 +3,28 @@
 namespace App\Models;
 
 use App\Enums\ChurchServantRole;
+use App\Observers\ChurchServantObserver;
 use App\Traits\BelongsToChurch;
 use Database\Factories\ChurchServantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property ChurchServantRole $role
+ * @property bool $is_lead_pastor
  * @property bool $active
  */
 #[Fillable([
     'member_id',
     'name',
     'role',
+    'is_lead_pastor',
     'phone',
     'email',
     'resort_id',
@@ -28,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'description',
     'active',
 ])]
+#[ObservedBy([ChurchServantObserver::class])]
 class ChurchServant extends Model
 {
     /** @use HasFactory<ChurchServantFactory> */
@@ -42,6 +48,7 @@ class ChurchServant extends Model
     {
         return [
             'role' => ChurchServantRole::class,
+            'is_lead_pastor' => 'boolean',
             'active' => 'boolean',
         ];
     }
@@ -74,6 +81,18 @@ class ChurchServant extends Model
     public function sector(): BelongsTo
     {
         return $this->belongsTo(Sector::class);
+    }
+
+    /**
+     * Get the sectors assigned to this servant (e.g. for Sintua).
+     *
+     * @return BelongsToMany<Sector, $this>
+     */
+    public function assignedSectors(): BelongsToMany
+    {
+        return $this->belongsToMany(Sector::class, 'church_servant_sectors', 'church_servant_id', 'sector_id')
+            ->withPivot('church_id')
+            ->withTimestamps();
     }
 
     /**

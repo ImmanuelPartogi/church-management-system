@@ -7,6 +7,7 @@ use App\Enums\ServiceFormStatus;
 use App\Traits\BelongsToChurch;
 use Database\Factories\ServiceFormApplicationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'payment_notes',
     'reviewed_by',
     'reviewed_at',
+    'sector_reviewed_by',
+    'sector_reviewed_at',
+    'pastor_reviewed_by',
+    'pastor_reviewed_at',
+    'scheduled_worship_id',
+    'sacrament_completed_at',
 ])]
 class ServiceFormApplication extends Model
 {
@@ -45,6 +52,9 @@ class ServiceFormApplication extends Model
             'status' => ServiceFormStatus::class,
             'payment_status' => PaymentStatus::class,
             'reviewed_at' => 'datetime',
+            'sector_reviewed_at' => 'datetime',
+            'pastor_reviewed_at' => 'datetime',
+            'sacrament_completed_at' => 'datetime',
         ];
     }
 
@@ -96,5 +106,65 @@ class ServiceFormApplication extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(ServiceFormDocument::class);
+    }
+
+    /**
+     * Get the sector reviewer (Sintua) who verified this application.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function sectorReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sector_reviewed_by');
+    }
+
+    /**
+     * Get the pastoral reviewer (Lead Pastor) who approved this application.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function pastoralReviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pastor_reviewed_by');
+    }
+
+    /**
+     * Get the worship schedule assigned for this sacrament service.
+     *
+     * @return BelongsTo<WorshipSchedule, $this>
+     */
+    public function scheduledWorship(): BelongsTo
+    {
+        return $this->belongsTo(WorshipSchedule::class, 'scheduled_worship_id');
+    }
+
+    /**
+     * Determine if this application is for a liturgical sacrament.
+     */
+    public function isSacrament(): bool
+    {
+        return (bool) ($this->serviceFormType?->is_sacrament ?? false);
+    }
+
+    /**
+     * Scope a query to only include sacrament applications.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeSacraments(Builder $query): Builder
+    {
+        return $query->whereHas('serviceFormType', fn ($q) => $q->where('is_sacrament', true));
+    }
+
+    /**
+     * Scope a query to only include standard non-sacrament form applications.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeNonSacraments(Builder $query): Builder
+    {
+        return $query->whereHas('serviceFormType', fn ($q) => $q->where('is_sacrament', false));
     }
 }

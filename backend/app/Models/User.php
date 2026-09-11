@@ -37,7 +37,7 @@ class User extends Authenticatable implements FilamentUser
             return true;
         }
 
-        $panelRoles = ['church_admin', 'pastor', 'staff', 'bendahara'];
+        $panelRoles = ['church_admin', 'pastor', 'staff', 'bendahara', 'sintua'];
 
         $teamId = app(PermissionRegistrar::class)->getPermissionsTeamId();
 

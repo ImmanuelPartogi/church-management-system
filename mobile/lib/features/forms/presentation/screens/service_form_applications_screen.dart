@@ -18,9 +18,13 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
 
   StatusBadgeType _getStatusBadgeType(String status) {
     final lower = status.toLowerCase();
+    if (lower == 'draft') return StatusBadgeType.neutral;
     if (lower == 'pending') return StatusBadgeType.warning;
+    if (lower == 'processing') return StatusBadgeType.info;
+    if (lower == 'sector_verified') return StatusBadgeType.info;
+    if (lower == 'pastor_approved') return StatusBadgeType.success;
     if (lower == 'approved') return StatusBadgeType.success;
-    if (lower == 'completed') return StatusBadgeType.info;
+    if (lower == 'completed') return StatusBadgeType.success;
     if (lower == 'rejected') return StatusBadgeType.error;
     return StatusBadgeType.neutral;
   }
@@ -28,6 +32,10 @@ class ServiceFormApplicationsScreen extends ConsumerWidget {
   String _getStatusLabel(String status) {
     final lower = status.toLowerCase();
     if (lower == 'pending') return 'Pending';
+    if (lower == 'draft') return 'Draf';
+    if (lower == 'processing') return 'Diproses';
+    if (lower == 'sector_verified') return 'Verifikasi Sektor';
+    if (lower == 'pastor_approved') return 'Disetujui Pendeta';
     if (lower == 'approved') return 'Disetujui';
     if (lower == 'completed') return 'Selesai';
     if (lower == 'rejected') return 'Ditolak';
